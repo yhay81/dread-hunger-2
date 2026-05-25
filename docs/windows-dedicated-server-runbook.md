@@ -152,6 +152,21 @@ Useful overrides:
 
 This wrapper starts a headless dedicated server with `-AbyssAutoReady`, launches five `UnrealEditor.exe -game` clients, and fails unless the server JSONL records `role_assignment_complete` with `players=5`, `saboteurs=1`, plus `match_started`.
 
+When boot, client join, and ready-lobby behavior are understood, run the Phase 2 entry orchestration wrapper:
+
+```powershell
+.\Tools\windows\run_phase2_entry_validation.ps1 `
+  -SkipGenerate `
+  -ServerExe ".\Binaries\Win64\AbyssLockServer.exe" `
+  -ServerConfig ".\Saved\Config\server_config.local.json" `
+  -Port 7777 `
+  -Clients 5 `
+  -ExpectedPlayers 5 `
+  -ExpectedSaboteurs 1
+```
+
+The wrapper writes `Saved\Phase2EntryValidation\<timestamp>\manifest.json` with links to the child validation outputs.
+
 ## Ports And Firewall
 
 Concrete public-server port policy is TBD until the Windows server target is verified and Steam networking decisions are made.

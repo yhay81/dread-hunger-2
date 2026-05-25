@@ -14,7 +14,7 @@ Phase 2 adds Steam-facing systems after Windows dedicated-server evidence exists
 ## Sequence
 
 1. Validate Windows dedicated server.
-   Run the boot, client-join, and ready-lobby scripts from `Tools/windows/`. Record server JSONL evidence and the filled Windows validation template.
+   Run the boot, client-join, and ready-lobby scripts from `Tools/windows/`, or use `Tools/windows/run_phase2_entry_validation.ps1` once the server target exists. Record server JSONL evidence and the filled Windows validation template.
 
 2. Enable Steam only behind dev gates.
    Add a development-only Steam config path and document how to switch it on. Phase 1 local gates must keep working with Null/LAN assumptions.
@@ -53,4 +53,3 @@ Phase 2 adds Steam-facing systems after Windows dedicated-server evidence exists
 - Full official fleet autoscaling.
 - Runtime-generated AI content.
 - Custom voice transport.
-

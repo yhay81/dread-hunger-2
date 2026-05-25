@@ -81,6 +81,12 @@ If `AbyssLockServer` exists, run:
 
 Record the output folder and `log_summary.json` result while keeping raw logs under ignored `Saved\DedicatedServerValidation\`, `Saved\DedicatedClientJoinValidation\`, or `Saved\DedicatedReadyValidation\`.
 
+After these pass, run the Phase 2 entry wrapper and fill `docs\windows-phase2-entry-template.md`:
+
+```powershell
+.\Tools\windows\run_phase2_entry_validation.ps1 -SkipGenerate
+```
+
 ## Smoke Suite Summary
 
 After a suite run, export Markdown:

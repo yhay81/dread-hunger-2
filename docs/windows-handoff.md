@@ -72,6 +72,14 @@ The first local dedicated-server boot probe is:
 .\Tools\windows\run_dedicated_ready_validation.ps1
 ```
 
+Once those commands are understood, the Phase 2 entry wrapper runs the Windows validation and all dedicated entry probes in sequence:
+
+```powershell
+.\Tools\windows\run_phase2_entry_validation.ps1 -SkipGenerate
+```
+
+Record that result with [Windows Phase 2 Entry Template](windows-phase2-entry-template.md).
+
 ## Project Files
 
 Generate Visual Studio files with either the Unreal shell integration or:
@@ -139,5 +147,6 @@ The first recommended evaluation package is the free `Modular Ship Interior Envi
 2. Run `py -3 Tools\unreal_gate.py --skip-generate --platform Win64 --include-server`.
 3. Fill [Windows Validation Template](windows-validation-template.md). If server build passes, record the result in a new cycle. If it is blocked, document whether a UE source build is required on Windows.
 4. Run the dedicated-server boot, client-join, and ready-lobby probes.
-5. Run `qa-bot`, `match-timer`, `life-action`, `combined5`, and `ready8` smoke profiles.
-6. Only after those pass, proceed to the visual POC or P1-024 human playtest.
+5. Run `.\Tools\windows\run_phase2_entry_validation.ps1 -SkipGenerate` and fill [Windows Phase 2 Entry Template](windows-phase2-entry-template.md).
+6. Run `qa-bot`, `match-timer`, `life-action`, `combined5`, and `ready8` smoke profiles if they were not included in the wrapper.
+7. Only after those pass, proceed to Steam dev config, the visual POC, or P1-024 human playtest.

@@ -14,6 +14,14 @@ pwsh -File Tools\windows\run_dedicated_client_join_validation.ps1
 pwsh -File Tools\windows\run_dedicated_ready_validation.ps1
 ```
 
+After the individual probes are understood, prefer the Phase 2 entry wrapper for repeatable evidence:
+
+```powershell
+pwsh -File Tools\windows\run_phase2_entry_validation.ps1 -SkipGenerate -Clients 5 -ExpectedPlayers 5 -ExpectedSaboteurs 1
+```
+
+The wrapper writes `Saved\Phase2EntryValidation\<timestamp>\manifest.json` and references the child `Saved\WindowsValidation`, `Saved\DedicatedServerValidation`, `Saved\DedicatedClientJoinValidation`, and `Saved\DedicatedReadyValidation` outputs.
+
 Expected dedicated ready-lobby evidence:
 
 - `session_started`
@@ -63,4 +71,3 @@ Do not store role state, inventory, health, sabotage state, or match authority i
 - Steam Lobby join reaches the same server-authoritative match flow.
 - Generated logs are summarized by `Tools/log_summary.py`.
 - The result is recorded in a cycle file and Windows validation note.
-

@@ -50,6 +50,31 @@ After the single-client join passes, run the 5-player ready-lobby dedicated prob
 
 Use `-ServerExe`, `-ServerConfig`, or `-UeRoot` if your build output, config path, or Unreal install path differs from the defaults.
 
+## Phase 2 Entry
+
+After the Windows clone can build the server target, this wrapper runs the first validation set and all dedicated entry probes in order:
+
+```powershell
+.\Tools\windows\run_phase2_entry_validation.ps1 -SkipGenerate
+```
+
+Common override shape:
+
+```powershell
+.\Tools\windows\run_phase2_entry_validation.ps1 `
+  -UeRoot "D:\Epic Games\UE_5.7" `
+  -SkipGenerate `
+  -ServerExe ".\Binaries\Win64\AbyssLockServer.exe" `
+  -ServerConfig ".\Saved\Config\server_config.local.json" `
+  -Port 7777 `
+  -Clients 5 `
+  -ExpectedPlayers 5 `
+  -ExpectedSaboteurs 1 `
+  -IncludeSmoke
+```
+
+Add `-IncludeSmoke` if the Phase 1 listen-server smoke set should run in the same command. Record the result in `docs\windows-phase2-entry-template.md` or a new cycle record.
+
 ## Output
 
-First-run validation output is written under ignored `Saved\WindowsValidation\`. Dedicated-server probe output is written under ignored `Saved\DedicatedServerValidation\`, `Saved\DedicatedClientJoinValidation\`, or `Saved\DedicatedReadyValidation\`. Copy the key pass/fail lines into `docs/windows-validation-template.md` or a new cycle record. Do not commit generated logs.
+First-run validation output is written under ignored `Saved\WindowsValidation\`. Dedicated-server probe output is written under ignored `Saved\DedicatedServerValidation\`, `Saved\DedicatedClientJoinValidation\`, or `Saved\DedicatedReadyValidation\`. Phase 2 entry wrapper output is written under ignored `Saved\Phase2EntryValidation\` with `summary.txt`, `manifest.json`, and per-step logs. Copy the key pass/fail lines into `docs/windows-validation-template.md`, `docs/windows-phase2-entry-template.md`, or a new cycle record. Do not commit generated logs.

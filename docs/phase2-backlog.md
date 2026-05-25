@@ -8,8 +8,8 @@ Do not start public server browser work until the Windows dedicated server can b
 
 | ID | Task | Done When |
 | --- | --- | --- |
-| P2-001 | Confirm Phase 2 entry gates | Windows clone records `quality_gate.py --require-ue`, `unreal_gate.py --platform Win64 --include-server`, dedicated-server boot, client-join, ready-lobby, and key smoke profile evidence in a cycle file |
-| P2-005 | Dedicated server client-join validation | `Tools/windows/run_dedicated_client_join_validation.ps1` and `Tools/windows/run_dedicated_ready_validation.ps1` pass on Windows with server JSONL evidence, 5 client connections, role assignment, and ready-lobby match start |
+| P2-001 | Confirm Phase 2 entry gates | Windows clone records `Tools/windows/run_phase2_entry_validation.ps1` output, `quality_gate.py --require-ue`, `unreal_gate.py --platform Win64 --include-server`, dedicated-server boot, client-join, ready-lobby, and key smoke profile evidence in a cycle file |
+| P2-005 | Dedicated server client-join validation | `Tools/windows/run_dedicated_client_join_validation.ps1`, `Tools/windows/run_dedicated_ready_validation.ps1`, or the phase entry wrapper pass on Windows with server JSONL evidence, 5 client connections, role assignment, and ready-lobby match start |
 
 ## Steam Lobby
 
@@ -48,4 +48,3 @@ Do not start public server browser work until the Windows dedicated server can b
 | --- | --- | --- |
 | P2-014 | Voice Chat Interface provider spike | Unreal Voice Chat Interface provider choice is recorded with setup steps, cost/licensing constraints, mute/block behavior, and Windows test command |
 | P2-015 | Proximity voice gameplay acceptance | 5-8 player test confirms distance falloff, wall/room attenuation decision, dead/downed/contained voice rules, mute/block UX, and no external chat-service dependency in the play loop |
-

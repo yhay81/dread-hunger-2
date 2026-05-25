@@ -41,6 +41,7 @@ This repository is the research and prototype workspace. The immediate goal is n
 - [QA Plan](docs/qa-plan.md)
 - [Windows Handoff](docs/windows-handoff.md)
 - [Windows Validation Template](docs/windows-validation-template.md)
+- [Windows Phase 2 Entry Template](docs/windows-phase2-entry-template.md)
 - [Windows Dedicated Server Runbook](docs/windows-dedicated-server-runbook.md)
 - [Playtest Data And Moderation](docs/playtest-data-and-moderation.md)
 - [Art Bible](docs/art-bible.md)
