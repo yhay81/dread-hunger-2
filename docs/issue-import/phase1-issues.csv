@@ -25,7 +25,7 @@ Validation evidence:
 
 Done when:
 
-C++ scaffold builds; match phase, start, end, and role events are covered by smoke logs; timer-driven match end pending
+C++ scaffold builds; match phase, start, end, timer expiry, and role events are covered by smoke logs; UI timer polish pending
 
 Validation evidence:
 
@@ -157,7 +157,7 @@ P1-015: Add saboteur win condition,"Source: `docs/phase1-backlog.md`
 
 Done when:
 
-5-player local smoke drives a critical ship system to zero through sabotage and ends with saboteur win; timer hook pending
+5-player local smoke drives a critical ship system to zero through sabotage and ends with saboteur win; `match-timer` smoke validates timer expiry as a saboteur win
 
 Validation evidence:
 
@@ -212,7 +212,7 @@ P1-020: Add down/rescue loop,"Source: `docs/phase1-backlog.md`
 
 Done when:
 
-Server-authoritative damage/down/rescue scaffold logs `player_downed` and `player_rescued` in local smoke; interaction-based rescue pending
+Server-authoritative damage/down/rescue scaffold logs `player_downed` and `player_rescued`; `life-action` smoke validates interactable rescue through `AAbyssLifeActionActor`
 
 Validation evidence:
 
@@ -223,7 +223,7 @@ P1-021: Add containment loop,"Source: `docs/phase1-backlog.md`
 
 Done when:
 
-Server-authoritative contain/release scaffold logs `player_contained` and `player_released` in local smoke; interaction-based containment pending
+Server-authoritative contain/release scaffold logs `player_contained` and `player_released`; `life-action` smoke validates interactable contain and release through `AAbyssLifeActionActor`
 
 Validation evidence:
 
@@ -245,7 +245,7 @@ P1-023: Add log summary script,"Source: `docs/phase1-backlog.md`
 
 Done when:
 
-`Tools/log_summary.py` counts run/build/map/profile metadata, duration, match duration, match start/end, final approach, connection lifecycle, damage, deaths, down/rescue, contain/release, disconnects, errors, events, role assignment, repair/sabotage task counts, last match winner/reason, bulkhead lock smoke counters, flooding pressure/pump smoke counters, PvE enemy/damage smoke counters, item pickup/drop smoke counters, combined systems smoke counters, QA bot smoke counters, QA player-bot smoke counters, and QA task-bot smoke counters; `Tools/ue/run_smoke_suite.py` aggregates profile summaries; `Tools/ue/export_smoke_suite_markdown.py` exports evidence tables; heavy suite and 8-player combined evidence exist
+`Tools/log_summary.py` counts run/build/map/profile metadata, duration, match duration, match start/end, final approach, connection lifecycle, damage, deaths, down/rescue, contain/release, life-action interactions/smoke pass, disconnects, errors, events, role assignment, repair/sabotage task counts, last match winner/reason, bulkhead lock smoke counters, flooding pressure/pump smoke counters, PvE enemy/damage smoke counters, item pickup/drop smoke counters, combined systems smoke counters, QA bot smoke counters, QA player-bot smoke counters, and QA task-bot smoke counters; `Tools/ue/run_smoke_suite.py` aggregates profile summaries; `Tools/ue/export_smoke_suite_markdown.py` exports evidence tables; heavy suite and 8-player combined evidence exist
 
 Validation evidence:
 
@@ -333,7 +333,7 @@ P1-031: Resume on Windows workstation,"Source: `docs/phase1-backlog.md`
 
 Done when:
 
-Windows clone passes `quality_gate.py --require-ue`, `unreal_gate.py --platform Win64 --include-server`, and at least `qa-bot`, `combined5`, and `ready8` smoke profiles; `docs/windows-validation-template.md` is filled into a new cycle or dated result note; server-target result is recorded
+Windows clone passes `quality_gate.py --require-ue`, `unreal_gate.py --platform Win64 --include-server`, and at least `qa-bot`, `match-timer`, `life-action`, `combined5`, and `ready8` smoke profiles; `docs/windows-validation-template.md` is filled into a new cycle or dated result note; server-target result is recorded
 
 Validation evidence:
 

@@ -27,6 +27,8 @@ git lfs status
 py -3 Tools\quality_gate.py --require-ue
 py -3 Tools\unreal_gate.py --skip-generate --platform Win64 --include-server
 py -3 Tools\ue\run_local_smoke.py --profile qa-bot --skip-build --null-rhi --platform Win64
+py -3 Tools\ue\run_local_smoke.py --profile match-timer --skip-build --null-rhi --platform Win64
+py -3 Tools\ue\run_local_smoke.py --profile life-action --skip-build --null-rhi --platform Win64
 py -3 Tools\ue\run_local_smoke.py --profile combined5 --skip-build --null-rhi --platform Win64
 py -3 Tools\ue\run_local_smoke.py --profile ready8 --skip-build --null-rhi --platform Win64
 py -3 Tools\ue\run_smoke_suite.py --skip-build --null-rhi --platform Win64
@@ -44,10 +46,12 @@ py -3 Tools\ue\run_smoke_suite.py --include-heavy --skip-build --null-rhi --plat
 | Game Win64 build | pass / fail | `Tools\unreal_gate.py` output |  |
 | Server Win64 build | pass / blocked / fail | `Tools\unreal_gate.py` output | If blocked, record Launcher vs source build |
 | `qa-bot` | pass / fail | `Saved\SmokeTests\...` |  |
+| `match-timer` | pass / fail | `Saved\SmokeTests\...` | Expected saboteur win by `timer_expired` |
+| `life-action` | pass / fail | `Saved\SmokeTests\...` | Expected 3 life-action interactions |
 | `combined5` | pass / fail | `Saved\SmokeTests\...` |  |
 | `ready8` | pass / fail | `Saved\SmokeTests\...` | Expected `8p/2s` |
-| Quick suite | pass / fail | `Saved\SmokeSuites\...` |  |
-| Heavy suite | pass / fail | `Saved\SmokeSuites\...` |  |
+| Quick suite | pass / fail | `Saved\SmokeSuites\...` | Covers `qa-bot`, `qa-player-bot`, and `match-timer` |
+| Heavy suite | pass / fail | `Saved\SmokeSuites\...` | Appends `qa-task-bot`, `life-action`, `combined5`, `ready8`, and `combined8` |
 
 ## Server Target Finding
 

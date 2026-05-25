@@ -8,6 +8,7 @@ Use this after `AbyssLockServer` builds on the Windows workstation. This runbook
 - Server executable: `AbyssLockServer` after a successful Win64 server build.
 - Current map: `L_IcebreakerWhitebox`.
 - Current online layer: Phase 1 still uses `OnlineSubsystemNull` and LAN/listen-server style validation.
+- Current gameplay telemetry covers match timer expiry and interactable rescue, containment, and release in listen-server smokes; dedicated-server validation must confirm the same JSONL event path works when the server is headless.
 - Steam Lobby, Steam Server Browser, Steam Game Servers API, Steam Datagram Relay, SteamCMD Tool App distribution, and public server discovery are Phase 2+ work.
 
 ## Build Gate

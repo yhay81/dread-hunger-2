@@ -26,7 +26,7 @@ After Editor, Game, and Server validation are understood:
 .\Tools\windows\run_first_validation.ps1 -SkipGenerate -IncludeSmoke
 ```
 
-Use `-IncludeHeavySmoke` only after the quick smoke path is stable.
+`-IncludeSmoke` runs `qa-bot`, `match-timer`, `life-action`, `combined5`, `ready8`, and the quick smoke suite. Use `-IncludeHeavySmoke` only after that path is stable.
 
 ## Output
 

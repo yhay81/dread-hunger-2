@@ -43,6 +43,18 @@ function Invoke-Logged {
     Write-Host "[PASS] $Name"
 }
 
+function Add-UeRootArgs {
+    param(
+        [string[]]$Command
+    )
+
+    if ($UeRoot -and $UeRoot.Length -gt 0) {
+        return [string[]]($Command + @("--ue-root", $UeRoot))
+    }
+
+    return $Command
+}
+
 Push-Location $RepoRoot
 try {
     Invoke-Logged "check_prereqs" @("powershell", "-ExecutionPolicy", "Bypass", "-File", "Tools\windows\check_prereqs.ps1")
@@ -60,13 +72,16 @@ try {
     Invoke-Logged "unreal_gate_win64" $UnrealCommand
 
     if ($IncludeSmoke) {
-        Invoke-Logged "smoke_qa_bot" @("py", "-3", "Tools\ue\run_local_smoke.py", "--profile", "qa-bot", "--skip-build", "--null-rhi", "--platform", "Win64")
-        Invoke-Logged "smoke_combined5" @("py", "-3", "Tools\ue\run_local_smoke.py", "--profile", "combined5", "--skip-build", "--null-rhi", "--platform", "Win64")
-        Invoke-Logged "smoke_ready8" @("py", "-3", "Tools\ue\run_local_smoke.py", "--profile", "ready8", "--skip-build", "--null-rhi", "--platform", "Win64")
+        Invoke-Logged "smoke_qa_bot" (Add-UeRootArgs -Command @("py", "-3", "Tools\ue\run_local_smoke.py", "--profile", "qa-bot", "--skip-build", "--null-rhi", "--platform", "Win64"))
+        Invoke-Logged "smoke_match_timer" (Add-UeRootArgs -Command @("py", "-3", "Tools\ue\run_local_smoke.py", "--profile", "match-timer", "--skip-build", "--null-rhi", "--platform", "Win64"))
+        Invoke-Logged "smoke_life_action" (Add-UeRootArgs -Command @("py", "-3", "Tools\ue\run_local_smoke.py", "--profile", "life-action", "--skip-build", "--null-rhi", "--platform", "Win64"))
+        Invoke-Logged "smoke_combined5" (Add-UeRootArgs -Command @("py", "-3", "Tools\ue\run_local_smoke.py", "--profile", "combined5", "--skip-build", "--null-rhi", "--platform", "Win64"))
+        Invoke-Logged "smoke_ready8" (Add-UeRootArgs -Command @("py", "-3", "Tools\ue\run_local_smoke.py", "--profile", "ready8", "--skip-build", "--null-rhi", "--platform", "Win64"))
+        Invoke-Logged "smoke_suite_quick" (Add-UeRootArgs -Command @("py", "-3", "Tools\ue\run_smoke_suite.py", "--skip-build", "--null-rhi", "--platform", "Win64"))
     }
 
     if ($IncludeHeavySmoke) {
-        Invoke-Logged "smoke_suite_heavy" @("py", "-3", "Tools\ue\run_smoke_suite.py", "--include-heavy", "--skip-build", "--null-rhi", "--platform", "Win64")
+        Invoke-Logged "smoke_suite_heavy" (Add-UeRootArgs -Command @("py", "-3", "Tools\ue\run_smoke_suite.py", "--include-heavy", "--skip-build", "--null-rhi", "--platform", "Win64"))
     }
 
     $SummaryPath = Join-Path $OutDir "summary.txt"

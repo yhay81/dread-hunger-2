@@ -1,6 +1,6 @@
 # Windows Handoff
 
-Current as of 2026-05-25 JST. Mac development is frozen after cycle 37; continue development on a Windows machine from `main`.
+Current as of 2026-05-25 JST, after cycle 52. Production implementation resumes on a Windows machine from `main`; Mac work should stay limited to docs, backend/tools, and listen-server validation until the Windows clone records fresh Win64 evidence.
 
 ## Decision
 
@@ -51,7 +51,7 @@ The same first-run path is also wrapped as PowerShell helpers:
 .\Tools\windows\run_first_validation.ps1 -SkipGenerate
 ```
 
-Add `-UeRoot "D:\Epic Games\UE_5.7"` if Unreal is not installed in a default Epic path. Add `-IncludeSmoke` only after the first Editor/Game/Server result is understood.
+Add `-UeRoot "D:\Epic Games\UE_5.7"` if Unreal is not installed in a default Epic path. Add `-IncludeSmoke` only after the first Editor/Game/Server result is understood; it runs `qa-bot`, `match-timer`, `life-action`, `combined5`, `ready8`, and the quick smoke suite. Add `-IncludeHeavySmoke` after the quick path is stable.
 
 Expected result:
 
@@ -79,11 +79,15 @@ After Editor/Game builds pass:
 
 ```powershell
 py -3 Tools\ue\run_local_smoke.py --profile qa-bot --skip-build --null-rhi --platform Win64
+py -3 Tools\ue\run_local_smoke.py --profile match-timer --skip-build --null-rhi --platform Win64
+py -3 Tools\ue\run_local_smoke.py --profile life-action --skip-build --null-rhi --platform Win64
 py -3 Tools\ue\run_local_smoke.py --profile combined5 --skip-build --null-rhi --platform Win64
 py -3 Tools\ue\run_local_smoke.py --profile ready8 --skip-build --null-rhi --platform Win64
 py -3 Tools\ue\run_smoke_suite.py --skip-build --null-rhi --platform Win64
 py -3 Tools\ue\run_smoke_suite.py --include-heavy --skip-build --null-rhi --platform Win64
 ```
+
+The quick suite currently covers `qa-bot`, `qa-player-bot`, and `match-timer`. The heavy suite appends `qa-task-bot`, `life-action`, `combined5`, `ready8`, and `combined8`.
 
 The known good Mac evidence before handoff was the heavy listen-server smoke suite recorded in `docs/phase1-milestone-report.md`. The Windows clone should recreate fresh `Saved/SmokeTests` or `Saved/SmokeSuites` evidence locally; those generated folders stay ignored.
 
@@ -125,5 +129,5 @@ The first recommended evaluation package is the free `Modular Ship Interior Envi
 1. Clone and run `py -3 Tools\quality_gate.py --require-ue`.
 2. Run `py -3 Tools\unreal_gate.py --skip-generate --platform Win64 --include-server`.
 3. Fill [Windows Validation Template](windows-validation-template.md). If server build passes, record the result in a new cycle. If it is blocked, document whether a UE source build is required on Windows.
-4. Run `qa-bot`, `combined5`, and `ready8` smoke profiles.
+4. Run `qa-bot`, `match-timer`, `life-action`, `combined5`, and `ready8` smoke profiles.
 5. Only after those pass, proceed to the visual POC or P1-024 human playtest.
