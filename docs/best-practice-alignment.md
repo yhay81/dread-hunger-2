@@ -36,7 +36,7 @@ The core approach is aligned:
 
 | Area | Current Decision | Improvement |
 | --- | --- | --- |
-| Dedicated server validation | Boot and client-join probes exist | Run both on the Windows workstation and record summarized evidence before Steam server discovery work |
+| Dedicated server validation | Boot, client-join, and ready-lobby probes exist | Run all three on the Windows workstation and record summarized evidence before Steam server discovery work |
 | Steam Tool App | Tool App is planned | Phase 3 gate must include Dedicated Server Redistributables, `steam_appid.txt`, depot upload, release checklist, and anonymous SteamCMD download verification |
 | SDR | Phase 3/4 implementation | Add Phase 2 design spike to choose Hosted Dedicated Server, FakeIP, or known data center flow before public server browser work |
 | Voice | Steam Voice or Unreal Voice Chat Interface | Prefer Unreal Voice Chat Interface with EOS Voice/Vivox-style provider; keep Steam Voice as Steam-only fallback |

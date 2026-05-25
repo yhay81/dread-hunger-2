@@ -105,6 +105,7 @@ try {
         "-NoLiveCoding",
         "-nop4",
         "-ServerConfig=$ResolvedServerConfig",
+        "-AbyssEventLog=$EventLog",
         "-AbyssRunId=$RunId",
         "-AbyssBuildId=$BuildId",
         "-AbyssMapId=$Map",

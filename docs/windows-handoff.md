@@ -69,6 +69,7 @@ The first local dedicated-server boot probe is:
 ```powershell
 .\Tools\windows\run_dedicated_server_validation.ps1
 .\Tools\windows\run_dedicated_client_join_validation.ps1
+.\Tools\windows\run_dedicated_ready_validation.ps1
 ```
 
 ## Project Files
@@ -137,5 +138,6 @@ The first recommended evaluation package is the free `Modular Ship Interior Envi
 1. Clone and run `py -3 Tools\quality_gate.py --require-ue`.
 2. Run `py -3 Tools\unreal_gate.py --skip-generate --platform Win64 --include-server`.
 3. Fill [Windows Validation Template](windows-validation-template.md). If server build passes, record the result in a new cycle. If it is blocked, document whether a UE source build is required on Windows.
-4. Run `qa-bot`, `match-timer`, `life-action`, `combined5`, and `ready8` smoke profiles.
-5. Only after those pass, proceed to the visual POC or P1-024 human playtest.
+4. Run the dedicated-server boot, client-join, and ready-lobby probes.
+5. Run `qa-bot`, `match-timer`, `life-action`, `combined5`, and `ready8` smoke profiles.
+6. Only after those pass, proceed to the visual POC or P1-024 human playtest.

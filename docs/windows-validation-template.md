@@ -61,6 +61,7 @@ Launcher UE or source UE:
 Exact error if blocked/failed:
 Dedicated server validation wrapper:
 Dedicated client join wrapper:
+Dedicated ready-lobby wrapper:
 Decision:
 ```
 
@@ -75,9 +76,10 @@ If `AbyssLockServer` exists, run:
 ```powershell
 .\Tools\windows\run_dedicated_server_validation.ps1
 .\Tools\windows\run_dedicated_client_join_validation.ps1
+.\Tools\windows\run_dedicated_ready_validation.ps1
 ```
 
-Record the output folder and `log_summary.json` result while keeping raw logs under ignored `Saved\DedicatedServerValidation\` or `Saved\DedicatedClientJoinValidation\`.
+Record the output folder and `log_summary.json` result while keeping raw logs under ignored `Saved\DedicatedServerValidation\`, `Saved\DedicatedClientJoinValidation\`, or `Saved\DedicatedReadyValidation\`.
 
 ## Smoke Suite Summary
 

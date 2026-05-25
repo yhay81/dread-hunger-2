@@ -42,8 +42,14 @@ Then run the dedicated-server client join probe:
 .\Tools\windows\run_dedicated_client_join_validation.ps1
 ```
 
+After the single-client join passes, run the 5-player ready-lobby dedicated probe:
+
+```powershell
+.\Tools\windows\run_dedicated_ready_validation.ps1
+```
+
 Use `-ServerExe`, `-ServerConfig`, or `-UeRoot` if your build output, config path, or Unreal install path differs from the defaults.
 
 ## Output
 
-First-run validation output is written under ignored `Saved\WindowsValidation\`. Dedicated-server probe output is written under ignored `Saved\DedicatedServerValidation\` or `Saved\DedicatedClientJoinValidation\`. Copy the key pass/fail lines into `docs/windows-validation-template.md` or a new cycle record. Do not commit generated logs.
+First-run validation output is written under ignored `Saved\WindowsValidation\`. Dedicated-server probe output is written under ignored `Saved\DedicatedServerValidation\`, `Saved\DedicatedClientJoinValidation\`, or `Saved\DedicatedReadyValidation\`. Copy the key pass/fail lines into `docs/windows-validation-template.md` or a new cycle record. Do not commit generated logs.
