@@ -2,7 +2,7 @@
 
 Generated from `docs/phase1-backlog.md`.
 
-| ID | Week | Title | Labels |
+| ID | Section | Title | Labels |
 | --- | --- | --- | --- |
 | P1-001 | Week 1 | Open generated UE project and commit engine-generated project metadata intentionally | `phase-1,week-1,prototype` |
 | P1-002 | Week 1 | Add replicated character movement baseline | `phase-1,week-1,prototype` |

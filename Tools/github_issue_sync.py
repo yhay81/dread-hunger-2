@@ -70,7 +70,7 @@ def filter_new_specs(specs: list[IssueSpec], existing_titles: set[str]) -> list[
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Dry-run or create GitHub issues from docs/issue-import CSV.")
-    parser.add_argument("--csv", type=Path, default=DEFAULT_CSV, help="Issue import CSV path.")
+    parser.add_argument("--csv", type=Path, default=DEFAULT_CSV, help="Issue import CSV path. Defaults to Phase 1.")
     parser.add_argument("--check-existing", action="store_true", help="Skip titles that already exist in GitHub issues.")
     parser.add_argument("--create", action="store_true", help="Actually run gh issue create. Default only prints commands.")
     parser.add_argument("--json", action="store_true", help="Print planned commands as JSON instead of shell commands.")

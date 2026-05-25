@@ -9,18 +9,30 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_BACKLOG = ROOT / "docs" / "phase1-backlog.md"
 DEFAULT_OUT_DIR = ROOT / "docs" / "issue-import"
-ROW_PATTERN = re.compile(r"^\|\s*(P1-\d{3})\s*\|\s*(.*?)\s*\|\s*(.*?)\s*\|$")
-WEEK_PATTERN = re.compile(r"^##\s+(Week\s+\d+|Milestone Checkpoint)$")
+ROW_PATTERN = re.compile(r"^\|\s*([A-Z]+\d+-\d{3})\s*\|\s*(.*?)\s*\|\s*(.*?)\s*\|$")
+SECTION_PATTERN = re.compile(r"^##\s+(.+?)\s*$")
+
+
+def default_backlog_path(phase: int) -> Path:
+    return ROOT / "docs" / f"phase{phase}-backlog.md"
+
+
+def slug_label(value: str) -> str:
+    slug = re.sub(r"[^a-z0-9]+", "-", value.lower()).strip("-")
+    return slug or "unsorted"
 
 
 @dataclass(frozen=True)
 class IssueRow:
     issue_id: str
-    week: str
+    section: str
     task: str
     done_when: str
+    phase: int
+    source_path: Path
+    milestone: str
+    base_label: str
 
     @property
     def title(self) -> str:
@@ -28,14 +40,14 @@ class IssueRow:
 
     @property
     def labels(self) -> str:
-        label_week = self.week.lower().replace(" ", "-")
-        return f"phase-1,{label_week},prototype"
+        return f"phase-{self.phase},{slug_label(self.section)},{self.base_label}"
 
     @property
     def body(self) -> str:
+        source = self.source_path.relative_to(ROOT).as_posix()
         return "\n".join(
             [
-                f"Source: `docs/phase1-backlog.md`",
+                f"Source: `{source}`",
                 "",
                 "Done when:",
                 "",
@@ -50,20 +62,40 @@ class IssueRow:
         )
 
 
-def parse_backlog(path: Path) -> list[IssueRow]:
+def parse_backlog(
+    path: Path,
+    *,
+    phase: int,
+    id_prefix: str,
+    milestone: str,
+    base_label: str,
+) -> list[IssueRow]:
     rows: list[IssueRow] = []
-    current_week = "Phase 1"
+    current_section = milestone
     for line in path.read_text(encoding="utf-8").splitlines():
-        week_match = WEEK_PATTERN.match(line)
-        if week_match:
-            current_week = week_match.group(1)
+        section_match = SECTION_PATTERN.match(line)
+        if section_match:
+            current_section = section_match.group(1)
             continue
 
         row_match = ROW_PATTERN.match(line)
         if not row_match:
             continue
         issue_id, task, done_when = row_match.groups()
-        rows.append(IssueRow(issue_id=issue_id, week=current_week, task=task, done_when=done_when))
+        if not issue_id.startswith(id_prefix):
+            continue
+        rows.append(
+            IssueRow(
+                issue_id=issue_id,
+                section=current_section,
+                task=task,
+                done_when=done_when,
+                phase=phase,
+                source_path=path,
+                milestone=milestone,
+                base_label=base_label,
+            )
+        )
     return rows
 
 
@@ -78,46 +110,59 @@ def write_csv(rows: list[IssueRow], path: Path) -> None:
                     "title": row.title,
                     "body": row.body,
                     "labels": row.labels,
-                    "milestone": "Phase 1",
+                    "milestone": row.milestone,
                 }
             )
 
 
-def write_markdown(rows: list[IssueRow], path: Path) -> None:
+def write_markdown(rows: list[IssueRow], path: Path, *, phase: int, source_path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
+    source = source_path.relative_to(ROOT).as_posix()
     lines = [
-        "# Phase 1 Issue Import",
+        f"# Phase {phase} Issue Import",
         "",
-        "Generated from `docs/phase1-backlog.md`.",
+        f"Generated from `{source}`.",
         "",
-        "| ID | Week | Title | Labels |",
+        "| ID | Section | Title | Labels |",
         "| --- | --- | --- | --- |",
     ]
     for row in rows:
-        lines.append(f"| {row.issue_id} | {row.week} | {row.task} | `{row.labels}` |")
+        lines.append(f"| {row.issue_id} | {row.section} | {row.task} | `{row.labels}` |")
     lines.append("")
     path.write_text("\n".join(lines), encoding="utf-8")
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Export Phase 1 backlog rows as GitHub issue import files.")
-    parser.add_argument("--backlog", default=str(DEFAULT_BACKLOG), help="Backlog Markdown path.")
+    parser = argparse.ArgumentParser(description="Export phase backlog rows as GitHub issue import files.")
+    parser.add_argument("--phase", type=int, default=1, help="Phase number used for default paths, labels, and milestone.")
+    parser.add_argument("--backlog", help="Backlog Markdown path. Defaults to docs/phaseN-backlog.md.")
     parser.add_argument("--out-dir", default=str(DEFAULT_OUT_DIR), help="Output directory.")
+    parser.add_argument("--id-prefix", help="Issue id prefix. Defaults to PN- for the selected phase.")
+    parser.add_argument("--milestone", help="GitHub milestone name. Defaults to Phase N.")
+    parser.add_argument("--base-label", default="prototype", help="Additional base label added to every exported issue.")
     args = parser.parse_args()
 
-    backlog = Path(args.backlog)
+    backlog = Path(args.backlog) if args.backlog else default_backlog_path(args.phase)
     if not backlog.is_absolute():
         backlog = ROOT / backlog
     out_dir = Path(args.out_dir)
     if not out_dir.is_absolute():
         out_dir = ROOT / out_dir
 
-    rows = parse_backlog(backlog)
+    id_prefix = args.id_prefix or f"P{args.phase}-"
+    milestone = args.milestone or f"Phase {args.phase}"
+    rows = parse_backlog(
+        backlog,
+        phase=args.phase,
+        id_prefix=id_prefix,
+        milestone=milestone,
+        base_label=args.base_label,
+    )
     if not rows:
-        raise SystemExit(f"No P1 issue rows found in {backlog}")
+        raise SystemExit(f"No {id_prefix} issue rows found in {backlog}")
 
-    write_csv(rows, out_dir / "phase1-issues.csv")
-    write_markdown(rows, out_dir / "phase1-issues.md")
+    write_csv(rows, out_dir / f"phase{args.phase}-issues.csv")
+    write_markdown(rows, out_dir / f"phase{args.phase}-issues.md", phase=args.phase, source_path=backlog)
     print(f"Exported {len(rows)} issues to {out_dir.relative_to(ROOT)}")
     return 0
 

@@ -59,6 +59,10 @@ This repository is the research and prototype workspace. The immediate goal is n
 - [IP Risk Register](docs/ip-risk.md)
 - [Competitive Analysis](docs/competitive-analysis.md)
 - [Phase 1 Backlog](docs/phase1-backlog.md)
+- [Phase 2 Backlog](docs/phase2-backlog.md)
+- [Steam Phase 2 Integration Plan](docs/steam-phase2-integration-plan.md)
+- [Steam Dedicated Server Client Join Plan](docs/steam-dedicated-server-client-join.md)
+- [Voice Chat Interface Spike](docs/voice-chat-interface-spike.md)
 - [Issue Import](docs/issue-import/README.md)
 
 ## Phase 1 Current Milestone
