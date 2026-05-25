@@ -64,6 +64,7 @@ This repository is the research and prototype workspace. The immediate goal is n
 - [Steam Phase 2 Integration Plan](docs/steam-phase2-integration-plan.md)
 - [Steam Dev Config Gate](docs/steam-dev-config-gate.md)
 - [Steam Lobby Metadata Contract](docs/steam-lobby-metadata-contract.md)
+- [Steam Lobby Subsystem Design](docs/steam-lobby-subsystem-design.md)
 - [Steam Dedicated Server Client Join Plan](docs/steam-dedicated-server-client-join.md)
 - [Voice Chat Interface Spike](docs/voice-chat-interface-spike.md)
 - [Issue Import](docs/issue-import/README.md)

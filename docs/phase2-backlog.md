@@ -16,7 +16,7 @@ Do not start public server browser work until the Windows dedicated server can b
 | ID | Task | Done When |
 | --- | --- | --- |
 | P2-002 | Enable Steam dev config safely | `Tools/windows/check_steam_dev_config.ps1` verifies committed defaults stay Null/LAN safe; optional ignored `Saved/Config/steam_dev.local.ini` passes validation before Steam Lobby work |
-| P2-003 | Steam Lobby create/find/join spike | A Windows-only spike can create a lobby, list/find it, join from a second client, validate metadata with `Tools/ops/lobby_metadata_check.py`, and travel into the same Unreal authoritative server path without trusting lobby state for gameplay |
+| P2-003 | Steam Lobby create/find/join spike | `docs/steam-lobby-subsystem-design.md` is implemented in a Windows-only spike that can create a lobby, list/find it, join from a second client, validate metadata with `Tools/ops/lobby_metadata_check.py`, and travel into the same Unreal authoritative server path without trusting lobby state for gameplay |
 | P2-004 | Lobby build/version rejection | Lobby metadata follows `Tools/ops/lobby_metadata.schema.json`; mismatched build or map id is rejected before travel with a logged reason |
 
 ## Auth And Moderation Identity

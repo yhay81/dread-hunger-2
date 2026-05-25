@@ -36,7 +36,7 @@ P2-003: Steam Lobby create/find/join spike,"Source: `docs/phase2-backlog.md`
 
 Done when:
 
-A Windows-only spike can create a lobby, list/find it, join from a second client, validate metadata with `Tools/ops/lobby_metadata_check.py`, and travel into the same Unreal authoritative server path without trusting lobby state for gameplay
+`docs/steam-lobby-subsystem-design.md` is implemented in a Windows-only spike that can create a lobby, list/find it, join from a second client, validate metadata with `Tools/ops/lobby_metadata_check.py`, and travel into the same Unreal authoritative server path without trusting lobby state for gameplay
 
 Validation evidence:
 

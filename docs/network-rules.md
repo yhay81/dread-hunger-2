@@ -109,7 +109,7 @@ RepNotify 候補:
    direct listen server と移動、切断、再参加の失敗ログを確認する。
 
 3. **Steam Lobby**
-   Phase 2 entry task。rendezvous として使い、host の listen server に参加させる。招待、join、build mismatch reject を入れる。
+   Phase 2 entry task。rendezvous として使い、host の listen server または dedicated server に参加させる。招待、join、build mismatch reject を入れる。実装境界は `docs/steam-lobby-subsystem-design.md`、metadata 契約は `Tools/ops/lobby_metadata.schema.json` に従う。
 
 4. **Dedicated Server**
    同じ `GameMode` が local player 不在で動くことを確認する。Vertical Slice 以降に公式サーバー少数とコミュニティホストを両立する。
