@@ -35,9 +35,17 @@ Source contract: `apps/backend/openapi.yaml`.
 
 ## Local Development Direction
 
-Recommended initial stack:
+Current local prototype:
 
-- TypeScript.
+- TypeScript under `apps/backend`.
+- Node HTTP server with no runtime dependencies.
+- In-memory storage only.
+- `npm test` builds the service and runs Node's built-in test runner.
+- Responses include `x-frostwake-authority: non-authoritative`.
+- Playtest and moderation summaries reject obvious raw identity data patterns.
+
+Future stack options:
+
 - Fastify, Hono, or NestJS.
 - SQLite for local prototype or PostgreSQL when hosted.
 - Zod or JSON Schema validation.

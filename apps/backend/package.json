@@ -1,0 +1,16 @@
+{
+  "name": "@frostwake/backend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Non-authoritative Frostwake operations backend prototype.",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "test": "npm run build && node --test test/*.test.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2"
+  }
+}

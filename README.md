@@ -78,7 +78,7 @@ This repository is the research and prototype workspace. The immediate goal is n
 Config/              Unreal project config
 Content/             Unreal assets, maps, UI, audio
 Source/              Unreal C++ gameplay modules
-apps/backend/        TypeScript backend placeholder
+apps/backend/        TypeScript non-authoritative operations backend prototype
 apps/admin/          TypeScript admin UI placeholder
 Tools/               Build, QA, asset, ops, and simulation utilities
 docs/                Design, production, legal, and Steam planning

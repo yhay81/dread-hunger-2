@@ -19,6 +19,7 @@
 .venv/
 venv/
 node_modules/
+apps/backend/dist/
 .mypy_cache/
 __pycache__/
 *.pyc

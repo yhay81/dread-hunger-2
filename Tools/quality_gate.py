@@ -28,6 +28,13 @@ EXCLUDED_DIRS = {
     "references/private",
     "references/inventory",
 }
+EXCLUDED_DIR_NAMES = {
+    ".git",
+    ".mypy_cache",
+    "__pycache__",
+    "dist",
+    "node_modules",
+}
 TEXT_SUFFIXES = {
     ".cs",
     ".cpp",
@@ -35,11 +42,15 @@ TEXT_SUFFIXES = {
     ".ini",
     ".json",
     ".md",
+    ".mjs",
     ".py",
     ".ps1",
     ".sh",
     ".txt",
+    ".ts",
     ".uproject",
+    ".yaml",
+    ".yml",
 }
 FORBIDDEN_TRACKED_PREFIXES = (
     "references/private/",
@@ -208,7 +219,9 @@ def is_excluded(path: Path) -> bool:
         return True
 
     rel_text = str(rel)
-    return any(rel_text == item or rel_text.startswith(f"{item}/") for item in EXCLUDED_DIRS)
+    if any(rel_text == item or rel_text.startswith(f"{item}/") for item in EXCLUDED_DIRS):
+        return True
+    return any(part in EXCLUDED_DIR_NAMES for part in rel.parts)
 
 
 def iter_text_files() -> Iterable[Path]:
