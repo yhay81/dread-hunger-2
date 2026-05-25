@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from typing import Any
 
 
@@ -26,6 +26,11 @@ def redact_mapping(value: Mapping[str, Any], redact_fields: set[str] | None = No
             redacted[key] = "[REDACTED]"
         elif isinstance(item, Mapping):
             redacted[key] = redact_mapping(item, fields)
+        elif isinstance(item, Sequence) and not isinstance(item, (str, bytes, bytearray)):
+            redacted[key] = [
+                redact_mapping(element, fields) if isinstance(element, Mapping) else element
+                for element in item
+            ]
         else:
             redacted[key] = item
 

@@ -87,6 +87,7 @@
     "tests/test_playtest_summary.py",
     "tests/test_playtest_preflight.py",
     "tests/test_playtest_run_scaffold.py",
+    "tests/test_ops_tools.py",
     "Tools/ops/secret_scan.sh",
     "Tools/ops/server_config.schema.json",
     "Tools/ops/server_config.example.json"
@@ -128,7 +129,8 @@
     "tests/test_log_summary.py",
     "tests/test_playtest_summary.py",
     "tests/test_playtest_preflight.py",
-    "tests/test_playtest_run_scaffold.py"
+    "tests/test_playtest_run_scaffold.py",
+    "tests/test_ops_tools.py"
   ],
   "shell_files": [
     "Tools/ops/secret_scan.sh",
