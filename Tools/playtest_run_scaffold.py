@@ -150,8 +150,10 @@ py -3 Tools\\log_summary.py Saved\\Playtests\\P1-024\\{slug}\\events.jsonl
 py -3 Tools\\log_summary.py Saved\\Playtests\\P1-024\\{slug}\\events.jsonl --out Saved\\Playtests\\P1-024\\{slug}\\summary.json
 py -3 Tools\\playtest_summary.py Saved\\Playtests\\P1-024\\{slug}\\summary.json --out docs\\playtests\\p1-024-{slug}-summary.md
 py -3 Tools\\playtest_preflight.py Saved\\Playtests\\P1-024\\{slug}\\summary.json --markdown docs\\playtests\\p1-024-{slug}-summary.md
+py -3 Tools\\playtest_report_upload.py Saved\\Playtests\\P1-024\\{slug}\\summary.json
 
 Write-Host "Review and anonymize docs\\playtests\\p1-024-{slug}-summary.md before committing."
+Write-Host "Review the backend payload dry-run before using playtest_report_upload.py --send."
 Write-Host "RunId: {run_id}"
 """
 
@@ -244,6 +246,7 @@ python3 Tools/log_summary.py Saved/Playtests/P1-024/{slug}/events.jsonl
 python3 Tools/log_summary.py Saved/Playtests/P1-024/{slug}/events.jsonl --out Saved/Playtests/P1-024/{slug}/summary.json
 python3 Tools/playtest_summary.py Saved/Playtests/P1-024/{slug}/summary.json --out docs/playtests/p1-024-{slug}-summary.md
 python3 Tools/playtest_preflight.py Saved/Playtests/P1-024/{slug}/summary.json --markdown docs/playtests/p1-024-{slug}-summary.md
+python3 Tools/playtest_report_upload.py Saved/Playtests/P1-024/{slug}/summary.json
 """
 
 
@@ -344,6 +347,8 @@ For additional same-machine clients, increment the client port.
 ```powershell
 .\\Saved\\Playtests\\P1-024\\{slug}\\after-test.ps1
 ```
+
+The after-test script prints a backend report payload dry-run. It does not upload unless `Tools\\playtest_report_upload.py` is rerun manually with `--send`.
 """
 
 
@@ -401,6 +406,8 @@ Expected: quality gate passes, Editor/Game pass, Server target result is recorde
 ```powershell
 .\\Saved\\Playtests\\P1-024\\{slug}\\after-test.ps1
 ```
+
+This also prints a backend report payload dry-run for review. It does not upload data.
 """
 
 

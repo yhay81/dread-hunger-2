@@ -41,6 +41,7 @@ class PlaytestRunScaffoldTests(unittest.TestCase):
         self.assertIn("Tools\\log_summary.py", script)
         self.assertIn("Tools\\playtest_summary.py", script)
         self.assertIn("Tools\\playtest_preflight.py", script)
+        self.assertIn("Tools\\playtest_report_upload.py", script)
         self.assertIn("docs\\playtests\\p1-024-run-01-summary.md", script)
 
     def test_command_card_documents_windows_manual_equivalent(self) -> None:
@@ -61,6 +62,7 @@ class PlaytestRunScaffoldTests(unittest.TestCase):
         self.assertIn("--platform Win64", text)
         self.assertIn(".\\Saved\\Playtests\\P1-024\\run-01\\host.ps1", text)
         self.assertIn("-AbyssRunId=P1-024-run-01", text)
+        self.assertIn("backend report payload dry-run", text)
 
 
 if __name__ == "__main__":
