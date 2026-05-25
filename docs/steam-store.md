@@ -57,6 +57,8 @@ Playtest:
 - Testing schedule announcements
 - Steam community hub or official community landing page
 
+Use `docs/store-copy-drafts.md` for current EN/JA/ZH wording and feature-claim limits. Use `docs/steam-playtest-checklist.md` before opening Steam Playtest signups.
+
 ## Early Access Release Gate
 
 Do not sell until:
