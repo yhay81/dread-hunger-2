@@ -2,6 +2,7 @@
 #include "AbyssDoorActor.h"
 #include "AbyssInventoryComponent.h"
 #include "AbyssItemPickupActor.h"
+#include "AbyssLifeActionActor.h"
 #include "AbyssLockCharacter.h"
 #include "AbyssLockGameState.h"
 #include "AbyssLockLog.h"
@@ -258,6 +259,10 @@ void AAbyssLockGameMode::TryAutoStartMatchForDev()
     if (FParse::Param(FCommandLine::Get(), TEXT("AbyssSmokeCombinedSystems")))
     {
         GetWorldTimerManager().SetTimerForNextTick(this, &AAbyssLockGameMode::RunDevSmokeCombinedSystems);
+    }
+    if (FParse::Param(FCommandLine::Get(), TEXT("AbyssSmokeLifeAction")))
+    {
+        GetWorldTimerManager().SetTimerForNextTick(this, &AAbyssLockGameMode::RunDevSmokeLifeAction);
     }
     if (FParse::Param(FCommandLine::Get(), TEXT("AbyssSmokeQaBot")))
     {
@@ -1167,6 +1172,124 @@ void AAbyssLockGameMode::RunDevSmokeCombinedSystems()
 #endif
 }
 
+void AAbyssLockGameMode::RunDevSmokeLifeAction()
+{
+#if !UE_BUILD_SHIPPING
+    if (!HasAuthority() || !GetWorld())
+    {
+        return;
+    }
+
+    const AAbyssLockGameState* AbyssGameState = GetGameState<AAbyssLockGameState>();
+    const bool bStartedInProgress = AbyssGameState && AbyssGameState->GetMatchPhase() == EAbyssMatchPhase::InProgress;
+
+    AAbyssLockCharacter* TargetCharacter = Cast<AAbyssLockCharacter>(FindPawnForTeam(EAbyssTeam::Crew));
+    AAbyssLockCharacter* InstigatorCharacter = Cast<AAbyssLockCharacter>(FindPawnForTeam(EAbyssTeam::Saboteur));
+    if (!InstigatorCharacter || InstigatorCharacter == TargetCharacter)
+    {
+        for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+        {
+            APlayerController* PlayerController = It->Get();
+            AAbyssLockCharacter* Candidate = PlayerController ? Cast<AAbyssLockCharacter>(PlayerController->GetPawn()) : nullptr;
+            if (Candidate && Candidate != TargetCharacter)
+            {
+                InstigatorCharacter = Candidate;
+                break;
+            }
+        }
+    }
+
+    AAbyssLifeActionActor* LifeActionActor = nullptr;
+    if (TargetCharacter)
+    {
+        LifeActionActor = GetWorld()->SpawnActor<AAbyssLifeActionActor>(
+            AAbyssLifeActionActor::StaticClass(),
+            TargetCharacter->GetActorLocation() + FVector(120.0f, 0.0f, 40.0f),
+            FRotator::ZeroRotator);
+    }
+
+    const bool bDamaged = TargetCharacter ? TargetCharacter->ApplyServerDamage(999.0f, InstigatorCharacter) : false;
+    bool bCanRescue = false;
+    bool bRescued = false;
+    bool bCanContain = false;
+    bool bContained = false;
+    bool bCanRelease = false;
+    bool bReleased = false;
+
+    if (LifeActionActor && TargetCharacter && InstigatorCharacter)
+    {
+        LifeActionActor->ConfigureLifeAction(TargetCharacter, EAbyssLifeAction::RescueDowned);
+        bCanRescue = LifeActionActor->CanInteract(InstigatorCharacter);
+        bRescued = LifeActionActor->Interact(InstigatorCharacter);
+
+        LifeActionActor->ConfigureLifeAction(TargetCharacter, EAbyssLifeAction::ContainAlive);
+        bCanContain = LifeActionActor->CanInteract(InstigatorCharacter);
+        bContained = LifeActionActor->Interact(InstigatorCharacter);
+
+        LifeActionActor->ConfigureLifeAction(TargetCharacter, EAbyssLifeAction::ReleaseContained);
+        bCanRelease = LifeActionActor->CanInteract(InstigatorCharacter);
+        bReleased = LifeActionActor->Interact(InstigatorCharacter);
+    }
+
+    const bool bStillInProgress = AbyssGameState && AbyssGameState->GetMatchPhase() == EAbyssMatchPhase::InProgress;
+    const bool bPassed =
+        bStartedInProgress &&
+        bDamaged &&
+        bCanRescue &&
+        bRescued &&
+        bCanContain &&
+        bContained &&
+        bCanRelease &&
+        bReleased &&
+        bStillInProgress;
+
+    UE_LOG(
+        LogAbyssGameplay,
+        Log,
+        TEXT("dev_smoke_life_action result=%s startedInProgress=%s damaged=%s canRescue=%s rescued=%s canContain=%s contained=%s canRelease=%s released=%s stillInProgress=%s target=%s instigator=%s"),
+        bPassed ? TEXT("pass") : TEXT("fail"),
+        bStartedInProgress ? TEXT("true") : TEXT("false"),
+        bDamaged ? TEXT("true") : TEXT("false"),
+        bCanRescue ? TEXT("true") : TEXT("false"),
+        bRescued ? TEXT("true") : TEXT("false"),
+        bCanContain ? TEXT("true") : TEXT("false"),
+        bContained ? TEXT("true") : TEXT("false"),
+        bCanRelease ? TEXT("true") : TEXT("false"),
+        bReleased ? TEXT("true") : TEXT("false"),
+        bStillInProgress ? TEXT("true") : TEXT("false"),
+        *GetNameSafe(TargetCharacter),
+        *GetNameSafe(InstigatorCharacter));
+
+    if (UGameInstance* GameInstance = GetGameInstance())
+    {
+        if (UAbyssTelemetrySubsystem* TelemetrySubsystem = GameInstance->GetSubsystem<UAbyssTelemetrySubsystem>())
+        {
+            TelemetrySubsystem->LogEvent(
+                TEXT("dev_smoke_life_action"),
+                FString::Printf(
+                    TEXT("{\"result\":\"%s\",\"startedInProgress\":%s,\"damaged\":%s,\"canRescue\":%s,\"rescued\":%s,\"canContain\":%s,\"contained\":%s,\"canRelease\":%s,\"released\":%s,\"stillInProgress\":%s,\"target\":\"%s\",\"instigator\":\"%s\"}"),
+                    bPassed ? TEXT("pass") : TEXT("fail"),
+                    bStartedInProgress ? TEXT("true") : TEXT("false"),
+                    bDamaged ? TEXT("true") : TEXT("false"),
+                    bCanRescue ? TEXT("true") : TEXT("false"),
+                    bRescued ? TEXT("true") : TEXT("false"),
+                    bCanContain ? TEXT("true") : TEXT("false"),
+                    bContained ? TEXT("true") : TEXT("false"),
+                    bCanRelease ? TEXT("true") : TEXT("false"),
+                    bReleased ? TEXT("true") : TEXT("false"),
+                    bStillInProgress ? TEXT("true") : TEXT("false"),
+                    *GetNameSafe(TargetCharacter),
+                    *GetNameSafe(InstigatorCharacter)));
+        }
+    }
+
+    if (LifeActionActor)
+    {
+        LifeActionActor->Destroy();
+    }
+#endif
+}
+
 void AAbyssLockGameMode::RunDevSmokeQaBot()
 {
 #if !UE_BUILD_SHIPPING
@@ -1819,6 +1942,10 @@ bool AAbyssLockGameMode::TryStartMatchFromReady()
     if (FParse::Param(FCommandLine::Get(), TEXT("AbyssSmokeCombinedSystems")))
     {
         GetWorldTimerManager().SetTimerForNextTick(this, &AAbyssLockGameMode::RunDevSmokeCombinedSystems);
+    }
+    if (FParse::Param(FCommandLine::Get(), TEXT("AbyssSmokeLifeAction")))
+    {
+        GetWorldTimerManager().SetTimerForNextTick(this, &AAbyssLockGameMode::RunDevSmokeLifeAction);
     }
     if (FParse::Param(FCommandLine::Get(), TEXT("AbyssSmokeQaBot")))
     {

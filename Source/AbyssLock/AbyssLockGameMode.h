@@ -47,6 +47,7 @@ private:
     void RunDevSmokePveEnemy();
     void RunDevSmokeItemDrop();
     void RunDevSmokeCombinedSystems();
+    void RunDevSmokeLifeAction();
     void RunDevSmokeQaBot();
     void RunDevSmokeQaPlayerBot();
     void RunDevSmokeQaTaskBot();

@@ -36,6 +36,7 @@ TELEMETRY_FIELDS = [
     "players_rescued",
     "players_contained",
     "players_released",
+    "life_action_interactions",
     "deaths",
     "errors",
     "invalid_lines",

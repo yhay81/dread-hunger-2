@@ -31,6 +31,7 @@ class LogSummaryTests(unittest.TestCase):
         self.assertEqual(summary["door_toggles"], 1)
         self.assertEqual(summary["players_downed"], 1)
         self.assertEqual(summary["players_rescued"], 1)
+        self.assertEqual(summary["life_action_interactions"], 0)
         self.assertEqual(summary["invalid_lines"], 0)
         self.assertEqual(summary["last_role_assignment"], {"players": 6, "saboteurs": 1})
         self.assertEqual(summary["last_match_result"], {"winner": "crew", "reason": "route_complete"})

@@ -139,7 +139,7 @@ The first QA bot automation smoke is in place as an automation-only pawn. It spa
 
 Local scale smoke has reached the target player count. The ready-lobby path now validates 6 players with 1 saboteur and 8 players with 2 saboteurs by launching one listen host plus localhost clients through `Tools/ue/run_local_smoke.py`.
 
-Common smoke runs now have named profiles. Use `python3 Tools/ue/run_local_smoke.py --profile qa-bot --skip-build --null-rhi` for the light bot gate, `--profile match-timer` for the match timer expiry gate, `--profile combined5` for the 5-player non-terminal integration gate, `--profile ready8` for the 8-player ready-lobby scale gate, and `--profile combined8` for the 8-player non-terminal integration gate. `--describe-profile` prints the effective settings without launching Unreal.
+Common smoke runs now have named profiles. Use `python3 Tools/ue/run_local_smoke.py --profile qa-bot --skip-build --null-rhi` for the light bot gate, `--profile match-timer` for the match timer expiry gate, `--profile life-action` for interactable rescue/contain/release, `--profile combined5` for the 5-player non-terminal integration gate, `--profile ready8` for the 8-player ready-lobby scale gate, and `--profile combined8` for the 8-player non-terminal integration gate. `--describe-profile` prints the effective settings without launching Unreal.
 
 The 8-player combined systems gate now passes. In one 8-player ready-lobby match with 2 saboteurs, it exercises item drop/re-pickup, down/rescue on a third crew target, containment/release, bulkhead lock/release, pump/flooding pressure, and PvE enemy damage while keeping the match in progress.
 

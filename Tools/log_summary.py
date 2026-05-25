@@ -99,6 +99,9 @@ def summarize_events(path: Path) -> dict[str, Any]:
     qa_task_bot_interactions = 0
     qa_task_bot_smoke_passed = 0
     last_qa_task_bot_smoke: dict[str, Any] | None = None
+    life_action_interactions = 0
+    life_action_smoke_passed = 0
+    last_life_action_smoke: dict[str, Any] | None = None
     last_role_assignment: dict[str, Any] | None = None
     last_match_result: dict[str, Any] | None = None
 
@@ -248,6 +251,12 @@ def summarize_events(path: Path) -> dict[str, Any]:
                 last_qa_task_bot_smoke = payload
                 if payload.get("result") == "pass":
                     qa_task_bot_smoke_passed += 1
+            elif name == "life_action_interacted":
+                life_action_interactions += 1
+            elif name == "dev_smoke_life_action" and isinstance(payload, dict):
+                last_life_action_smoke = payload
+                if payload.get("result") == "pass":
+                    life_action_smoke_passed += 1
 
             timestamp = event.get("timestamp_utc") or event.get("timestamp")
             if timestamp is not None:
@@ -345,6 +354,9 @@ def summarize_events(path: Path) -> dict[str, Any]:
         "qa_task_bot_interactions": qa_task_bot_interactions,
         "qa_task_bot_smoke_passed": qa_task_bot_smoke_passed,
         "last_qa_task_bot_smoke": last_qa_task_bot_smoke,
+        "life_action_interactions": life_action_interactions,
+        "life_action_smoke_passed": life_action_smoke_passed,
+        "last_life_action_smoke": last_life_action_smoke,
         "last_role_assignment": last_role_assignment,
         "last_match_result": last_match_result,
         "errors": counts.get("exception", 0) + counts.get("error", 0),

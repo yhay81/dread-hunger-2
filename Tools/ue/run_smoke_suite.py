@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parents[2]
 RUN_LOCAL_SMOKE = ROOT / "Tools" / "ue" / "run_local_smoke.py"
 LOG_SUMMARY = ROOT / "Tools" / "log_summary.py"
 DEFAULT_QUICK_PROFILES = ("qa-bot", "qa-player-bot", "match-timer")
-HEAVY_PROFILES = ("qa-task-bot", "combined5", "ready8", "combined8")
+HEAVY_PROFILES = ("qa-task-bot", "life-action", "combined5", "ready8", "combined8")
 
 
 def parse_args() -> argparse.Namespace:

@@ -35,8 +35,8 @@ This backlog is ordered for a 30-day greybox prototype. Convert each entry into 
 | P1-017 | Add power outage sabotage | `AAbyssShipTaskActor` sabotage path builds, is placed in the whitebox map, and logs `ship_task_applied` in a local host+client smoke |
 | P1-018 | Add bulkhead lock sabotage | 5-player local smoke opens a bulkhead, applies saboteur lock, blocks normal interaction while locked, releases by repair action, and reopens |
 | P1-019 | Add pump sabotage | 5-player local smoke raises flooding pressure through sabotage, lowers it through pump repair, and leaves partial pressure after partial repair |
-| P1-020 | Add down/rescue loop | Server-authoritative damage/down/rescue scaffold logs `player_downed` and `player_rescued` in local smoke; interaction-based rescue pending |
-| P1-021 | Add containment loop | Server-authoritative contain/release scaffold logs `player_contained` and `player_released` in local smoke; interaction-based containment pending |
+| P1-020 | Add down/rescue loop | Server-authoritative damage/down/rescue scaffold logs `player_downed` and `player_rescued`; `life-action` smoke validates interactable rescue through `AAbyssLifeActionActor` |
+| P1-021 | Add containment loop | Server-authoritative contain/release scaffold logs `player_contained` and `player_released`; `life-action` smoke validates interactable contain and release through `AAbyssLifeActionActor` |
 | P1-022 | Add simple QA bot | Automation-only server pawn pickup smoke, PlayerState-backed assigned-pawn door interaction smoke, and PlayerState-backed repair/sabotage task smoke pass; NavMesh movement pending |
 | P1-023 | Add log summary script | `Tools/log_summary.py` counts run/build/map/profile metadata, duration, match duration, match start/end, final approach, connection lifecycle, damage, deaths, down/rescue, contain/release, disconnects, errors, events, role assignment, repair/sabotage task counts, last match winner/reason, bulkhead lock smoke counters, flooding pressure/pump smoke counters, PvE enemy/damage smoke counters, item pickup/drop smoke counters, combined systems smoke counters, QA bot smoke counters, QA player-bot smoke counters, and QA task-bot smoke counters; `Tools/ue/run_smoke_suite.py` aggregates profile summaries; `Tools/ue/export_smoke_suite_markdown.py` exports evidence tables; heavy suite and 8-player combined evidence exist |
 
@@ -44,7 +44,7 @@ This backlog is ordered for a 30-day greybox prototype. Convert each entry into 
 
 - Phase 1 local automation milestone is recorded in `docs/phase1-milestone-report.md`.
 - Current best evidence is `Saved/SmokeSuites/suite-20260525-050522/suite_summary.md`.
-- Automated 5-8 player listen-server gates are strong enough to schedule P1-024, and telemetry now records run metadata, connection lifecycle, duration, match duration, and timer expiry. Human fun validation, full 8-player human completion, interaction-based rescue/containment, manual movement feel, and Dedicated Server validation remain open.
+- Automated 5-8 player listen-server gates are strong enough to schedule P1-024, and telemetry now records run metadata, connection lifecycle, duration, match duration, timer expiry, and interactable life actions. Human fun validation, full 8-player human completion, manual movement feel, and Dedicated Server validation remain open.
 
 ## Week 4
 
