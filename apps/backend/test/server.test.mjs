@@ -92,6 +92,40 @@ test("accepts moderation report metadata", async () => {
   });
 });
 
+test("returns a client error for invalid JSON", async () => {
+  await withServer(async (baseUrl) => {
+    const response = await fetch(`${baseUrl}/v1/playtest-reports`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: "{not json",
+    });
+    const body = await response.json();
+
+    assert.equal(response.status, 400);
+    assert.equal(body.error, "invalid_json");
+  });
+});
+
+test("returns request_too_large for oversized JSON bodies", async () => {
+  await withServer(async (baseUrl) => {
+    const response = await fetch(`${baseUrl}/v1/playtest-reports`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        runId: "P1-024-run-01",
+        buildId: "AbyssLock-Win64-Development-local",
+        mapId: "/Game/Maps/L_IcebreakerWhitebox",
+        playerCount: 6,
+        summary: "x".repeat(40000),
+      }),
+    });
+    const body = await response.json();
+
+    assert.equal(response.status, 413);
+    assert.equal(body.error, "request_too_large");
+  });
+});
+
 test("read-only metadata endpoints return empty local prototype data", async () => {
   await withServer(async (baseUrl) => {
     const [banlist, news, fleet] = await Promise.all([

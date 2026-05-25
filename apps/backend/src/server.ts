@@ -11,6 +11,16 @@ import {
 const MAX_BODY_BYTES = 32 * 1024;
 const SERVICE_NAME = "frostwake-backend";
 
+class RequestError extends Error {
+  constructor(
+    readonly statusCode: number,
+    readonly code: string,
+    message: string,
+  ) {
+    super(message);
+  }
+}
+
 export interface StoredReport<T> {
   id: string;
   receivedAt: string;
@@ -41,6 +51,13 @@ export function createAppServer(options: { state?: BackendState; now?: () => Dat
     try {
       await routeRequest(request, response, state, now);
     } catch (error) {
+      if (error instanceof RequestError) {
+        sendJson(response, error.statusCode, {
+          error: error.code,
+          message: error.message,
+        });
+        return;
+      }
       sendJson(response, 500, {
         error: "internal_error",
         message: error instanceof Error ? error.message : "unknown error",
@@ -136,7 +153,7 @@ async function readJsonBody(request: IncomingMessage): Promise<unknown> {
     const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
     totalBytes += buffer.byteLength;
     if (totalBytes > MAX_BODY_BYTES) {
-      throw new Error(`request body exceeds ${MAX_BODY_BYTES} bytes`);
+      throw new RequestError(413, "request_too_large", `request body exceeds ${MAX_BODY_BYTES} bytes`);
     }
     chunks.push(buffer);
   }
@@ -149,7 +166,7 @@ async function readJsonBody(request: IncomingMessage): Promise<unknown> {
   try {
     return JSON.parse(raw) as unknown;
   } catch {
-    throw new Error("request body must be valid JSON");
+    throw new RequestError(400, "invalid_json", "request body must be valid JSON");
   }
 }
 
