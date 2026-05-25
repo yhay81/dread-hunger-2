@@ -1,5 +1,6 @@
 #include "AbyssTelemetrySubsystem.h"
 #include "AbyssLockLog.h"
+#include "AbyssServerConfigSubsystem.h"
 #include "Dom/JsonObject.h"
 #include "HAL/FileManager.h"
 #include "HAL/PlatformTime.h"
@@ -69,11 +70,31 @@ FString ReadCommandLineValue(const TCHAR* Key, const FString& DefaultValue)
     }
     return DefaultValue;
 }
+
+FString ResolveTelemetryLogPath(const FString& ConfiguredPath)
+{
+    if (ConfiguredPath.IsEmpty())
+    {
+        return FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("Logs"), TEXT("server.jsonl"));
+    }
+
+    if (FPaths::IsRelative(ConfiguredPath))
+    {
+        FString ResolvedPath = FPaths::ConvertRelativePathToFull(FPaths::Combine(FPaths::ProjectDir(), ConfiguredPath));
+        FPaths::NormalizeFilename(ResolvedPath);
+        return ResolvedPath;
+    }
+
+    FString NormalizedPath = ConfiguredPath;
+    FPaths::NormalizeFilename(NormalizedPath);
+    return NormalizedPath;
+}
 }
 
 void UAbyssTelemetrySubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
     Super::Initialize(Collection);
+    Collection.InitializeDependency<UAbyssServerConfigSubsystem>();
 
     SessionStartedUtc = FDateTime::UtcNow();
     SessionStartedSeconds = FPlatformTime::Seconds();
@@ -83,11 +104,19 @@ void UAbyssTelemetrySubsystem::Initialize(FSubsystemCollectionBase& Collection)
     FString OverrideEventLogPath;
     if (FParse::Value(FCommandLine::Get(), TEXT("AbyssEventLog="), OverrideEventLogPath) && !OverrideEventLogPath.IsEmpty())
     {
-        EventLogPath = OverrideEventLogPath;
+        EventLogPath = ResolveTelemetryLogPath(OverrideEventLogPath);
     }
     else
     {
-        EventLogPath = FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("Logs"), TEXT("server_events.jsonl"));
+        FString ConfiguredLogPath;
+        if (const UGameInstance* GameInstance = GetGameInstance())
+        {
+            if (const UAbyssServerConfigSubsystem* ServerConfig = GameInstance->GetSubsystem<UAbyssServerConfigSubsystem>())
+            {
+                ConfiguredLogPath = ServerConfig->GetServerConfig().LogPath;
+            }
+        }
+        EventLogPath = ResolveTelemetryLogPath(ConfiguredLogPath);
     }
 
     RunId = ReadCommandLineValue(TEXT("AbyssRunId="), SessionStartedUtc.ToString(TEXT("%Y%m%dT%H%M%SZ")));

@@ -79,7 +79,11 @@ $ServerExe = ".\Binaries\Win64\AbyssLockServer.exe"
   -unattended `
   -NoLiveCoding `
   -nop4 `
-  "-ServerConfig=$PWD\Saved\Config\server_config.local.json"
+  "-ServerConfig=$PWD\Saved\Config\server_config.local.json" `
+  -AbyssRunId=windows-dedicated-local `
+  "-AbyssBuildId=AbyssLock-Win64-Development-local" `
+  "-AbyssMapId=/Game/Maps/L_IcebreakerWhitebox" `
+  -AbyssProfile=dedicated-private-test
 ```
 
 If the executable path differs after packaging, record the actual path in the Windows validation result.
@@ -100,9 +104,16 @@ For local/LAN experiments only:
 Use structured logs for every validation run:
 
 - config log path: `Saved\Logs\server.jsonl`
+- command-line override: `-AbyssEventLog=C:\path\to\events.jsonl`
 - smoke evidence: `Saved\SmokeTests\...`
 - suite evidence: `Saved\SmokeSuites\...`
 - crash notes: local `Saved\...` folders only
+
+Telemetry path precedence is:
+
+1. `-AbyssEventLog=...` command-line override, used by smoke and playtest scaffolds for isolated per-run logs.
+2. `logPath` from `-ServerConfig=...`, used by dedicated-server validation.
+3. Default `Saved\Logs\server.jsonl` if no override or config value is present.
 
 Do not commit raw logs. Summarize with:
 
