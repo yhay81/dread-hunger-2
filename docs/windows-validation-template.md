@@ -59,6 +59,7 @@ py -3 Tools\ue\run_smoke_suite.py --include-heavy --skip-build --null-rhi --plat
 AbyssLockServer result:
 Launcher UE or source UE:
 Exact error if blocked/failed:
+Dedicated server validation wrapper:
 Decision:
 ```
 
@@ -67,6 +68,14 @@ Decision values:
 - `pass`: Windows can build server target; start Dedicated Server validation next.
 - `blocked`: Launcher UE cannot build server target; install/build UE source distribution.
 - `fail`: Server target is supported but the project fails to compile; fix project code first.
+
+If `AbyssLockServer` exists, run:
+
+```powershell
+.\Tools\windows\run_dedicated_server_validation.ps1
+```
+
+Record the output folder and `log_summary.json` result while keeping raw logs under ignored `Saved\DedicatedServerValidation\`.
 
 ## Smoke Suite Summary
 

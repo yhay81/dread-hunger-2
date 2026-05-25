@@ -84,6 +84,7 @@
     "Tools/windows/README.md",
     "Tools/windows/check_prereqs.ps1",
     "Tools/windows/run_first_validation.ps1",
+    "Tools/windows/run_dedicated_server_validation.ps1",
     "tests/fixtures/p1_024_human_events.jsonl",
     "tests/test_log_summary.py",
     "tests/test_playtest_summary.py",
@@ -146,7 +147,8 @@
   ],
   "powershell_files": [
     "Tools/windows/check_prereqs.ps1",
-    "Tools/windows/run_first_validation.ps1"
+    "Tools/windows/run_first_validation.ps1",
+    "Tools/windows/run_dedicated_server_validation.ps1"
   ],
   "schema_examples": [
     {

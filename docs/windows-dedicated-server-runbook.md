@@ -89,6 +89,24 @@ $ServerExe = ".\Binaries\Win64\AbyssLockServer.exe"
 
 If the executable path differs after packaging, record the actual path in the Windows validation result.
 
+The same boot probe is wrapped by:
+
+```powershell
+.\Tools\windows\run_dedicated_server_validation.ps1
+```
+
+Useful overrides:
+
+```powershell
+.\Tools\windows\run_dedicated_server_validation.ps1 `
+  -ServerExe ".\Binaries\Win64\AbyssLockServer.exe" `
+  -ServerConfig ".\Saved\Config\server_config.local.json" `
+  -DurationSeconds 30 `
+  -Port 7777
+```
+
+The wrapper writes ignored evidence under `Saved\DedicatedServerValidation\...`, stops the server after the probe duration, and runs `Tools\log_summary.py` if the configured event log is produced.
+
 ## Ports And Firewall
 
 Concrete public-server port policy is TBD until the Windows server target is verified and Steam networking decisions are made.

@@ -28,6 +28,16 @@ After Editor, Game, and Server validation are understood:
 
 `-IncludeSmoke` runs `qa-bot`, `match-timer`, `life-action`, `combined5`, `ready8`, and the quick smoke suite. Use `-IncludeHeavySmoke` only after that path is stable.
 
+## Dedicated Server
+
+After `AbyssLockServer.exe` exists, run the local server boot probe:
+
+```powershell
+.\Tools\windows\run_dedicated_server_validation.ps1
+```
+
+Use `-ServerExe` or `-ServerConfig` if your build output or config path differs from the defaults.
+
 ## Output
 
-Validation output is written under ignored `Saved\WindowsValidation\`. Copy the key pass/fail lines into `docs/windows-validation-template.md` or a new cycle record. Do not commit generated logs.
+First-run validation output is written under ignored `Saved\WindowsValidation\`. Dedicated-server probe output is written under ignored `Saved\DedicatedServerValidation\`. Copy the key pass/fail lines into `docs/windows-validation-template.md` or a new cycle record. Do not commit generated logs.

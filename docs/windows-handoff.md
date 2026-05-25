@@ -63,6 +63,12 @@ Record the full first-run result using [Windows Validation Template](windows-val
 
 If `AbyssLockServer` builds, continue with [Windows Dedicated Server Runbook](windows-dedicated-server-runbook.md).
 
+The first local dedicated-server boot probe is:
+
+```powershell
+.\Tools\windows\run_dedicated_server_validation.ps1
+```
+
 ## Project Files
 
 Generate Visual Studio files with either the Unreal shell integration or:
