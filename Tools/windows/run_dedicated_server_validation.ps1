@@ -90,6 +90,14 @@ try {
 
     $StdoutLog = Join-Path $OutDir "server_stdout.log"
     $StderrLog = Join-Path $OutDir "server_stderr.log"
+    $ConfigCheckLog = Join-Path $OutDir "server_config_check.log"
+    py -3 Tools\ops\server_config_check.py $ResolvedServerConfig 2>&1 | Tee-Object -FilePath $ConfigCheckLog
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "[FAIL] Invalid server config: $ResolvedServerConfig"
+        Write-Host "Output: $OutDir"
+        exit 4
+    }
+
     $ArgList = @(
         $Map,
         "-log",
@@ -126,14 +134,14 @@ try {
         Write-Summary "fail" "Server exited before ${DurationSeconds}s with code $ExitCode"
         Write-Host "[FAIL] Server exited early with code $ExitCode"
         Write-Host "Output: $OutDir"
-        exit 4
+        exit 5
     }
 
     if (-not (Test-Path $EventLog)) {
         Write-Summary "fail" "Server stayed alive but did not write expected event log"
         Write-Host "[FAIL] Missing event log: $EventLog"
         Write-Host "Output: $OutDir"
-        exit 5
+        exit 6
     }
 
     $SummaryJson = Join-Path $OutDir "log_summary.json"
@@ -142,7 +150,7 @@ try {
         Write-Summary "fail" "log_summary.py failed"
         Write-Host "[FAIL] log_summary.py failed for $EventLog"
         Write-Host "Output: $OutDir"
-        exit 6
+        exit 7
     }
 
     Write-Summary "pass" "Server stayed alive for ${DurationSeconds}s and wrote telemetry"

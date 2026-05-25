@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -59,6 +61,53 @@ class OpsToolTests(unittest.TestCase):
         example = json.loads((ROOT / "Tools" / "ops" / "server_config.example.json").read_text(encoding="utf-8"))
 
         self.assertEqual(validate_schema_value(schema, example, "$"), [])
+
+    def test_server_config_check_cli_accepts_example(self) -> None:
+        completed = subprocess.run(
+            [
+                sys.executable,
+                "Tools/ops/server_config_check.py",
+                "Tools/ops/server_config.example.json",
+                "--json",
+            ],
+            cwd=ROOT,
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        summary = json.loads(completed.stdout)
+        self.assertEqual(summary["maxPlayers"], 8)
+        self.assertEqual(summary["map"], "L_IcebreakerWhitebox")
+        self.assertTrue(summary["hasAdminTokenEnv"])
+
+    def test_server_config_check_cli_rejects_invalid_config(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "server_config.json"
+            path.write_text(
+                json.dumps(
+                    {
+                        "serverName": "Bad",
+                        "region": "jp",
+                        "maxPlayers": 12,
+                        "map": "L_IcebreakerWhitebox",
+                        "ruleset": "private_test",
+                    }
+                ),
+                encoding="utf-8",
+            )
+
+            completed = subprocess.run(
+                [sys.executable, "Tools/ops/server_config_check.py", str(path)],
+                cwd=ROOT,
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+
+        self.assertNotEqual(completed.returncode, 0)
+        self.assertIn("maxPlayers", completed.stderr)
 
     def test_steam_registry_phase1_returns_empty_listing(self) -> None:
         registry = SteamRegistry()

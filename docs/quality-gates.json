@@ -94,6 +94,7 @@
     "tests/test_ops_tools.py",
     "tests/test_github_issue_sync.py",
     "Tools/ops/secret_scan.sh",
+    "Tools/ops/server_config_check.py",
     "Tools/ops/server_config.schema.json",
     "Tools/ops/server_config.example.json"
   ],
@@ -132,6 +133,7 @@
     "Tools/ue/export_smoke_suite_markdown.py",
     "Tools/ops/banlist.py",
     "Tools/ops/redaction.py",
+    "Tools/ops/server_config_check.py",
     "Tools/ops/steam_registry.py",
     "tests/test_log_summary.py",
     "tests/test_playtest_summary.py",

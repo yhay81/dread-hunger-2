@@ -62,6 +62,12 @@ Recommended local test values:
 }
 ```
 
+Validate any edited config before launch:
+
+```powershell
+py -3 Tools\ops\server_config_check.py Saved\Config\server_config.local.json
+```
+
 ## Launch Shape
 
 The intended config flag is:
@@ -105,7 +111,7 @@ Useful overrides:
   -Port 7777
 ```
 
-The wrapper writes ignored evidence under `Saved\DedicatedServerValidation\...`, stops the server after the probe duration, and runs `Tools\log_summary.py` if the configured event log is produced.
+The wrapper validates the server config, writes ignored evidence under `Saved\DedicatedServerValidation\...`, stops the server after the probe duration, and runs `Tools\log_summary.py` if the configured event log is produced.
 
 ## Ports And Firewall
 
