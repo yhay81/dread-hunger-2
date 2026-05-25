@@ -10,7 +10,7 @@
 ## Phase 2 Entry
 
 - Choose one voice provider.
-- Define Steam Lobby metadata.
+- Define Steam Lobby metadata and validate it with `python3 Tools/ops/lobby_metadata_check.py Tools/ops/lobby_metadata.example.json`.
 - Define dedicated server config and admin token behavior.
 - Define in-game admin permissions.
 - Define server TTL and cleanup behavior.

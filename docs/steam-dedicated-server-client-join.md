@@ -55,6 +55,8 @@ Minimum join metadata:
 - password/private flag
 - opaque endpoint token or connection target
 
+The executable contract is `Tools\ops\lobby_metadata.schema.json`, with validation through `Tools\ops\lobby_metadata_check.py`.
+
 Do not store role state, inventory, health, sabotage state, or match authority in lobby metadata.
 
 ## Failure Cases

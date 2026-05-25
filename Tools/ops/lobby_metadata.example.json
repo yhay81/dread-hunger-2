@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "buildId": "AbyssLock-Win64-Development-local",
+  "mapId": "L_IcebreakerWhitebox",
+  "ruleset": "private_test",
+  "maxPlayers": 8,
+  "currentPlayers": 3,
+  "joinState": "open",
+  "connectionMode": "dedicated",
+  "official": false,
+  "passworded": false,
+  "endpointToken": "dev-lobby-target-0001",
+  "region": "jp",
+  "serverName": "Frostwake Dev Lobby"
+}

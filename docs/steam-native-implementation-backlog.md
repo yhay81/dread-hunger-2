@@ -22,6 +22,7 @@ This backlog keeps the project aligned with the intended operational flow: launc
   - max players
   - join state
   - host endpoint token
+- Validate lobby metadata against `Tools/ops/lobby_metadata.schema.json` before client travel.
 - Reject build mismatch before travel.
 - Keep game state authoritative inside Unreal server, not in lobby metadata.
 

@@ -11,6 +11,8 @@ External chat services are not core dependencies. The target operations model is
 - `config.schema.json`: sanitized config contract
 - `server_config.schema.json`: dedicated server config contract
 - `server_config_check.py`: CLI validation for dedicated server config files
+- `lobby_metadata.schema.json`: Steam Lobby rendezvous metadata contract
+- `lobby_metadata_check.py`: CLI validation for lobby metadata and build/map mismatch checks
 - `.env.example`: environment variable template without real values
 - `steam_registry.py`: Steam/server discovery adapter
 - `server_browser.py`: server listing aggregation

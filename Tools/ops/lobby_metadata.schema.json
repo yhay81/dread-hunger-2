@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Frostwake Steam Lobby Metadata",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "buildId",
+    "mapId",
+    "ruleset",
+    "maxPlayers",
+    "currentPlayers",
+    "joinState",
+    "connectionMode",
+    "official",
+    "passworded",
+    "endpointToken"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 1
+    },
+    "buildId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "mapId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "ruleset": {
+      "type": "string",
+      "enum": ["standard", "private_test", "developer"]
+    },
+    "maxPlayers": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 8
+    },
+    "currentPlayers": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 8
+    },
+    "joinState": {
+      "type": "string",
+      "enum": ["open", "locked", "in_match", "full"]
+    },
+    "connectionMode": {
+      "type": "string",
+      "enum": ["listen", "dedicated"]
+    },
+    "official": {
+      "type": "boolean"
+    },
+    "passworded": {
+      "type": "boolean"
+    },
+    "endpointToken": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "region": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 16
+    },
+    "serverName": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    }
+  }
+}

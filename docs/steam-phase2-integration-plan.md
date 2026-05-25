@@ -20,7 +20,7 @@ Phase 2 adds Steam-facing systems after Windows dedicated-server evidence exists
    Add a development-only Steam config path and validate it with `Tools/windows/check_steam_dev_config.ps1`. Phase 1 local gates must keep working with Null/LAN assumptions.
 
 3. Add Steam Lobby rendezvous.
-   Implement create, find, join, and build mismatch rejection. Store only metadata needed to get clients to the authoritative server.
+   Implement create, find, join, and build mismatch rejection. Store only metadata allowed by `Tools/ops/lobby_metadata.schema.json` and needed to get clients to the authoritative server.
 
 4. Add Steam identity.
    Verify auth ticket and ownership before trusting reports, moderation identities, or protected server metadata.

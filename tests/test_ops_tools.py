@@ -109,6 +109,91 @@ class OpsToolTests(unittest.TestCase):
         self.assertNotEqual(completed.returncode, 0)
         self.assertIn("maxPlayers", completed.stderr)
 
+    def test_lobby_metadata_example_matches_schema(self) -> None:
+        schema = json.loads((ROOT / "Tools" / "ops" / "lobby_metadata.schema.json").read_text(encoding="utf-8"))
+        example = json.loads((ROOT / "Tools" / "ops" / "lobby_metadata.example.json").read_text(encoding="utf-8"))
+
+        self.assertEqual(validate_schema_value(schema, example, "$"), [])
+
+    def test_lobby_metadata_check_cli_accepts_example(self) -> None:
+        completed = subprocess.run(
+            [
+                sys.executable,
+                "Tools/ops/lobby_metadata_check.py",
+                "Tools/ops/lobby_metadata.example.json",
+                "--expected-build-id",
+                "AbyssLock-Win64-Development-local",
+                "--expected-map-id",
+                "L_IcebreakerWhitebox",
+                "--json",
+            ],
+            cwd=ROOT,
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        summary = json.loads(completed.stdout)
+        self.assertEqual(summary["players"], "3/8")
+        self.assertEqual(summary["joinState"], "open")
+
+    def test_lobby_metadata_check_cli_rejects_build_mismatch(self) -> None:
+        completed = subprocess.run(
+            [
+                sys.executable,
+                "Tools/ops/lobby_metadata_check.py",
+                "Tools/ops/lobby_metadata.example.json",
+                "--expected-build-id",
+                "DifferentBuild",
+            ],
+            cwd=ROOT,
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+
+        self.assertNotEqual(completed.returncode, 0)
+        self.assertIn("buildId", completed.stderr)
+        self.assertIn("mismatch", completed.stderr)
+
+    def test_lobby_metadata_check_cli_rejects_raw_ip_endpoint(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "lobby_metadata.json"
+            metadata = json.loads((ROOT / "Tools" / "ops" / "lobby_metadata.example.json").read_text(encoding="utf-8"))
+            metadata["endpointToken"] = "127.0.0.1:7777"
+            path.write_text(json.dumps(metadata), encoding="utf-8")
+
+            completed = subprocess.run(
+                [sys.executable, "Tools/ops/lobby_metadata_check.py", str(path)],
+                cwd=ROOT,
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+
+        self.assertNotEqual(completed.returncode, 0)
+        self.assertIn("endpointToken", completed.stderr)
+
+    def test_lobby_metadata_check_cli_rejects_inconsistent_player_counts(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "lobby_metadata.json"
+            metadata = json.loads((ROOT / "Tools" / "ops" / "lobby_metadata.example.json").read_text(encoding="utf-8"))
+            metadata["currentPlayers"] = 8
+            metadata["joinState"] = "open"
+            path.write_text(json.dumps(metadata), encoding="utf-8")
+
+            completed = subprocess.run(
+                [sys.executable, "Tools/ops/lobby_metadata_check.py", str(path)],
+                cwd=ROOT,
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+
+        self.assertNotEqual(completed.returncode, 0)
+        self.assertIn("open lobby cannot already be full", completed.stderr)
+
     def test_steam_registry_phase1_returns_empty_listing(self) -> None:
         registry = SteamRegistry()
 

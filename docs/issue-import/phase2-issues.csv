@@ -36,7 +36,7 @@ P2-003: Steam Lobby create/find/join spike,"Source: `docs/phase2-backlog.md`
 
 Done when:
 
-A Windows-only spike can create a lobby, list/find it, join from a second client, and travel into the same Unreal authoritative server path without trusting lobby state for gameplay
+A Windows-only spike can create a lobby, list/find it, join from a second client, validate metadata with `Tools/ops/lobby_metadata_check.py`, and travel into the same Unreal authoritative server path without trusting lobby state for gameplay
 
 Validation evidence:
 
@@ -47,7 +47,7 @@ P2-004: Lobby build/version rejection,"Source: `docs/phase2-backlog.md`
 
 Done when:
 
-Lobby metadata includes build id, map id, ruleset, max players, and join state; mismatched build id is rejected before travel with a logged reason
+Lobby metadata follows `Tools/ops/lobby_metadata.schema.json`; mismatched build or map id is rejected before travel with a logged reason
 
 Validation evidence:
 
