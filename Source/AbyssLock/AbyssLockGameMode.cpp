@@ -202,6 +202,7 @@ void AAbyssLockGameMode::TryAutoStartMatchForDev()
     {
         AbyssGameState->SetMatchPhase(EAbyssMatchPhase::InProgress);
     }
+    StartMatchTimer();
 
     bDevAutoStarted = true;
     UE_LOG(LogAbyssGameplay, Log, TEXT("dev_auto_start players=%d saboteurs=%d"), PlayerCount, FMath::Clamp(SaboteurOverride, 0, PlayerCount));
@@ -271,6 +272,86 @@ void AAbyssLockGameMode::TryAutoStartMatchForDev()
         GetWorldTimerManager().SetTimerForNextTick(this, &AAbyssLockGameMode::RunDevSmokeQaTaskBot);
     }
 #endif
+}
+
+void AAbyssLockGameMode::StartMatchTimer()
+{
+    if (!HasAuthority() || !GetWorld())
+    {
+        return;
+    }
+
+    float ConfiguredDurationSeconds = MatchDurationSeconds;
+    FParse::Value(FCommandLine::Get(), TEXT("AbyssMatchDurationSeconds="), ConfiguredDurationSeconds);
+    MatchDurationSeconds = FMath::Max(1.0f, ConfiguredDurationSeconds);
+    MatchEndWorldSeconds = GetWorld()->GetTimeSeconds() + MatchDurationSeconds;
+
+    if (AAbyssLockGameState* AbyssGameState = GetGameState<AAbyssLockGameState>())
+    {
+        AbyssGameState->SetMatchTimeRemaining(MatchDurationSeconds);
+    }
+
+    GetWorldTimerManager().ClearTimer(MatchTimerHandle);
+    GetWorldTimerManager().SetTimer(MatchTimerHandle, this, &AAbyssLockGameMode::HandleMatchTimerTick, 1.0f, true);
+
+    UE_LOG(LogAbyssGameplay, Log, TEXT("match_timer_started duration=%.1f"), MatchDurationSeconds);
+    if (UGameInstance* GameInstance = GetGameInstance())
+    {
+        if (UAbyssTelemetrySubsystem* TelemetrySubsystem = GameInstance->GetSubsystem<UAbyssTelemetrySubsystem>())
+        {
+            TelemetrySubsystem->LogEvent(
+                TEXT("match_timer_started"),
+                FString::Printf(TEXT("{\"durationSeconds\":%.3f}"), MatchDurationSeconds));
+        }
+    }
+}
+
+void AAbyssLockGameMode::StopMatchTimer()
+{
+    if (GetWorld())
+    {
+        GetWorldTimerManager().ClearTimer(MatchTimerHandle);
+    }
+    MatchEndWorldSeconds = 0.0;
+    if (AAbyssLockGameState* AbyssGameState = GetGameState<AAbyssLockGameState>())
+    {
+        AbyssGameState->SetMatchTimeRemaining(0.0f);
+    }
+}
+
+void AAbyssLockGameMode::HandleMatchTimerTick()
+{
+    if (!HasAuthority() || !GetWorld())
+    {
+        return;
+    }
+
+    AAbyssLockGameState* AbyssGameState = GetGameState<AAbyssLockGameState>();
+    if (!AbyssGameState || !AbyssGameState->IsMatchActive())
+    {
+        StopMatchTimer();
+        return;
+    }
+
+    const float RemainingSeconds = FMath::Max(0.0f, static_cast<float>(MatchEndWorldSeconds - GetWorld()->GetTimeSeconds()));
+    AbyssGameState->SetMatchTimeRemaining(RemainingSeconds);
+    if (RemainingSeconds > KINDA_SMALL_NUMBER)
+    {
+        return;
+    }
+
+    AbyssGameState->SetMatchResult(EAbyssTeam::Saboteur, TEXT("timer_expired"));
+    StopMatchTimer();
+
+    UE_LOG(LogAbyssGameplay, Log, TEXT("match_end winner=saboteur reason=timer_expired"));
+    if (UGameInstance* GameInstance = GetGameInstance())
+    {
+        if (UAbyssTelemetrySubsystem* TelemetrySubsystem = GameInstance->GetSubsystem<UAbyssTelemetrySubsystem>())
+        {
+            TelemetrySubsystem->LogEvent(TEXT("match_timer_expired"), TEXT("{\"winner\":\"saboteur\",\"reason\":\"timer_expired\"}"));
+            TelemetrySubsystem->LogEvent(TEXT("match_ended"), TEXT("{\"winner\":\"saboteur\",\"reason\":\"timer_expired\"}"));
+        }
+    }
 }
 
 void AAbyssLockGameMode::RunDevSmokeTaskInteraction()
@@ -1588,6 +1669,7 @@ bool AAbyssLockGameMode::EvaluateMatchEnd()
     if (AbyssGameState->HasFatalShipSystem())
     {
         AbyssGameState->SetMatchResult(EAbyssTeam::Saboteur, TEXT("fatal_ship_state"));
+        StopMatchTimer();
         UE_LOG(LogAbyssGameplay, Log, TEXT("match_end winner=saboteur reason=fatal_ship_state"));
         if (UGameInstance* GameInstance = GetGameInstance())
         {
@@ -1602,6 +1684,7 @@ bool AAbyssLockGameMode::EvaluateMatchEnd()
     if (TotalAssignedPlayers >= 5 && LivingCrew <= GetSaboteurEliminationThreshold(TotalAssignedPlayers))
     {
         AbyssGameState->SetMatchResult(EAbyssTeam::Saboteur, TEXT("crew_threshold"));
+        StopMatchTimer();
         UE_LOG(LogAbyssGameplay, Log, TEXT("match_end winner=saboteur reason=crew_threshold livingCrew=%d"), LivingCrew);
         if (UGameInstance* GameInstance = GetGameInstance())
         {
@@ -1618,6 +1701,7 @@ bool AAbyssLockGameMode::EvaluateMatchEnd()
     if (AbyssGameState->GetMatchPhase() == EAbyssMatchPhase::FinalApproach && ActiveCrew >= GetRequiredCrewSurvivors(TotalAssignedPlayers))
     {
         AbyssGameState->SetMatchResult(EAbyssTeam::Crew, TEXT("final_approach_complete"));
+        StopMatchTimer();
         UE_LOG(LogAbyssGameplay, Log, TEXT("match_end winner=crew reason=final_approach_complete activeCrew=%d"), ActiveCrew);
         if (UGameInstance* GameInstance = GetGameInstance())
         {
@@ -1682,6 +1766,7 @@ bool AAbyssLockGameMode::TryStartMatchFromReady()
 
     AssignRolesForCurrentPlayersInternal(SaboteurOverride);
     AbyssGameState->SetMatchPhase(EAbyssMatchPhase::InProgress);
+    StartMatchTimer();
     UE_LOG(LogAbyssGameplay, Log, TEXT("match_started source=ready_lobby players=%d ready=%d"), PlayerCount, ReadyCount);
 
     if (UGameInstance* GameInstance = GetGameInstance())

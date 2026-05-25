@@ -24,6 +24,8 @@ class LogSummaryTests(unittest.TestCase):
         self.assertEqual(summary["players_disconnected"], 1)
         self.assertEqual(summary["match_started"], 1)
         self.assertEqual(summary["match_ended"], 1)
+        self.assertEqual(summary["match_timer_started"], 0)
+        self.assertEqual(summary["match_timer_expired"], 0)
         self.assertEqual(summary["ship_task_repairs"], 1)
         self.assertEqual(summary["ship_task_sabotages"], 1)
         self.assertEqual(summary["door_toggles"], 1)

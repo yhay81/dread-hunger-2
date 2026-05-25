@@ -23,6 +23,8 @@ TELEMETRY_FIELDS = [
     "players_disconnected",
     "match_started",
     "match_ended",
+    "match_timer_started",
+    "match_timer_expired",
     "last_role_assignment.players",
     "last_role_assignment.saboteurs",
     "last_match_result.winner",

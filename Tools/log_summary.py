@@ -288,6 +288,8 @@ def summarize_events(path: Path) -> dict[str, Any]:
         "last_elapsed_seconds": last_elapsed_seconds,
         "match_started": counts.get("match_started", 0) + counts.get("round_start", 0),
         "match_ended": counts.get("match_ended", 0) + counts.get("round_end", 0),
+        "match_timer_started": counts.get("match_timer_started", 0),
+        "match_timer_expired": counts.get("match_timer_expired", 0),
         "final_approach_started": counts.get("final_approach_started", 0),
         "players_connected": counts.get("player_connect", 0) + counts.get("client_connected", 0),
         "players_disconnected": counts.get("player_disconnect", 0) + counts.get("client_disconnected", 0),

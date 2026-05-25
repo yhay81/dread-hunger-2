@@ -28,9 +28,15 @@ public:
 
 private:
     bool bDevAutoStarted = false;
+    FTimerHandle MatchTimerHandle;
+    float MatchDurationSeconds = 25.0f * 60.0f;
+    double MatchEndWorldSeconds = 0.0;
 
     void AssignRolesForCurrentPlayersInternal(int32 SaboteurCountOverride);
     void TryAutoStartMatchForDev();
+    void StartMatchTimer();
+    void StopMatchTimer();
+    void HandleMatchTimerTick();
     void RunDevSmokeTaskInteraction();
     void RunDevSmokeDownRescue();
     void RunDevSmokeContainment();

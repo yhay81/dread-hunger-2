@@ -25,6 +25,7 @@ SMOKE_PROFILES = (
     "qa-bot",
     "qa-player-bot",
     "qa-task-bot",
+    "match-timer",
 )
 
 
@@ -65,6 +66,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--smoke-qa-bot", action="store_true", help="Run a dev-only QA bot spawn/move/interact smoke after match start.")
     parser.add_argument("--smoke-qa-player-bot", action="store_true", help="Run a dev-only PlayerState-backed QA bot door interaction smoke after match start.")
     parser.add_argument("--smoke-qa-task-bot", action="store_true", help="Run a dev-only PlayerState-backed QA bot ship-task interaction smoke after match start.")
+    parser.add_argument("--smoke-match-timer", action="store_true", help="Run a dev-only match timer expiry smoke.")
     parser.add_argument("--no-auto-start", action="store_true", help="Do not pass -AbyssAutoStart; useful for lobby ready smoke tests.")
     parser.add_argument("--auto-ready", action="store_true", help="Pass a dev-only flag that marks players ready after login.")
     parser.add_argument("--lobby-min-players", type=int, default=None, help="Dev-only override for the ready-lobby start threshold.")
@@ -173,6 +175,14 @@ def apply_profile(args: argparse.Namespace) -> None:
             "match_timeout": 120,
             "client_launch_spacing": 1.5,
         },
+        "match-timer": {
+            "clients": 0,
+            "host_only": True,
+            "smoke_match_timer": True,
+            "duration": 1,
+            "startup_timeout": 60,
+            "match_timeout": 30,
+        },
     }
 
     for key, value in profiles[args.profile].items():
@@ -208,6 +218,7 @@ def describe_effective_settings(args: argparse.Namespace) -> dict[str, object]:
         "smoke_qa_bot",
         "smoke_qa_player_bot",
         "smoke_qa_task_bot",
+        "smoke_match_timer",
         "no_auto_start",
         "auto_ready",
         "lobby_min_players",
@@ -491,6 +502,8 @@ def main() -> int:
         host_command.append("-AbyssSmokeQaPlayerBot")
     if args.smoke_qa_task_bot:
         host_command.append("-AbyssSmokeQaTaskBot")
+    if args.smoke_match_timer:
+        host_command.append("-AbyssMatchDurationSeconds=1.0")
     if args.auto_ready:
         host_command.append("-AbyssAutoReady")
     if args.lobby_min_players is not None:
@@ -599,6 +612,11 @@ def main() -> int:
             if not qa_task_bot:
                 print(f"[FAIL] QA task bot smoke did not complete within {args.match_timeout}s")
                 return 28
+        if args.smoke_match_timer:
+            match_timer = wait_for_log(host_log, ("match_timer_expired", "timer_expired"), args.match_timeout)
+            if not match_timer:
+                print(f"[FAIL] match timer smoke did not complete within {args.match_timeout}s")
+                return 29
 
         if args.expected_players is not None or args.expected_saboteurs is not None:
             assignment = last_role_assignment(events_log)

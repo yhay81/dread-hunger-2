@@ -25,7 +25,7 @@ This backlog is ordered for a 30-day greybox prototype. Convert each entry into 
 | P1-012 | Add repair task | `AAbyssShipTaskActor` repair path builds, is placed in the whitebox map, and logs `ship_task_applied` in a local host+client smoke |
 | P1-013 | Add ship system state | C++ replicated `ShipSystems` and route objective progress build and drive task smoke |
 | P1-014 | Add crew win condition | 5-player local smoke progresses route to FinalApproach and ends with crew win |
-| P1-015 | Add saboteur win condition | 5-player local smoke drives a critical ship system to zero through sabotage and ends with saboteur win; timer hook pending |
+| P1-015 | Add saboteur win condition | 5-player local smoke drives a critical ship system to zero through sabotage and ends with saboteur win; `match-timer` smoke validates timer expiry as a saboteur win |
 | P1-016 | Add whitebox PvE enemy | 5-player local smoke spawns a replicated server-authoritative PvE enemy, applies damage, downs a target, and rescues the target to leave the match stable |
 
 ## Week 3
@@ -44,7 +44,7 @@ This backlog is ordered for a 30-day greybox prototype. Convert each entry into 
 
 - Phase 1 local automation milestone is recorded in `docs/phase1-milestone-report.md`.
 - Current best evidence is `Saved/SmokeSuites/suite-20260525-050522/suite_summary.md`.
-- Automated 5-8 player listen-server gates are strong enough to schedule P1-024, and telemetry now records run metadata, connection lifecycle, duration, and match duration. Human fun validation, full 8-player human completion, interaction-based rescue/containment, timer win, manual movement feel, and Dedicated Server validation remain open.
+- Automated 5-8 player listen-server gates are strong enough to schedule P1-024, and telemetry now records run metadata, connection lifecycle, duration, match duration, and timer expiry. Human fun validation, full 8-player human completion, interaction-based rescue/containment, manual movement feel, and Dedicated Server validation remain open.
 
 ## Week 4
 

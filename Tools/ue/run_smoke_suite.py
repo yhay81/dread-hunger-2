@@ -13,7 +13,7 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[2]
 RUN_LOCAL_SMOKE = ROOT / "Tools" / "ue" / "run_local_smoke.py"
 LOG_SUMMARY = ROOT / "Tools" / "log_summary.py"
-DEFAULT_QUICK_PROFILES = ("qa-bot", "qa-player-bot")
+DEFAULT_QUICK_PROFILES = ("qa-bot", "qa-player-bot", "match-timer")
 HEAVY_PROFILES = ("qa-task-bot", "combined5", "ready8", "combined8")
 
 
