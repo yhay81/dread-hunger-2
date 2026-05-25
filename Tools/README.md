@@ -14,6 +14,7 @@ Implemented:
 
 - `quality_gate.py`: runs static repository gates for each improvement cycle.
 - `backlog_to_issues.py`: exports Phase 1 backlog rows to issue-import CSV and Markdown.
+- `github_issue_sync.py`: dry-runs or creates GitHub issues from the generated issue-import CSV.
 - `unreal_gate.py`: runs UE project generation and local Editor/Game build gates.
 - `new_cycle.py`: creates the next cycle record under `docs/cycles/`.
 - `log_summary.py`: summarizes JSONL match telemetry for Phase 1 QA.

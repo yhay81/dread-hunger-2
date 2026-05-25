@@ -67,6 +67,7 @@
     "docs/asset-scorecard.md",
     "Tools/asset_ledger_check.py",
     "Tools/backlog_to_issues.py",
+    "Tools/github_issue_sync.py",
     "Tools/log_summary.py",
     "Tools/playtest_preflight.py",
     "Tools/playtest_run_scaffold.py",
@@ -88,6 +89,7 @@
     "tests/test_playtest_preflight.py",
     "tests/test_playtest_run_scaffold.py",
     "tests/test_ops_tools.py",
+    "tests/test_github_issue_sync.py",
     "Tools/ops/secret_scan.sh",
     "Tools/ops/server_config.schema.json",
     "Tools/ops/server_config.example.json"
@@ -111,6 +113,7 @@
     "Tools/log_summary.py",
     "Tools/asset_ledger_check.py",
     "Tools/backlog_to_issues.py",
+    "Tools/github_issue_sync.py",
     "Tools/new_cycle.py",
     "Tools/playtest_preflight.py",
     "Tools/playtest_run_scaffold.py",
@@ -130,7 +133,8 @@
     "tests/test_playtest_summary.py",
     "tests/test_playtest_preflight.py",
     "tests/test_playtest_run_scaffold.py",
-    "tests/test_ops_tools.py"
+    "tests/test_ops_tools.py",
+    "tests/test_github_issue_sync.py"
   ],
   "shell_files": [
     "Tools/ops/secret_scan.sh",
