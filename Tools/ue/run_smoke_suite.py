@@ -5,6 +5,7 @@ import argparse
 import datetime as dt
 import json
 import subprocess
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -27,6 +28,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--include-heavy", action="store_true", help="Append heavier 5-8 player profiles to the default quick suite.")
     parser.add_argument("--skip-build", action="store_true", help="Pass --skip-build to each smoke profile.")
     parser.add_argument("--null-rhi", action="store_true", help="Pass --null-rhi to each smoke profile.")
+    parser.add_argument("--platform", default=None, help="Pass --platform to each smoke profile, for example Win64.")
+    parser.add_argument("--ue-root", default=None, help="Pass --ue-root to each smoke profile.")
     parser.add_argument("--suite-dir", type=Path, default=None, help="Output directory for suite logs and suite_summary.json.")
     return parser.parse_args()
 
@@ -60,7 +63,7 @@ def summarize_events(events_path: Path) -> dict[str, Any] | None:
     if not events_path.exists():
         return None
 
-    completed = run_command(["python3", str(LOG_SUMMARY), str(events_path)])
+    completed = run_command([sys.executable, str(LOG_SUMMARY), str(events_path)])
     if completed.returncode != 0:
         return {
             "summary_error": completed.stderr.strip() or completed.stdout.strip() or f"exit code {completed.returncode}",
@@ -79,13 +82,17 @@ def main() -> int:
     for index, profile in enumerate(profiles, start=1):
         profile_dir = suite_dir / f"{index:02d}-{profile}"
         command = [
-            "python3",
+            sys.executable,
             str(RUN_LOCAL_SMOKE),
             "--profile",
             profile,
             "--log-dir",
             str(profile_dir),
         ]
+        if args.platform:
+            command.extend(["--platform", args.platform])
+        if args.ue_root:
+            command.extend(["--ue-root", args.ue_root])
         if args.skip_build:
             command.append("--skip-build")
         if args.null_rhi:

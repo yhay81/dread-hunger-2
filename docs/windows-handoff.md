@@ -68,11 +68,17 @@ After Editor/Game builds pass:
 py -3 Tools\ue\run_local_smoke.py --profile qa-bot --skip-build --null-rhi --platform Win64
 py -3 Tools\ue\run_local_smoke.py --profile combined5 --skip-build --null-rhi --platform Win64
 py -3 Tools\ue\run_local_smoke.py --profile ready8 --skip-build --null-rhi --platform Win64
+py -3 Tools\ue\run_smoke_suite.py --skip-build --null-rhi --platform Win64
+py -3 Tools\ue\run_smoke_suite.py --include-heavy --skip-build --null-rhi --platform Win64
 ```
 
 The known good Mac evidence before handoff was the heavy listen-server smoke suite recorded in `docs/phase1-milestone-report.md`. The Windows clone should recreate fresh `Saved/SmokeTests` or `Saved/SmokeSuites` evidence locally; those generated folders stay ignored.
 
-The current P1-024 human-test scaffold creates POSIX shell scripts. Treat it as a command reference on Windows until a PowerShell version is added.
+The P1-024 human-test scaffold creates Windows PowerShell scripts plus legacy POSIX shell scripts:
+
+```powershell
+py -3 Tools\playtest_run_scaffold.py --run-number 1 --target-players 6
+```
 
 ## Visual POC
 
@@ -90,9 +96,12 @@ The first recommended evaluation package is the free `Modular Ship Interior Envi
 
 - `Binaries/`
 - `Build/Mac/`
+- `Build/Windows/`
 - `DerivedDataCache/`
 - `Intermediate/`
 - `Saved/`
+- `.vs/`
+- generated `.sln`, `.vcxproj`, and `.xcworkspace` files
 - `Tools/install/`
 - `references/private/`
 - downloaded third-party game/server files

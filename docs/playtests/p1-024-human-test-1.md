@@ -10,11 +10,11 @@ This test is not for art, balance polish, store readiness, or production network
 
 ## Current Technical Baseline
 
-- Build path: Unreal Editor/Game listen-server validation only.
-- Dedicated Server: blocked by Launcher UE distribution; use listen-server until source-built UE is available.
+- Build path: Windows `Win64` Unreal Editor/Game listen-server validation.
+- Dedicated Server: retest on Windows with `--platform Win64 --include-server`; if Launcher UE blocks it, use a UE source build.
 - Best automation evidence: `Saved/SmokeSuites/suite-20260525-050522/suite_summary.md`.
-- Pre-test gate: `python3 Tools/quality_gate.py --require-ue` must pass.
-- Optional pre-test gate: `python3 Tools/ue/run_smoke_suite.py --include-heavy --skip-build --null-rhi` should pass if there was any code or map change after Cycle 26.
+- Pre-test gate: `py -3 Tools\quality_gate.py --require-ue` must pass.
+- Optional pre-test gate: `py -3 Tools\ue\run_smoke_suite.py --include-heavy --skip-build --null-rhi --platform Win64` should pass if there was any code or map change after Cycle 26.
 
 ## Test Size
 
@@ -30,7 +30,7 @@ Fill this before launch:
 
 ```text
 RunId: P1-024-run-__
-Build: AbyssLock Mac Development, UE 5.7
+Build: AbyssLock Win64 Development, UE 5.7
 Commit or local snapshot:
 Host machine:
 Host LAN IP:
@@ -66,16 +66,16 @@ Do not use Dread Hunger names, roles, factions, or framing during the test.
 
 Run from the repository root:
 
-```bash
-python3 Tools/quality_gate.py --require-ue
-python3 Tools/unreal_gate.py --skip-generate --include-server
-python3 Tools/ue/run_local_smoke.py --profile ready8 --skip-build --null-rhi
+```powershell
+py -3 Tools\quality_gate.py --require-ue
+py -3 Tools\unreal_gate.py --skip-generate --platform Win64 --include-server
+py -3 Tools\ue\run_local_smoke.py --profile ready8 --skip-build --null-rhi --platform Win64
 ```
 
 Expected result:
 
 - `quality_gate.py` passes.
-- `unreal_gate.py` reports Editor/Game pass and Server blocked.
+- `unreal_gate.py` reports Editor/Game pass and records the Windows Server target result.
 - `ready8` smoke passes with `8p/2s` role assignment.
 - Startup evidence appears in host logs: listen port, whitebox map load, `role_assignment_complete`, no fatal/crash log terms.
 
@@ -85,34 +85,19 @@ If the `ready8` smoke fails, do not run the human test. Fix the startup or role-
 
 Use one local directory per run:
 
-```bash
-python3 Tools/playtest_run_scaffold.py --run-number 1 --target-players 6
+```powershell
+py -3 Tools\playtest_run_scaffold.py --run-number 1 --target-players 6
 ```
 
-This creates `Saved/Playtests/P1-024/run-01/` with `host.sh`, `client-local.sh`, `client-lan.sh`, `preflight.sh`, `after-test.sh`, `host-notes.md`, `player-brief.md`, and local evidence folders. Raw logs and recordings stay out of git. After the test, summarize the run in a committed markdown note and keep raw evidence under `Saved/Playtests/...`.
+This creates `Saved/Playtests/P1-024/run-01/` with `host.ps1`, `client-local.ps1`, `client-lan.ps1`, `preflight.ps1`, `after-test.ps1`, legacy `.sh` scripts, notes, and local evidence folders. Raw logs and recordings stay out of git. After the test, summarize the run in a committed markdown note and keep raw evidence under `Saved/Playtests/...`.
 
 ## Listen Host Launch
 
-Replace `run-01` with the current run id.
+Replace `run-01` with the current run id. Set `UE_ROOT` first if Unreal is not installed at the default Epic path.
 
-```bash
-"/Users/Shared/Epic Games/UE_5.7/Engine/Binaries/Mac/UnrealEditor" \
-  "$PWD/AbyssLock.uproject" \
-  "/Game/Maps/L_IcebreakerWhitebox?listen" \
-  -game \
-  -windowed \
-  -ResX=1280 \
-  -ResY=720 \
-  -NoLiveCoding \
-  -nop4 \
-  -port=7777 \
-  -AbyssEventLog="$PWD/Saved/Playtests/P1-024/run-01/events.jsonl" \
-  -AbyssRunId=P1-024-run-01 \
-  -AbyssBuildId="AbyssLock-Mac-Development-local" \
-  -AbyssMapId="/Game/Maps/L_IcebreakerWhitebox" \
-  -AbyssProfile=human-p1-024 \
-  -AbyssAutoReady \
-  -AbyssLobbyMinPlayers=6
+```powershell
+$env:UE_ROOT = "C:\Program Files\Epic Games\UE_5.7"
+.\Saved\Playtests\P1-024\run-01\host.ps1
 ```
 
 Use `-AbyssLobbyMinPlayers=8` for the target 8-player run if all players are ready before launch.
@@ -121,34 +106,17 @@ Use `-AbyssLobbyMinPlayers=8` for the target 8-player run if all players are rea
 
 Same machine client:
 
-```bash
-"/Users/Shared/Epic Games/UE_5.7/Engine/Binaries/Mac/UnrealEditor" \
-  "$PWD/AbyssLock.uproject" \
-  "127.0.0.1:7777" \
-  -game \
-  -windowed \
-  -ResX=1280 \
-  -ResY=720 \
-  -NoLiveCoding \
-  -nop4 \
-  -port=7778
+```powershell
+.\Saved\Playtests\P1-024\run-01\client-local.ps1
 ```
 
 LAN client:
 
-```bash
-"/Users/Shared/Epic Games/UE_5.7/Engine/Binaries/Mac/UnrealEditor" \
-  "$PWD/AbyssLock.uproject" \
-  "<host-lan-ip>:7777" \
-  -game \
-  -windowed \
-  -ResX=1280 \
-  -ResY=720 \
-  -NoLiveCoding \
-  -nop4
+```powershell
+.\Saved\Playtests\P1-024\run-01\client-lan.ps1 -HostLanIp <host-lan-ip>
 ```
 
-If multiple clients run on the same Mac, give each client a unique port, such as `-port=7778`, `-port=7779`, and `-port=7780`.
+If multiple clients run on the same Windows host, give each client a unique port, such as `-port=7778`, `-port=7779`, and `-port=7780`.
 
 ## Communication Rule
 

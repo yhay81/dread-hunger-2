@@ -50,7 +50,7 @@ This backlog is ordered for a 30-day greybox prototype. Convert each entry into 
 
 | ID | Task | Done When |
 | --- | --- | --- |
-| P1-024 | Run 6-8 player human test 1 | Packet prepared in `docs/playtests/p1-024-human-test-1.md`; `Tools/playtest_run_scaffold.py` creates ignored local run folders and launch scripts; anonymized summary template prepared in `docs/playtests/p1-024-summary-template.md`; `Tools/playtest_summary.py` can generate the summary skeleton from `log_summary.py` JSON; `Tools/playtest_preflight.py` checks human-summary gates and redaction before commit; non-human dry-run example exists at `docs/playtests/p1-024-dry-run-summary-example.md`; complete when human log, notes, decision list, and preflight pass are saved |
+| P1-024 | Run 6-8 player human test 1 | Packet prepared in `docs/playtests/p1-024-human-test-1.md`; `Tools/playtest_run_scaffold.py` creates ignored Windows PowerShell run folders and launch scripts; anonymized summary template prepared in `docs/playtests/p1-024-summary-template.md`; `Tools/playtest_summary.py` can generate the summary skeleton from `log_summary.py` JSON; `Tools/playtest_preflight.py` checks human-summary gates and redaction before commit; non-human dry-run example exists at `docs/playtests/p1-024-dry-run-summary-example.md`; complete when human log, notes, decision list, and preflight pass are saved |
 | P1-025 | Fix top 5 blockers | Retest confirms blockers are gone |
 | P1-026 | Run 6-8 player human test 2 | Players can complete a match |
 | P1-027 | Run 8-player target test | At least one full 8-player match ends |
