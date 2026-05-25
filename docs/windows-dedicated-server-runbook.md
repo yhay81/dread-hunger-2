@@ -113,6 +113,24 @@ Useful overrides:
 
 The wrapper validates the server config, writes ignored evidence under `Saved\DedicatedServerValidation\...`, stops the server after the probe duration, and runs `Tools\log_summary.py` if the configured event log is produced.
 
+After boot validation passes, run the dedicated client join probe:
+
+```powershell
+.\Tools\windows\run_dedicated_client_join_validation.ps1
+```
+
+Useful overrides:
+
+```powershell
+.\Tools\windows\run_dedicated_client_join_validation.ps1 `
+  -ServerExe ".\Binaries\Win64\AbyssLockServer.exe" `
+  -ServerConfig ".\Saved\Config\server_config.local.json" `
+  -UeRoot "D:\Epic Games\UE_5.7" `
+  -Port 7777
+```
+
+The wrapper starts the server, launches one `UnrealEditor.exe -game` client against `127.0.0.1:<port>`, stops both processes, summarizes the server JSONL log, and fails if `client_connected` is not recorded.
+
 ## Ports And Firewall
 
 Concrete public-server port policy is TBD until the Windows server target is verified and Steam networking decisions are made.
@@ -204,11 +222,11 @@ Decision:
 
 ## Next Dedicated Server Gate
 
-After boot validation passes, add and run a client-join validation:
+After boot validation passes, run a client-join validation:
 
 - start `AbyssLockServer.exe`;
 - launch one Windows client against the server endpoint;
 - confirm `client_connected` telemetry;
-- confirm ready/match start can occur without a local listen host;
+- confirm a client can connect without a local listen host;
 - summarize the dedicated-server event log with `Tools\log_summary.py`;
-- keep raw logs under ignored `Saved\DedicatedServerValidation\`.
+- keep raw logs under ignored `Saved\DedicatedClientJoinValidation\`.

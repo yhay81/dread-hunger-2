@@ -68,6 +68,7 @@ The first local dedicated-server boot probe is:
 
 ```powershell
 .\Tools\windows\run_dedicated_server_validation.ps1
+.\Tools\windows\run_dedicated_client_join_validation.ps1
 ```
 
 ## Project Files

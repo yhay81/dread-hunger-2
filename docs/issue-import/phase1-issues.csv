@@ -333,7 +333,7 @@ P1-031: Resume on Windows workstation,"Source: `docs/phase1-backlog.md`
 
 Done when:
 
-Windows clone passes `quality_gate.py --require-ue`, `unreal_gate.py --platform Win64 --include-server`, and at least `qa-bot`, `match-timer`, `life-action`, `combined5`, and `ready8` smoke profiles; `docs/windows-validation-template.md` is filled into a new cycle or dated result note; server-target result is recorded
+Windows clone passes `quality_gate.py --require-ue`, `unreal_gate.py --platform Win64 --include-server`, dedicated-server boot/client-join probes, and at least `qa-bot`, `match-timer`, `life-action`, `combined5`, and `ready8` smoke profiles; `docs/windows-validation-template.md` is filled into a new cycle or dated result note; server-target result is recorded
 
 Validation evidence:
 
