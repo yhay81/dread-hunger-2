@@ -1,0 +1,12 @@
+{
+  "serverName": "Frostwake Test Server",
+  "region": "jp",
+  "maxPlayers": 8,
+  "map": "L_IcebreakerWhitebox",
+  "ruleset": "standard",
+  "adminTokenEnv": "FROSTWAKE_ADMIN_TOKEN",
+  "banlistPath": "Saved/Config/banlist.json",
+  "logPath": "Saved/Logs/server.jsonl",
+  "advertise": true,
+  "autoShutdownAfterMatch": false
+}

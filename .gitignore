@@ -1,0 +1,60 @@
+# macOS
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+.vs/
+*.sln
+*.xcodeproj/
+*.xcworkspace/
+
+# Local environments and secrets
+.env
+.env.*
+!.env.example
+.venv/
+venv/
+node_modules/
+.mypy_cache/
+__pycache__/
+*.pyc
+*.db
+
+# Unreal generated files
+Binaries/
+Build/Mac/
+DerivedDataCache/
+Intermediate/
+Saved/
+Script/
+
+# Unreal local files
+*.opensdf
+*.sdf
+*.suo
+*.user
+*.userprefs
+*.VC.db
+*.VC.opendb
+
+# Build artifacts and logs
+*.log
+*.tmp
+*.bak
+*.zip
+*.7z
+*.dmg
+*.exe
+*.dll
+*.pdb
+*.pak
+*.ucas
+*.utoc
+Tools/install/
+
+# Local-only external references. Do not commit third-party game files.
+references/raw/
+references/private/
+references/imports/
+references/inventory/

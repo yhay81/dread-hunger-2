@@ -1,0 +1,83 @@
+{
+  "policy": "Tracked files may store paths and notes only. Local-only ignored copies are allowed under references/private/raw/ for research, but must never be staged, committed, pushed, used as production dependencies, or migrated into the future product repository.",
+  "paths": [
+    {
+      "category": "server_binary_candidate",
+      "path": "/Users/yhay81/Development/DreadHungerWorkspace/2024-01-10/WindowsServer",
+      "risk": "high",
+      "allowed_use": "ignored private copy and local metadata only"
+    },
+    {
+      "category": "server_binary_candidate",
+      "path": "/Users/yhay81/Development/DreadHungerWorkspace/2024-01-10/WindowsServer/DreadHunger",
+      "risk": "high",
+      "allowed_use": "ignored private copy and local metadata only"
+    },
+    {
+      "category": "server_binary_candidate",
+      "path": "/Users/yhay81/Development/DreadHungerWorkspace/2024-01-10/WindowsServer/DreadHunger/Binaries/Win64",
+      "risk": "high",
+      "allowed_use": "ignored private copy and local metadata only"
+    },
+    {
+      "category": "server_binary_candidate",
+      "path": "/Users/yhay81/Development/DreadHungerWorkspace/2024-01-10/WindowsServer 2",
+      "risk": "high",
+      "allowed_use": "ignored private copy and local metadata only"
+    },
+    {
+      "category": "workspace_archive",
+      "path": "/Users/yhay81/Development/DreadHungerWorkspace",
+      "risk": "high",
+      "allowed_use": "ignored private copy and local metadata only"
+    },
+    {
+      "category": "workspace_archive",
+      "path": "/Users/yhay81/Development/DreadHungerWorkspace/2024-01-10",
+      "risk": "high",
+      "allowed_use": "ignored private copy and local metadata only"
+    },
+    {
+      "category": "workspace_archive",
+      "path": "/Users/yhay81/Document/10_アーカイブ/99_その他/WindowsServer 5/DreadHunger",
+      "risk": "high",
+      "allowed_use": "ignored private copy and local metadata only"
+    },
+    {
+      "category": "owned_or_local_code_candidate",
+      "path": "/Users/yhay81/ghq/github.com/yhay81/dread-hunger-server",
+      "risk": "medium",
+      "allowed_use": "ignored private copy permitted; license check before tracked reuse"
+    },
+    {
+      "category": "owned_or_local_code_candidate",
+      "path": "/Users/yhay81/ghq/github.com/yhay81/dread-hunger-server/dhs",
+      "risk": "medium",
+      "allowed_use": "ignored private copy permitted; license check before tracked reuse"
+    },
+    {
+      "category": "owned_or_local_code_candidate",
+      "path": "/Users/yhay81/ghq/github.com/yhay81/dread-hunger-server/temp",
+      "risk": "medium",
+      "allowed_use": "ignored private copy permitted; license check before tracked reuse"
+    },
+    {
+      "category": "related_project_candidate",
+      "path": "/Users/yhay81/ghq/github.com/yhay81/dread-hunger-lounge-api",
+      "risk": "medium",
+      "allowed_use": "ignored private copy permitted; license check before tracked reuse"
+    },
+    {
+      "category": "current_project",
+      "path": "/Users/yhay81/ghq/github.com/yhay81/dread-hunger-2",
+      "risk": "medium",
+      "allowed_use": "rename before public release"
+    },
+    {
+      "category": "public_or_community_project_candidate",
+      "path": "/Users/yhay81/ghq/github.com/Dread-Hunger-Community/dread-hunger.net",
+      "risk": "medium",
+      "allowed_use": "ignored private copy permitted; license check before tracked reuse"
+    }
+  ]
+}

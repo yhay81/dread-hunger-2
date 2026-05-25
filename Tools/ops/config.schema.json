@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Frostwake Ops Config",
+  "type": "object",
+  "required": ["environment", "logging"],
+  "additionalProperties": false,
+  "properties": {
+    "environment": {
+      "type": "string",
+      "enum": ["local", "playtest", "production"]
+    },
+    "logging": {
+      "type": "object",
+      "required": ["level", "redactFields"],
+      "additionalProperties": false,
+      "properties": {
+        "level": {
+          "type": "string",
+          "enum": ["DEBUG", "INFO", "WARNING", "ERROR"]
+        },
+        "redactFields": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "serverTtlMinutes": {
+      "type": "integer",
+      "minimum": 15,
+      "maximum": 1440
+    }
+  }
+}

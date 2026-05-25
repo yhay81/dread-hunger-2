@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Frostwake Dedicated Server Config",
+  "type": "object",
+  "required": ["serverName", "region", "maxPlayers", "map", "ruleset"],
+  "additionalProperties": false,
+  "properties": {
+    "serverName": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "region": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 16
+    },
+    "maxPlayers": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 8
+    },
+    "map": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "ruleset": {
+      "type": "string",
+      "enum": ["standard", "private_test", "developer"]
+    },
+    "adminTokenEnv": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "banlistPath": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "logPath": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "advertise": {
+      "type": "boolean"
+    },
+    "autoShutdownAfterMatch": {
+      "type": "boolean"
+    }
+  }
+}
