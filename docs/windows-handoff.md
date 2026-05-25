@@ -50,6 +50,8 @@ Expected result:
 - `AbyssLockEditor` and `AbyssLock` should build.
 - `AbyssLockServer` should be attempted. If the Launcher UE distribution blocks Server targets, install or build a UE source distribution and rerun with `UE_ROOT` pointing to that source build.
 
+Record the full first-run result using [Windows Validation Template](windows-validation-template.md).
+
 ## Project Files
 
 Generate Visual Studio files with either the Unreal shell integration or:
@@ -111,6 +113,6 @@ The first recommended evaluation package is the free `Modular Ship Interior Envi
 
 1. Clone and run `py -3 Tools\quality_gate.py --require-ue`.
 2. Run `py -3 Tools\unreal_gate.py --skip-generate --platform Win64 --include-server`.
-3. If server build passes, record the result in a new cycle. If it is blocked, document whether a UE source build is required on Windows.
+3. Fill [Windows Validation Template](windows-validation-template.md). If server build passes, record the result in a new cycle. If it is blocked, document whether a UE source build is required on Windows.
 4. Run `qa-bot`, `combined5`, and `ready8` smoke profiles.
 5. Only after those pass, proceed to the visual POC or P1-024 human playtest.

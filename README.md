@@ -38,6 +38,7 @@ This repository is the research and prototype workspace. The immediate goal is n
 - [Production Plan](docs/production-plan.md)
 - [QA Plan](docs/qa-plan.md)
 - [Windows Handoff](docs/windows-handoff.md)
+- [Windows Validation Template](docs/windows-validation-template.md)
 - [Playtest Data And Moderation](docs/playtest-data-and-moderation.md)
 - [Art Bible](docs/art-bible.md)
 - [Asset Acquisition Plan](docs/asset-acquisition-plan.md)
