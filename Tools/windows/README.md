@@ -91,6 +91,20 @@ If you create ignored local Steam settings under `Saved\Config\steam_dev.local.i
 
 See `docs\steam-dev-config-gate.md`.
 
+## Steam Lobby Preflight
+
+Before implementing or running the Steam Lobby runtime spike, validate Steam dev config plus lobby metadata:
+
+```powershell
+.\Tools\windows\run_steam_lobby_validation.ps1 `
+  -SteamConfig Saved\Config\steam_dev.local.ini `
+  -RequireSteamConfig `
+  -ExpectedBuildId AbyssLock-Win64-Development-local `
+  -ExpectedMapId L_IcebreakerWhitebox
+```
+
+The wrapper writes ignored evidence under `Saved\SteamLobbyValidation\`. `-Runtime` intentionally fails until `UAbyssLobbySubsystem` is implemented from `docs\steam-lobby-subsystem-design.md`.
+
 ## Output
 
-First-run validation output is written under ignored `Saved\WindowsValidation\`. Dedicated-server probe output is written under ignored `Saved\DedicatedServerValidation\`, `Saved\DedicatedClientJoinValidation\`, or `Saved\DedicatedReadyValidation\`. Phase 2 entry wrapper output is written under ignored `Saved\Phase2EntryValidation\` with `summary.txt`, `manifest.json`, and per-step logs. Copy the key pass/fail lines into `docs/windows-validation-template.md`, `docs/windows-phase2-entry-template.md`, or a new cycle record. Do not commit generated logs.
+First-run validation output is written under ignored `Saved\WindowsValidation\`. Dedicated-server probe output is written under ignored `Saved\DedicatedServerValidation\`, `Saved\DedicatedClientJoinValidation\`, or `Saved\DedicatedReadyValidation\`. Phase 2 entry wrapper output is written under ignored `Saved\Phase2EntryValidation\` with `summary.txt`, `manifest.json`, and per-step logs. Steam Lobby preflight output is written under ignored `Saved\SteamLobbyValidation\`. Copy the key pass/fail lines into `docs/windows-validation-template.md`, `docs/windows-phase2-entry-template.md`, `docs/steam-lobby-validation-template.md`, or a new cycle record. Do not commit generated logs.

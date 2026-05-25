@@ -102,7 +102,7 @@ Before Steam Lobby work:
 py -3 Tools\ops\lobby_metadata_check.py Tools\ops\lobby_metadata.example.json --expected-build-id AbyssLock-Win64-Development-local --expected-map-id L_IcebreakerWhitebox
 ```
 
-Future P2-003 runtime command:
+P2-003 preflight command:
 
 ```powershell
 .\Tools\windows\run_steam_lobby_validation.ps1 `
@@ -111,7 +111,7 @@ Future P2-003 runtime command:
   -ExpectedMapId L_IcebreakerWhitebox
 ```
 
-The future wrapper should fail unless telemetry includes create, search, join, metadata validation, travel, `client_connected`, and ready-lobby match-start evidence.
+After `UAbyssLobbySubsystem` exists, add `-Runtime`. The runtime path should fail unless telemetry includes create, search, join, metadata validation, travel, `client_connected`, and ready-lobby match-start evidence.
 
 ## Not In This Spike
 
@@ -121,4 +121,3 @@ The future wrapper should fail unless telemetry includes create, search, join, m
 - Ownership/auth ticket trust for moderation.
 - Dedicated Server Tool App packaging.
 - Voice chat.
-
