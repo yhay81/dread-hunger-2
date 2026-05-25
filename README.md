@@ -31,6 +31,7 @@ This repository is the research and prototype workspace. The immediate goal is n
 - [Network Rules](docs/network-rules.md)
 - [Server Hosting Model](docs/server-hosting-model.md)
 - [Technical Architecture](docs/technical-architecture.md)
+- [Backend Contract](docs/backend-contract.md)
 - [Steam-Native Implementation Backlog](docs/steam-native-implementation-backlog.md)
 - [Commercial Quality Target](docs/commercial-quality-target.md)
 - [Agent Operating Model](docs/agent-operating-model.md)
@@ -39,6 +40,7 @@ This repository is the research and prototype workspace. The immediate goal is n
 - [QA Plan](docs/qa-plan.md)
 - [Windows Handoff](docs/windows-handoff.md)
 - [Windows Validation Template](docs/windows-validation-template.md)
+- [Windows Dedicated Server Runbook](docs/windows-dedicated-server-runbook.md)
 - [Playtest Data And Moderation](docs/playtest-data-and-moderation.md)
 - [Art Bible](docs/art-bible.md)
 - [Asset Acquisition Plan](docs/asset-acquisition-plan.md)
@@ -49,14 +51,18 @@ This repository is the research and prototype workspace. The immediate goal is n
 - [AI Content Disclosure](docs/ai-content-disclosure.md)
 - [Asset Ledger](docs/asset-ledger.md)
 - [Asset Ledger Candidates](docs/asset-ledger-candidates.csv)
+- [Asset Scorecard](docs/asset-scorecard.md)
 - [IP Risk Register](docs/ip-risk.md)
 - [Competitive Analysis](docs/competitive-analysis.md)
 - [Phase 1 Backlog](docs/phase1-backlog.md)
+- [Issue Import](docs/issue-import/README.md)
 
 ## Phase 1 Current Milestone
 
 - [Phase 1 Milestone Report](docs/phase1-milestone-report.md)
 - [P1-024 Human Playtest Packet 1](docs/playtests/p1-024-human-test-1.md)
+- [P1-024 Observer Sheet](docs/playtests/p1-024-observer-sheet.md)
+- [P1-024 Post-Round Survey](docs/playtests/p1-024-post-round-survey.md)
 - [P1-024 Anonymized Summary Template](docs/playtests/p1-024-summary-template.md)
 - [P1-024 Dry-Run Summary Example](docs/playtests/p1-024-dry-run-summary-example.md)
 - Current verdict: local listen-server automation milestone reached; human 6-8 player tests remain the next proof point.

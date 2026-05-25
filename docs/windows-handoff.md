@@ -52,6 +52,8 @@ Expected result:
 
 Record the full first-run result using [Windows Validation Template](windows-validation-template.md).
 
+If `AbyssLockServer` builds, continue with [Windows Dedicated Server Runbook](windows-dedicated-server-runbook.md).
+
 ## Project Files
 
 Generate Visual Studio files with either the Unreal shell integration or:

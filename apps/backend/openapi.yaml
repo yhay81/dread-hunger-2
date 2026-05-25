@@ -1,0 +1,220 @@
+openapi: 3.1.0
+info:
+  title: Frostwake Backend API
+  version: 0.1.0
+  description: >
+    Non-authoritative operations API for playtest reports, moderation metadata,
+    news, ban scopes, and optional fleet metadata. Unreal Dedicated Server remains
+    authoritative for match simulation.
+servers:
+  - url: http://localhost:8787
+paths:
+  /healthz:
+    get:
+      summary: Health check
+      operationId: getHealthz
+      responses:
+        "200":
+          description: Service is alive
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+  /v1/playtest-reports:
+    post:
+      summary: Upload anonymized playtest summary metadata
+      operationId: createPlaytestReport
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PlaytestReport"
+      responses:
+        "202":
+          description: Report accepted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AcceptedResponse"
+  /v1/moderation/reports:
+    post:
+      summary: Submit moderation report metadata
+      operationId: createModerationReport
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ModerationReport"
+      responses:
+        "202":
+          description: Report accepted for review
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AcceptedResponse"
+  /v1/banlists/{scope}:
+    get:
+      summary: Fetch ban metadata by scope
+      operationId: getBanlist
+      parameters:
+        - name: scope
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [official, private_test, local]
+      responses:
+        "200":
+          description: Banlist metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BanlistResponse"
+  /v1/news:
+    get:
+      summary: Fetch patch notes and announcements
+      operationId: getNews
+      responses:
+        "200":
+          description: News entries
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/NewsItem"
+  /v1/fleet/servers:
+    get:
+      summary: Fetch optional official fleet metadata
+      operationId: getFleetServers
+      responses:
+        "200":
+          description: Server metadata
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/FleetServer"
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      required: [ok, service, version]
+      properties:
+        ok:
+          type: boolean
+        service:
+          type: string
+        version:
+          type: string
+    AcceptedResponse:
+      type: object
+      required: [accepted, id]
+      properties:
+        accepted:
+          type: boolean
+        id:
+          type: string
+    PlaytestReport:
+      type: object
+      required: [runId, buildId, mapId, playerCount, summary]
+      additionalProperties: false
+      properties:
+        runId:
+          type: string
+          maxLength: 64
+        buildId:
+          type: string
+          maxLength: 128
+        mapId:
+          type: string
+          maxLength: 128
+        playerCount:
+          type: integer
+          minimum: 1
+          maximum: 8
+        winner:
+          type: string
+          enum: [crew, agents, none, unknown]
+        summary:
+          type: string
+          maxLength: 8000
+    ModerationReport:
+      type: object
+      required: [runId, reporterLocalId, category, summary]
+      additionalProperties: false
+      properties:
+        runId:
+          type: string
+          maxLength: 64
+        reporterLocalId:
+          type: string
+          maxLength: 64
+        reportedLocalId:
+          type: string
+          maxLength: 64
+        category:
+          type: string
+          enum: [voice_abuse, griefing, cheating, harassment, other]
+        summary:
+          type: string
+          maxLength: 4000
+    BanlistResponse:
+      type: object
+      required: [scope, updatedAt, entries]
+      properties:
+        scope:
+          type: string
+        updatedAt:
+          type: string
+          format: date-time
+        entries:
+          type: array
+          items:
+            type: object
+            required: [subjectHash, reason, expiresAt]
+            properties:
+              subjectHash:
+                type: string
+              reason:
+                type: string
+              expiresAt:
+                type: string
+                nullable: true
+    NewsItem:
+      type: object
+      required: [id, title, body, publishedAt]
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        body:
+          type: string
+        publishedAt:
+          type: string
+          format: date-time
+    FleetServer:
+      type: object
+      required: [id, name, region, status]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        region:
+          type: string
+        status:
+          type: string
+          enum: [online, offline, maintenance, unknown]

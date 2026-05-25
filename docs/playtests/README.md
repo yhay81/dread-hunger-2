@@ -7,6 +7,8 @@ Do not commit raw logs, crash dumps, recordings, SteamIDs, tester names, voice t
 Current packets:
 
 - [P1-024 Human Test 1](p1-024-human-test-1.md)
+- [P1-024 Observer Sheet](p1-024-observer-sheet.md)
+- [P1-024 Post-Round Survey](p1-024-post-round-survey.md)
 - [P1-024 Summary Template](p1-024-summary-template.md)
 - [P1-024 Dry-Run Summary Example](p1-024-dry-run-summary-example.md)
 

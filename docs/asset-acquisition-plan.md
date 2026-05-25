@@ -42,6 +42,8 @@ Do not overwrite `/Game/Maps/L_IcebreakerWhitebox`. Create a duplicate POC map s
 | Character defer | Metahuman Winter Clothing Pack | Modern winter clothes for temporary crew silhouettes | https://www.fab.com/listings/f57c877b-7939-41fd-a789-2e18eaa53fd8 | Modular winter clothing, UE format | Rating is mixed; character assets carry higher IP/performance risk | Defer until visual POC proves map direction |
 | Character alternative | Military Winter Jacket 101 | Near-future/tactical winter jacket compatible with MetaHuman and UE5 skeletons | https://www.fab.com/listings/700406e8-44fd-4fff-813c-397bda1df282 | Strong modern cold-weather read, rigged | Military style may imply a different fantasy; 4K textures may affect FPS | Defer; require material downscale/performance pass |
 
+Use [Asset Scorecard](asset-scorecard.md) for the current ranking and purchase order.
+
 ## Purchase Gates
 
 Before any purchase:
