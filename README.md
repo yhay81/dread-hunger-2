@@ -31,6 +31,7 @@ This repository is the research and prototype workspace. The immediate goal is n
 - [Network Rules](docs/network-rules.md)
 - [Server Hosting Model](docs/server-hosting-model.md)
 - [Technical Architecture](docs/technical-architecture.md)
+- [Best Practice Alignment](docs/best-practice-alignment.md)
 - [Backend Contract](docs/backend-contract.md)
 - [Steam-Native Implementation Backlog](docs/steam-native-implementation-backlog.md)
 - [Commercial Quality Target](docs/commercial-quality-target.md)

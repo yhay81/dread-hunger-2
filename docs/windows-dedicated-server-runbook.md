@@ -201,3 +201,14 @@ Log summary path:
 Crash/ensure lines:
 Decision:
 ```
+
+## Next Dedicated Server Gate
+
+After boot validation passes, add and run a client-join validation:
+
+- start `AbyssLockServer.exe`;
+- launch one Windows client against the server endpoint;
+- confirm `client_connected` telemetry;
+- confirm ready/match start can occur without a local listen host;
+- summarize the dedicated-server event log with `Tools\log_summary.py`;
+- keep raw logs under ignored `Saved\DedicatedServerValidation\`.

@@ -25,9 +25,10 @@ If SSH is not configured on the Windows machine, use the HTTPS remote and authen
 
 - Windows 11 recommended.
 - Git for Windows with Git LFS.
-- Python 3.11 or newer.
-- Unreal Engine 5.7 installed through Epic Games Launcher or a source build.
-- Visual Studio 2022 with **Game development with C++**, MSVC, and a Windows 10/11 SDK.
+- Python 3.11 or newer; latest 3.14.x is preferred for tools.
+- Node 24 LTS for backend/admin tooling. Current-line Node can be used locally, but CI and production should target LTS.
+- Unreal Engine 5.7 installed through Epic Games Launcher or a source build. Use the latest available 5.7.x patch on the Windows machine.
+- Visual Studio 2022 Current channel 17.14 with **Game development with C++**, MSVC 14.44-compatible tooling, and a Windows 10/11 SDK. Do not switch to the Visual Studio 2026 / MSVC 14.50 toolchain until Epic marks it supported for UE 5.7.
 
 If Unreal is not installed at the default Epic path, set `UE_ROOT`:
 

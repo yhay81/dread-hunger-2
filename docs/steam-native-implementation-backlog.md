@@ -29,6 +29,7 @@ This backlog keeps the project aligned with the intended operational flow: launc
 
 - Build and run `AbyssLockServer` locally.
 - Confirm the same `GameMode` works without a local player.
+- Run a client-join validation against the dedicated server before starting Steam server discovery work.
 - Load config from `-ServerConfig=/path/to/ServerConfig.json`.
 - Write JSONL logs to the configured path.
 - Add admin-token-gated console/admin commands:
@@ -37,6 +38,16 @@ This backlog keeps the project aligned with the intended operational flow: launc
   - shutdown warning
   - rotate match
 - Keep community host and official host behavior in the same binary.
+
+## Phase 2: Steam Auth And SDR Design Spike
+
+- Decide the dedicated-server connection model before public listing:
+  - Hosted dedicated server flow.
+  - FakeIP flow.
+  - Known data center flow.
+- Document whether a coordinator/backend is needed to issue Steam Datagram Relay auth tickets.
+- Add ownership/auth ticket verification before trusting reports, server metadata, or moderation identities.
+- Keep direct public IP/port assumptions out of gameplay code.
 
 ## Phase 3: Steam Server Browser And Tool App
 
@@ -50,7 +61,10 @@ This backlog keeps the project aligned with the intended operational flow: launc
   - password/private flag
 - Prepare a Dedicated Server Tool App:
   - separate AppID
+  - Dedicated Server Redistributables enabled
+  - `steam_appid.txt` containing the base game AppID
   - SteamCMD install path
+  - anonymous SteamCMD download verification
   - example config
   - launch script
   - local banlist path

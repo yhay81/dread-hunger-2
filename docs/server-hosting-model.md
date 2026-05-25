@@ -96,3 +96,14 @@ Schema: [server_config.schema.json](../Tools/ops/server_config.schema.json)
 - Prefer Steam Networking Sockets / Steam Datagram Relay for public servers when available.
 - Keep community-hosted servers possible from the start of Early Access.
 - Do not expose IP assumptions to gameplay code; keep connection endpoints abstract.
+
+## Phase 2 Steam Gate
+
+Before any public server browser work, record decisions for:
+
+- Steam auth ticket and ownership verification.
+- Dedicated-server client join validation on Windows.
+- Dedicated Server Tool App setup, including Dedicated Server Redistributables and `steam_appid.txt`.
+- SteamCMD anonymous download verification.
+- SDR connection model: hosted dedicated server, FakeIP, or known data center.
+- Whether a coordinator/backend is required to issue relay auth tickets.
