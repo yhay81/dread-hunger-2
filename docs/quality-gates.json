@@ -11,6 +11,7 @@
     "docs/windows-phase2-entry-template.md",
     "docs/windows-dedicated-server-runbook.md",
     "docs/best-practice-alignment.md",
+    "docs/steam-dev-config-gate.md",
     "docs/iteration-loop.md",
     "docs/commercial-quality-target.md",
     "docs/agent-operating-model.md",
@@ -96,6 +97,7 @@
     "Tools/windows/run_dedicated_client_join_validation.ps1",
     "Tools/windows/run_dedicated_ready_validation.ps1",
     "Tools/windows/run_phase2_entry_validation.ps1",
+    "Tools/windows/check_steam_dev_config.ps1",
     "tests/fixtures/p1_024_human_events.jsonl",
     "tests/test_log_summary.py",
     "tests/test_playtest_summary.py",
@@ -166,7 +168,8 @@
     "Tools/windows/run_dedicated_server_validation.ps1",
     "Tools/windows/run_dedicated_client_join_validation.ps1",
     "Tools/windows/run_dedicated_ready_validation.ps1",
-    "Tools/windows/run_phase2_entry_validation.ps1"
+    "Tools/windows/run_phase2_entry_validation.ps1",
+    "Tools/windows/check_steam_dev_config.ps1"
   ],
   "schema_examples": [
     {

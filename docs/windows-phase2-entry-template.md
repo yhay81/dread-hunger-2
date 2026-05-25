@@ -94,3 +94,9 @@ Owner:
 Next issue:
 Command to run next:
 ```
+
+For P2-002, the first command should be:
+
+```powershell
+.\Tools\windows\check_steam_dev_config.ps1
+```

@@ -62,6 +62,7 @@ This repository is the research and prototype workspace. The immediate goal is n
 - [Phase 1 Backlog](docs/phase1-backlog.md)
 - [Phase 2 Backlog](docs/phase2-backlog.md)
 - [Steam Phase 2 Integration Plan](docs/steam-phase2-integration-plan.md)
+- [Steam Dev Config Gate](docs/steam-dev-config-gate.md)
 - [Steam Dedicated Server Client Join Plan](docs/steam-dedicated-server-client-join.md)
 - [Voice Chat Interface Spike](docs/voice-chat-interface-spike.md)
 - [Issue Import](docs/issue-import/README.md)

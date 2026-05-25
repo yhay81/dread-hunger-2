@@ -75,6 +75,22 @@ Common override shape:
 
 Add `-IncludeSmoke` if the Phase 1 listen-server smoke set should run in the same command. Record the result in `docs\windows-phase2-entry-template.md` or a new cycle record.
 
+## Steam Dev Config
+
+Before enabling any Steam Lobby work, verify that the committed defaults remain Null/LAN safe:
+
+```powershell
+.\Tools\windows\check_steam_dev_config.ps1
+```
+
+If you create ignored local Steam settings under `Saved\Config\steam_dev.local.ini`, validate them explicitly:
+
+```powershell
+.\Tools\windows\check_steam_dev_config.ps1 -SteamConfig Saved\Config\steam_dev.local.ini -RequireSteamConfig
+```
+
+See `docs\steam-dev-config-gate.md`.
+
 ## Output
 
 First-run validation output is written under ignored `Saved\WindowsValidation\`. Dedicated-server probe output is written under ignored `Saved\DedicatedServerValidation\`, `Saved\DedicatedClientJoinValidation\`, or `Saved\DedicatedReadyValidation\`. Phase 2 entry wrapper output is written under ignored `Saved\Phase2EntryValidation\` with `summary.txt`, `manifest.json`, and per-step logs. Copy the key pass/fail lines into `docs/windows-validation-template.md`, `docs/windows-phase2-entry-template.md`, or a new cycle record. Do not commit generated logs.

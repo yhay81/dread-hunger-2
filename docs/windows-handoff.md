@@ -149,4 +149,4 @@ The first recommended evaluation package is the free `Modular Ship Interior Envi
 4. Run the dedicated-server boot, client-join, and ready-lobby probes.
 5. Run `.\Tools\windows\run_phase2_entry_validation.ps1 -SkipGenerate` and fill [Windows Phase 2 Entry Template](windows-phase2-entry-template.md).
 6. Run `qa-bot`, `match-timer`, `life-action`, `combined5`, and `ready8` smoke profiles if they were not included in the wrapper.
-7. Only after those pass, proceed to Steam dev config, the visual POC, or P1-024 human playtest.
+7. Only after those pass, run `.\Tools\windows\check_steam_dev_config.ps1`, then proceed to Steam dev config, the visual POC, or P1-024 human playtest.

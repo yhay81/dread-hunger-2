@@ -17,7 +17,7 @@ Phase 2 adds Steam-facing systems after Windows dedicated-server evidence exists
    Run the boot, client-join, and ready-lobby scripts from `Tools/windows/`, or use `Tools/windows/run_phase2_entry_validation.ps1` once the server target exists. Record server JSONL evidence and the filled Windows validation template.
 
 2. Enable Steam only behind dev gates.
-   Add a development-only Steam config path and document how to switch it on. Phase 1 local gates must keep working with Null/LAN assumptions.
+   Add a development-only Steam config path and validate it with `Tools/windows/check_steam_dev_config.ps1`. Phase 1 local gates must keep working with Null/LAN assumptions.
 
 3. Add Steam Lobby rendezvous.
    Implement create, find, join, and build mismatch rejection. Store only metadata needed to get clients to the authoritative server.

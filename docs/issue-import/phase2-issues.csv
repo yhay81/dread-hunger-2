@@ -25,7 +25,7 @@ P2-002: Enable Steam dev config safely,"Source: `docs/phase2-backlog.md`
 
 Done when:
 
-Steam settings are isolated to local/dev config, `OnlineSubsystemSteam` remains off for Phase 1 gates, and enabling Steam requires an explicit Windows validation step
+`Tools/windows/check_steam_dev_config.ps1` verifies committed defaults stay Null/LAN safe; optional ignored `Saved/Config/steam_dev.local.ini` passes validation before Steam Lobby work
 
 Validation evidence:
 
