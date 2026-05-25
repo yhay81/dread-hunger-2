@@ -72,6 +72,9 @@
     "Tools/ue/run_local_smoke.py",
     "Tools/ue/run_smoke_suite.py",
     "Tools/ue/export_smoke_suite_markdown.py",
+    "Tools/windows/README.md",
+    "Tools/windows/check_prereqs.ps1",
+    "Tools/windows/run_first_validation.ps1",
     "Tools/ops/secret_scan.sh",
     "Tools/ops/server_config.schema.json",
     "Tools/ops/server_config.example.json"
@@ -111,6 +114,10 @@
   "shell_files": [
     "Tools/ops/secret_scan.sh",
     "Tools/reference_inventory.sh"
+  ],
+  "powershell_files": [
+    "Tools/windows/check_prereqs.ps1",
+    "Tools/windows/run_first_validation.ps1"
   ],
   "schema_examples": [
     {

@@ -36,6 +36,7 @@ TEXT_SUFFIXES = {
     ".json",
     ".md",
     ".py",
+    ".ps1",
     ".sh",
     ".txt",
     ".uproject",
@@ -311,6 +312,59 @@ def check_shell_files(config: dict) -> CheckResult:
     return CheckResult("shell_syntax", "pass", f"{len(config.get('shell_files', []))} shell files parsed")
 
 
+def powershell_static_errors(path: Path) -> list[str]:
+    errors: list[str] = []
+    lines = path.read_text(encoding="utf-8").splitlines()
+    if not lines:
+        return ["empty file"]
+
+    for index, line in enumerate(lines, start=1):
+        stripped = line.rstrip()
+        if stripped.endswith("`"):
+            if index == len(lines):
+                errors.append(f"line {index}: trailing line-continuation backtick at EOF")
+            elif not lines[index].strip():
+                errors.append(f"line {index}: line-continuation backtick followed by a blank line")
+
+    text = "\n".join(lines)
+    if "Set-StrictMode" not in text:
+        errors.append("missing Set-StrictMode")
+    if "$ErrorActionPreference" not in text:
+        errors.append("missing $ErrorActionPreference")
+    return errors
+
+
+def check_powershell_files(config: dict) -> CheckResult:
+    files = config.get("powershell_files", [])
+    parser = shutil.which("pwsh") or shutil.which("powershell")
+    errors: list[str] = []
+
+    for item in files:
+        path = ROOT / item
+        errors.extend(f"{item}: {error}" for error in powershell_static_errors(path))
+        if parser:
+            command = [
+                parser,
+                "-NoProfile",
+                "-NonInteractive",
+                "-Command",
+                (
+                    "$errors = $null; "
+                    f"$null = [System.Management.Automation.PSParser]::Tokenize((Get-Content -Raw -LiteralPath '{path}'), [ref]$errors); "
+                    "if ($errors) { $errors | ForEach-Object { Write-Error $_ }; exit 1 }"
+                ),
+            ]
+            completed = subprocess.run(command, cwd=ROOT, text=True, capture_output=True, check=False)
+            if completed.returncode != 0:
+                errors.append(f"{item}: {completed.stderr.strip() or completed.stdout.strip()}")
+
+    if errors:
+        return CheckResult("powershell_syntax", "fail", "\n".join(errors))
+    if parser:
+        return CheckResult("powershell_syntax", "pass", f"{len(files)} PowerShell files parsed with {Path(parser).name}")
+    return CheckResult("powershell_syntax", "pass", f"{len(files)} PowerShell files passed static checks")
+
+
 def check_unreal_metadata() -> CheckResult:
     errors: list[str] = []
     project = json.loads((ROOT / "AbyssLock.uproject").read_text(encoding="utf-8"))
@@ -496,6 +550,7 @@ def main() -> int:
         check_git_ignored(config),
         check_source_control_safety(),
         check_shell_files(config),
+        check_powershell_files(config),
         check_stale_terms(config),
         check_unreal_metadata(),
         check_unreal_cpp_heuristics(),

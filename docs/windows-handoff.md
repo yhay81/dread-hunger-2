@@ -44,6 +44,15 @@ py -3 Tools\quality_gate.py --require-ue
 py -3 Tools\unreal_gate.py --skip-generate --platform Win64 --include-server
 ```
 
+The same first-run path is also wrapped as PowerShell helpers:
+
+```powershell
+.\Tools\windows\check_prereqs.ps1
+.\Tools\windows\run_first_validation.ps1 -SkipGenerate
+```
+
+Add `-UeRoot "D:\Epic Games\UE_5.7"` if Unreal is not installed in a default Epic path. Add `-IncludeSmoke` only after the first Editor/Game/Server result is understood.
+
 Expected result:
 
 - `quality_gate.py` should pass.
