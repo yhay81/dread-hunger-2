@@ -31,6 +31,12 @@ Default local URL:
 http://localhost:8787
 ```
 
+Optional playtest report upload dry-run from repository root. The tool accepts a summary JSON or raw JSONL events:
+
+```bash
+python3 Tools/playtest_report_upload.py Saved/Playtests/P1-024/run-01/summary.json
+```
+
 Phase 2+:
 
 - Fastify, Hono, or NestJS if the plain Node server becomes limiting

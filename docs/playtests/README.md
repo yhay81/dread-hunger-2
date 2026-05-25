@@ -31,3 +31,15 @@ py -3 Tools\playtest_preflight.py Saved\Playtests\P1-024\run-01\summary.json --m
 ```
 
 Review and anonymize the generated file before committing it.
+
+Optional backend dry-run after `summary.json` exists. The tool also accepts raw JSONL events and summarizes them locally before building the payload:
+
+```powershell
+py -3 Tools\playtest_report_upload.py Saved\Playtests\P1-024\run-01\summary.json
+```
+
+Only send to a local backend after reviewing the payload:
+
+```powershell
+py -3 Tools\playtest_report_upload.py Saved\Playtests\P1-024\run-01\summary.json --send
+```
