@@ -55,7 +55,7 @@ UNRESOLVED_MARKDOWN_PATTERNS = [
     ("choose-one instruction still present", re.compile(r"Choose one:", re.IGNORECASE)),
     ("observer-required placeholder", re.compile(r"observer required", re.IGNORECASE)),
     ("fill-from placeholder", re.compile(r"Fill from", re.IGNORECASE)),
-    ("keep/cut/change placeholder", re.compile(r"keep\s*/\s*cut\s*/\s*change", re.IGNORECASE)),
+    ("keep/cut/change placeholder", re.compile(r"\|\s*keep\s*/\s*cut\s*/\s*change\s*\|", re.IGNORECASE)),
     ("recording-consent placeholder", re.compile(r"Recording consent:\s*yes\s*/\s*no", re.IGNORECASE)),
     ("unchecked data-handling item", re.compile(r"^- \[ \] ", re.MULTILINE)),
 ]

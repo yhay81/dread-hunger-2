@@ -547,6 +547,7 @@ def main() -> int:
         check_json_files(config),
         check_schema_examples(config),
         check_python_files(config),
+        run_command("unit_tests", ["python3", "-m", "unittest", "discover", "-s", "tests"]),
         check_git_ignored(config),
         check_source_control_safety(),
         check_shell_files(config),

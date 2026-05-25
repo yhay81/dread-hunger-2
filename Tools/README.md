@@ -23,3 +23,7 @@ Implemented:
 - `windows/`: Windows-only first-run prerequisite and validation helpers.
 - `reference_inventory.sh`: creates ignored metadata inventories for local research copies.
 - `ops/`: safe local ops contracts, redaction helpers, banlist helpers, and config schemas.
+
+Tests:
+
+- `python3 -m unittest discover -s tests`: fixture-based checks for the P1-024 telemetry and playtest evidence pipeline. This is also run by `quality_gate.py`.

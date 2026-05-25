@@ -75,6 +75,11 @@
     "Tools/windows/README.md",
     "Tools/windows/check_prereqs.ps1",
     "Tools/windows/run_first_validation.ps1",
+    "tests/fixtures/p1_024_human_events.jsonl",
+    "tests/test_log_summary.py",
+    "tests/test_playtest_summary.py",
+    "tests/test_playtest_preflight.py",
+    "tests/test_playtest_run_scaffold.py",
     "Tools/ops/secret_scan.sh",
     "Tools/ops/server_config.schema.json",
     "Tools/ops/server_config.example.json"
@@ -109,7 +114,11 @@
     "Tools/ue/export_smoke_suite_markdown.py",
     "Tools/ops/banlist.py",
     "Tools/ops/redaction.py",
-    "Tools/ops/steam_registry.py"
+    "Tools/ops/steam_registry.py",
+    "tests/test_log_summary.py",
+    "tests/test_playtest_summary.py",
+    "tests/test_playtest_preflight.py",
+    "tests/test_playtest_run_scaffold.py"
   ],
   "shell_files": [
     "Tools/ops/secret_scan.sh",
