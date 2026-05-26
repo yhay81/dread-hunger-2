@@ -74,7 +74,7 @@ $ManifestPath = Join-Path $OutDir "manifest.json"
 
 $Args = @(
     $Project,
-    "$Map?listen",
+    "${Map}?listen",
     "-game",
     "-log",
     "-windowed",
