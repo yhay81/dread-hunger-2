@@ -54,12 +54,12 @@ Every cycle must write or update a file under `docs/cycles/` with:
 - keep/change/cut/defer/blocker decisions
 - next backlog edits
 
-Use `python3 Tools/new_cycle.py --phase <phase> --goal "<goal>" --gate "<measurable gate>"` to create the next cycle record.
+Use `cargo run -p frostwake-tools -- new-cycle --phase <phase> --goal "<goal>" --gate "<measurable gate>"` to create the next cycle record.
 
 ## Quality Gate Order
 
-1. Static repository gate: `python3 Tools/quality_gate.py`
-2. Unreal project generation/build gate: `python3 Tools/unreal_gate.py --include-server`
+1. Static repository gate: `cargo run -p frostwake-tools -- quality-gate`
+2. Unreal project generation/build gate: `cargo run -p frostwake-tools -- unreal-gate --include-server`
 3. Local listen-server multiplayer smoke test.
 4. Bot or scripted 8-client run.
 5. Human playtest.

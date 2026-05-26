@@ -17,7 +17,7 @@ Build: cycle29-local
 Map: /Game/Maps/L_IcebreakerWhitebox
 Profile: custom
 Host type: listen-server
-Target players: 6
+Target players: 8
 Actual players: 1
 Voice method:
 Recording consent: yes / no / partial
@@ -30,7 +30,7 @@ Summary author: Codex
 Generated from:
 
 ```bash
-python3 Tools/playtest_summary.py Saved/SmokeTests/local-20260525-063912/summary.json --out docs/playtests/p1-024-dry-run-summary-example.md --dry-run-example
+cargo run -p frostwake-tools -- playtest-summary Saved/SmokeTests/local-20260525-063912/summary.json --out docs/playtests/p1-024-dry-run-summary-example.md --dry-run-example
 ```
 
 | Field | Value |
@@ -49,6 +49,7 @@ python3 Tools/playtest_summary.py Saved/SmokeTests/local-20260525-063912/summary
 | `last_role_assignment.saboteurs` | 1 |
 | `last_match_result.winner` | saboteur |
 | `last_match_result.reason` | fatal_ship_state |
+| `last_match_result.criticalSystems` |  |
 | `ship_task_repairs` | 0 |
 | `ship_task_sabotages` | 3 |
 | `players_damaged` | 0 |
@@ -107,7 +108,7 @@ Resolve each item before choosing pass, partial, or fail.
 
 | Check | Result | Evidence |
 | --- | --- | --- |
-| `players_connected >= 6` | no | players_connected=1 |
+| `players_connected == 8` | no | players_connected=1 |
 | `match_started > 0` | yes | match_started=1 |
 | `last_role_assignment` exists | yes | players=1, saboteurs=1 |
 | Crew/agent counts match player count | no | expected_saboteurs=0 |
@@ -165,6 +166,19 @@ Crew-only feedback:
 
 -
 
+## Comprehension And Accessibility
+
+Summarize GP-09 evidence from observer notes and post-round answers. Use `none observed` only when an observer explicitly checked the signal.
+
+| Signal | Evidence | Follow-up |
+| --- | --- | --- |
+| Objective comprehension |  |  |
+| Next-step clarity |  |  |
+| Failure-state clarity |  |  |
+| UI or control confusion |  |  |
+| Accessibility blocker |  |  |
+| Text or term issue |  |  |
+
 ## Keep / Cut / Change
 
 Keep:
@@ -184,7 +198,7 @@ Change before P1-026:
 | Area | Telemetry evidence | Observer/player evidence | Decision | Reason | Next action |
 | --- | --- | --- | --- | --- | --- |
 | Repairs and route tasks | repairs=0, route_final=0 |  | keep / cut / change |  |  |
-| Sabotage actions | sabotages=3, winner=saboteur |  | keep / cut / change |  |  |
+| Sabotage actions | sabotages=3, winner=saboteur, critical_systems= |  | keep / cut / change |  |  |
 | Doors and bulkheads | toggles=0, locks=0, releases=0 |  | keep / cut / change |  |  |
 | Flooding and pump pressure | pressure_events=0, last_pressure= |  | keep / cut / change |  |  |
 | PvE, down, rescue, containment | damaged=0, downed=0, rescued=0, contained=0, released=0 |  | keep / cut / change |  |  |

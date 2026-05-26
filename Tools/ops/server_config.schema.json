@@ -17,7 +17,7 @@
     },
     "maxPlayers": {
       "type": "integer",
-      "minimum": 1,
+      "minimum": 8,
       "maximum": 8
     },
     "map": {

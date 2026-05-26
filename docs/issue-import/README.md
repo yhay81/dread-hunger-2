@@ -5,13 +5,13 @@ This directory contains generated issue-import artifacts for the current researc
 Regenerate Phase 1:
 
 ```powershell
-py -3 Tools\backlog_to_issues.py
+cargo run -p frostwake-tools -- backlog-to-issues
 ```
 
 Regenerate Phase 2:
 
 ```powershell
-py -3 Tools\backlog_to_issues.py --phase 2 --backlog docs\phase2-backlog.md --base-label platform
+cargo run -p frostwake-tools -- backlog-to-issues --phase 2 --backlog docs\phase2-backlog.md --base-label platform
 ```
 
 The CSV is intended as a staging artifact for GitHub issue creation. Review labels, milestone names, and descriptions before creating issues.
@@ -19,23 +19,23 @@ The CSV is intended as a staging artifact for GitHub issue creation. Review labe
 Preview Phase 1 GitHub CLI commands without creating anything:
 
 ```powershell
-py -3 Tools\github_issue_sync.py --check-existing
+cargo run -p frostwake-tools -- github-issue-sync --check-existing
 ```
 
 Preview Phase 2 GitHub CLI commands without creating anything:
 
 ```powershell
-py -3 Tools\github_issue_sync.py --csv docs\issue-import\phase2-issues.csv --check-existing
+cargo run -p frostwake-tools -- github-issue-sync --csv docs\issue-import\phase2-issues.csv --check-existing
 ```
 
 Create reviewed Phase 1 issues only when ready:
 
 ```powershell
-py -3 Tools\github_issue_sync.py --check-existing --create
+cargo run -p frostwake-tools -- github-issue-sync --check-existing --create
 ```
 
 Create reviewed Phase 2 issues only when ready:
 
 ```powershell
-py -3 Tools\github_issue_sync.py --csv docs\issue-import\phase2-issues.csv --check-existing --create
+cargo run -p frostwake-tools -- github-issue-sync --csv docs\issue-import\phase2-issues.csv --check-existing --create
 ```

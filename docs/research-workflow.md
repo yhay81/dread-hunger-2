@@ -27,7 +27,7 @@ Do not bring in:
 ## Research Loop
 
 1. Register a local folder in `references/external-paths.json`.
-2. Run `Tools/reference_inventory.sh`.
+2. Run `cargo run -p frostwake-tools -- reference-inventory`.
 3. Read the generated ignored `references/inventory/*_summary.tsv`.
 4. Write original conclusions into docs, for example:
    - server launch assumptions

@@ -83,6 +83,6 @@ This backlog keeps the project aligned with the intended operational flow: launc
 
 - External chat-service room creation.
 - External voice chat as the actual gameplay voice layer.
-- TypeScript/Python authoritative match server.
+- Custom non-Unreal authoritative match server.
 - Official servers as the only playable path.
 - Community server logs as automatic global-ban evidence.

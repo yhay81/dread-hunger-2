@@ -21,7 +21,7 @@
 
 | Check | Result | Notes |
 | --- | --- | --- |
-| `python3 Tools/quality_gate.py` | not run |  |
+| `cargo run -p frostwake-tools -- quality-gate` | not run |  |
 | Unreal build | not available |  |
 | Multiplayer smoke test | not run |  |
 | Bot/client run | not run |  |

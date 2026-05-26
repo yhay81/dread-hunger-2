@@ -89,7 +89,7 @@ bool UAbyssServerConfigSubsystem::LoadFromJsonFile(const FString& ConfigPath)
     double ParsedMaxPlayers = Config.MaxPlayers;
     if (RootObject->TryGetNumberField(TEXT("maxPlayers"), ParsedMaxPlayers))
     {
-        Config.MaxPlayers = FMath::Clamp(FMath::RoundToInt(ParsedMaxPlayers), 1, 8);
+        Config.MaxPlayers = 8;
     }
 
     LoadedConfigPath = ConfigPath;

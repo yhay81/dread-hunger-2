@@ -14,6 +14,7 @@ public:
     AAbyssLockGameMode();
 
     virtual void BeginPlay() override;
+    virtual void PreLogin(const FString& Options, const FString& Address, const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage) override;
     virtual void PostLogin(APlayerController* NewPlayer) override;
     virtual void Logout(AController* Exiting) override;
 
@@ -25,6 +26,12 @@ public:
 
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Abyss|Lobby")
     bool TryStartMatchFromReady();
+
+    UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Abyss|Practice")
+    bool TryStartPracticeMatch();
+
+    UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Abyss|SinglePlayer")
+    bool TryStartSinglePlayerMatch();
 
 private:
     bool bDevAutoStarted = false;
@@ -52,6 +59,8 @@ private:
     void RunDevSmokeQaPlayerBot();
     void RunDevSmokeQaTaskBot();
     APawn* FindPawnForTeam(EAbyssTeam Team) const;
+    bool IsPracticeModeEnabled() const;
+    bool IsSinglePlayerModeEnabled() const;
     int32 CalculateSaboteurCount(int32 PlayerCount) const;
     int32 GetRequiredCrewSurvivors(int32 PlayerCount) const;
     int32 GetSaboteurEliminationThreshold(int32 PlayerCount) const;

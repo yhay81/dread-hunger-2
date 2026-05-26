@@ -35,11 +35,11 @@ Reasoning:
 
 Short description:
 
-> Keep a near-future polar research vessel moving through a hostile ice route with up to 8 players. Repair the hull, protect the fuel, restore power and radio systems, and trust your crew carefully: one or two agents may be trying to strand everyone in the ice.
+> Keep a near-future polar research vessel moving through a hostile ice route with 8 players. Repair the hull, protect the fuel, restore power and radio systems, and trust your crew carefully: hidden agents may be trying to strand everyone in the ice.
 
 Japanese draft:
 
-> 最大8人で氷海を進む近未来研究船を維持する、近接ボイス対応の協力サバイバル推理ゲーム。船体、燃料、発電、無線、航路、低体温に対処せよ。ただし乗員の中には、航行を事故に見せかけて止めようとする工作員がいる。
+> 8人で氷海を進む近未来研究船を維持する、協力サバイバル推理ゲーム。船体、燃料、発電、無線、航路、低体温に対処せよ。ただし乗員の中には、航行を事故に見せかけて止めようとする工作員がいる。
 
 ## Store Assets Needed
 

@@ -10,10 +10,11 @@ Ask these immediately after the run. Record aggregate/anonymized answers only.
 4. What made you distrust someone?
 5. What action or UI was most confusing?
 6. Did the ship feel like it was improving, failing, or random?
-7. Did you have a moment you wanted to talk about after the round?
-8. Would you play one more round in the current greybox state?
-9. What is the one thing we should keep?
-10. What is the one thing we should change before the next test?
+7. Did any control, readability, audio, or screen effect issue block you?
+8. Did you have a moment you wanted to talk about after the round?
+9. Would you play one more round in the current greybox state?
+10. What is the one thing we should keep?
+11. What is the one thing we should change before the next test?
 
 ## Crew-Only
 
@@ -37,6 +38,7 @@ Ask these immediately after the run. Record aggregate/anonymized answers only.
 | Players who understood crew goal |  |
 | Players who could name a suspicious event |  |
 | Players blocked by controls/UI |  |
+| Players blocked by readability/audio/motion |  |
 | Critical bugs |  |
 
 Pass signal for P1-024 is not "bug free." It is whether players understood enough to create cooperation, suspicion, and a concrete keep/cut/change list.

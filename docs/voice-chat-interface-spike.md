@@ -4,7 +4,7 @@ Proximity voice is part of the core game loop. Phase 2 should validate it as an 
 
 ## Goal
 
-Choose and test a provider through Unreal's Voice Chat Interface or the closest viable abstraction. The spike should prove join, leave, mute, block, transmit, receive, and proximity behavior in a 5-8 player match.
+Choose and test a provider through Unreal's Voice Chat Interface or the closest viable abstraction. The spike should prove join, leave, mute, block, transmit, receive, and proximity behavior in an 8-player match.
 
 ## Candidate Order
 
@@ -24,8 +24,10 @@ Choose and test a provider through Unreal's Voice Chat Interface or the closest 
 ## Technical Acceptance
 
 - Provider setup steps are documented for Windows.
+- `docs/voice-provider-validation-template.md` is filled for the provider run under review.
 - A test map/match can connect at least 5 players.
 - Voice state changes are logged as metadata only, not recordings or transcripts.
+- Voice-abuse reports can attach structured match metadata, local slots, voice state, immediate action, and recent server event IDs without accepting raw voice or transcript fields.
 - No raw voice data, recordings, transcripts, SteamIDs, IP addresses, or personal identifiers are committed.
 - The implementation can be disabled for automated smoke tests.
 
@@ -34,6 +36,7 @@ Choose and test a provider through Unreal's Voice Chat Interface or the closest 
 - Provider decision and rejected alternatives.
 - Windows setup notes.
 - Test command and expected result.
+- Completed voice provider validation template.
 - Known cost/licensing limits.
 - Required moderation UX follow-up items.
 

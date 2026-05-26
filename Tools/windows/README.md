@@ -1,6 +1,6 @@
 # Windows Tools
 
-These helpers are for the Windows-only development path. Run them from a fresh Windows clone after Git LFS, Python, Unreal Engine, and Visual Studio are installed.
+These helpers are for the Windows-only development path. Run them from a fresh Windows clone after Git LFS, Rust, Unreal Engine, and Visual Studio are installed.
 
 ## First Run
 
@@ -28,6 +28,16 @@ After Editor, Game, and Server validation are understood:
 
 `-IncludeSmoke` runs `qa-bot`, `match-timer`, `life-action`, `combined5`, `ready8`, and the quick smoke suite. Use `-IncludeHeavySmoke` only after that path is stable.
 
+## Single Player
+
+To launch a visible one-player local session for manual testing:
+
+```powershell
+.\Tools\windows\run_single_player.ps1
+```
+
+This opens `L_IcebreakerWhitebox` through `UnrealEditor.exe -game`, sets `-AbyssSinglePlayer`, auto-starts the match with one crew player and zero saboteurs, and writes ignored telemetry under `Saved\SinglePlayer\`.
+
 ## Dedicated Server
 
 After `AbyssLockServer.exe` exists, run the local server boot probe:
@@ -42,7 +52,7 @@ Then run the dedicated-server client join probe:
 .\Tools\windows\run_dedicated_client_join_validation.ps1
 ```
 
-After the single-client join passes, run the 5-player ready-lobby dedicated probe:
+After the single-client join passes, run the 8-player ready-lobby dedicated probe:
 
 ```powershell
 .\Tools\windows\run_dedicated_ready_validation.ps1
@@ -67,9 +77,9 @@ Common override shape:
   -ServerExe ".\Binaries\Win64\AbyssLockServer.exe" `
   -ServerConfig ".\Saved\Config\server_config.local.json" `
   -Port 7777 `
-  -Clients 5 `
-  -ExpectedPlayers 5 `
-  -ExpectedSaboteurs 1 `
+  -Clients 8 `
+  -ExpectedPlayers 8 `
+  -ExpectedSaboteurs 2 `
   -IncludeSmoke
 ```
 
@@ -93,7 +103,7 @@ See `docs\steam-dev-config-gate.md`.
 
 ## Steam Lobby Preflight
 
-Before implementing or running the Steam Lobby runtime spike, validate Steam dev config plus lobby metadata:
+Before running or extending the Steam Lobby runtime path, validate Steam dev config plus lobby metadata:
 
 ```powershell
 .\Tools\windows\run_steam_lobby_validation.ps1 `
@@ -103,7 +113,7 @@ Before implementing or running the Steam Lobby runtime spike, validate Steam dev
   -ExpectedMapId L_IcebreakerWhitebox
 ```
 
-The wrapper writes ignored evidence under `Saved\SteamLobbyValidation\`. `-Runtime` intentionally fails until `UAbyssLobbySubsystem` is implemented from `docs\steam-lobby-subsystem-design.md`.
+The wrapper writes ignored evidence under `Saved\SteamLobbyValidation\`. It validates the accepted join decision and expected `BuildMismatch` / `MapMismatch` rejection probes before any client travel. `UAbyssLobbySubsystem` currently provides the Null/LAN-safe metadata and join-decision foundation; `-Runtime` intentionally fails until the Steam create/find/join path is implemented.
 
 ## Output
 

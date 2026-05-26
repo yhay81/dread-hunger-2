@@ -21,6 +21,15 @@ if ([string]::IsNullOrWhiteSpace($RunId)) {
     $RunId = "windows-dedicated-$Stamp"
 }
 
+$ResolvedServerExe = ""
+$ResolvedServerConfig = ""
+$EventLog = Join-Path $OutDir "server.jsonl"
+$StdoutLog = Join-Path $OutDir "server_stdout.log"
+$StderrLog = Join-Path $OutDir "server_stderr.log"
+$ConfigCheckLog = Join-Path $OutDir "server_config_check.log"
+$SummaryJson = Join-Path $OutDir "log_summary.json"
+$LogSummaryLog = Join-Path $OutDir "log_summary_command.log"
+
 function Resolve-RepoPath {
     param([string]$PathValue)
 
@@ -31,25 +40,84 @@ function Resolve-RepoPath {
     return (Join-Path $RepoRoot $PathValue)
 }
 
+function Find-Cargo {
+    $LocalCargo = Join-Path $RepoRoot "Tools\install\rust\cargo\bin\cargo.exe"
+    if (Test-Path $LocalCargo) {
+        return (Resolve-Path $LocalCargo).Path
+    }
+
+    $CargoCommand = Get-Command "cargo" -ErrorAction SilentlyContinue
+    if ($null -ne $CargoCommand) {
+        return $CargoCommand.Source
+    }
+
+    return ""
+}
+
+function Use-RustEnvironment {
+    param([string]$CargoPath)
+
+    $LocalRustRoot = Join-Path $RepoRoot "Tools\install\rust"
+    if ($CargoPath.StartsWith($LocalRustRoot, [System.StringComparison]::OrdinalIgnoreCase)) {
+        $env:CARGO_HOME = Join-Path $LocalRustRoot "cargo"
+        $env:RUSTUP_HOME = Join-Path $LocalRustRoot "rustup"
+    }
+}
+
 function Write-Summary {
     param(
         [string]$Decision,
         [string]$Detail
     )
 
+    $Commit = "$(git -C $RepoRoot rev-parse --short HEAD)"
     $SummaryPath = Join-Path $OutDir "summary.txt"
     @(
-        "Commit: $(git -C $RepoRoot rev-parse --short HEAD)",
+        "Commit: $Commit",
         "RunId: $RunId",
+        "Platform: Win64",
+        "BuildTarget: AbyssLockServer",
+        "BuildId: $BuildId",
+        "Profile: $Profile",
         "ServerExe: $ResolvedServerExe",
         "ServerConfig: $ResolvedServerConfig",
         "Map: $Map",
         "Port: $Port",
         "DurationSeconds: $DurationSeconds",
         "EventLog: $EventLog",
+        "StdoutLog: $StdoutLog",
+        "StderrLog: $StderrLog",
+        "ConfigCheckLog: $ConfigCheckLog",
+        "LogSummary: $SummaryJson",
         "Decision: $Decision",
         "Detail: $Detail"
     ) | Set-Content -Path $SummaryPath -Encoding UTF8
+
+    $ManifestPath = Join-Path $OutDir "manifest.json"
+    $Payload = [ordered]@{
+        decision = $Decision
+        detail = $Detail
+        timestamp = $Stamp
+        commit = $Commit
+        runId = $RunId
+        platform = "Win64"
+        buildTarget = "AbyssLockServer"
+        buildId = $BuildId
+        profile = $Profile
+        serverExe = $ResolvedServerExe
+        serverConfig = $ResolvedServerConfig
+        map = $Map
+        port = $Port
+        durationSeconds = $DurationSeconds
+        eventLog = $EventLog
+        stdoutLog = $StdoutLog
+        stderrLog = $StderrLog
+        configCheckLog = $ConfigCheckLog
+        logSummary = $SummaryJson
+        logSummaryCommandLog = $LogSummaryLog
+        output = $OutDir
+    }
+    $Payload | ConvertTo-Json -Depth 6 | Set-Content -Path $ManifestPath -Encoding UTF8
 }
 
 Push-Location $RepoRoot
@@ -61,12 +129,13 @@ try {
     }
 
     if (-not (Test-Path $ResolvedServerExe)) {
+        Write-Summary "blocked" "Missing server executable: $ResolvedServerExe"
         Write-Host "[FAIL] Missing server executable: $ResolvedServerExe"
-        Write-Host "Build first with: py -3 Tools\unreal_gate.py --skip-generate --platform Win64 --include-server"
+        Write-Host "Build first with: cargo run -p frostwake-tools -- unreal-gate --skip-generate --platform Win64 --include-server"
+        Write-Host "Output: $OutDir"
         exit 2
     }
 
-    $EventLog = Join-Path $OutDir "server.jsonl"
     if ([string]::IsNullOrWhiteSpace($ServerConfig)) {
         $ResolvedServerConfig = Join-Path $OutDir "server_config.validation.json"
         $ExampleConfig = Join-Path $RepoRoot "Tools\ops\server_config.example.json"
@@ -78,7 +147,9 @@ try {
     } else {
         $ResolvedServerConfig = Resolve-RepoPath $ServerConfig
         if (-not (Test-Path $ResolvedServerConfig)) {
+            Write-Summary "fail" "Missing server config: $ResolvedServerConfig"
             Write-Host "[FAIL] Missing server config: $ResolvedServerConfig"
+            Write-Host "Output: $OutDir"
             exit 3
         }
 
@@ -88,11 +159,18 @@ try {
         }
     }
 
-    $StdoutLog = Join-Path $OutDir "server_stdout.log"
-    $StderrLog = Join-Path $OutDir "server_stderr.log"
-    $ConfigCheckLog = Join-Path $OutDir "server_config_check.log"
-    py -3 Tools\ops\server_config_check.py $ResolvedServerConfig 2>&1 | Tee-Object -FilePath $ConfigCheckLog
+    $CargoPath = Find-Cargo
+    if ([string]::IsNullOrWhiteSpace($CargoPath)) {
+        Write-Summary "blocked" "cargo not found"
+        Write-Host "[FAIL] cargo not found. Run Tools\windows\check_prereqs.ps1."
+        Write-Host "Output: $OutDir"
+        exit 4
+    }
+    Use-RustEnvironment $CargoPath
+    $ConfigCheckArgs = @("run", "-p", "frostwake-tools", "--", "server-config-check", $ResolvedServerConfig)
+    & $CargoPath @ConfigCheckArgs 2>&1 | Tee-Object -FilePath $ConfigCheckLog
     if ($LASTEXITCODE -ne 0) {
+        Write-Summary "fail" "Invalid server config: $ResolvedServerConfig"
         Write-Host "[FAIL] Invalid server config: $ResolvedServerConfig"
         Write-Host "Output: $OutDir"
         exit 4
@@ -145,11 +223,11 @@ try {
         exit 6
     }
 
-    $SummaryJson = Join-Path $OutDir "log_summary.json"
-    py -3 Tools\log_summary.py $EventLog | Set-Content -Path $SummaryJson -Encoding UTF8
+    $LogSummaryArgs = @("run", "-p", "frostwake-tools", "--", "log-summary", $EventLog, "--out", $SummaryJson)
+    & $CargoPath @LogSummaryArgs 2>&1 | Tee-Object -FilePath $LogSummaryLog
     if ($LASTEXITCODE -ne 0) {
-        Write-Summary "fail" "log_summary.py failed"
-        Write-Host "[FAIL] log_summary.py failed for $EventLog"
+        Write-Summary "fail" "frostwake-tools log-summary failed"
+        Write-Host "[FAIL] frostwake-tools log-summary failed for $EventLog"
         Write-Host "Output: $OutDir"
         exit 7
     }

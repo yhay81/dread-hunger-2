@@ -3,7 +3,7 @@ P2-001: Confirm Phase 2 entry gates,"Source: `docs/phase2-backlog.md`
 
 Done when:
 
-Windows clone records `Tools/windows/run_phase2_entry_validation.ps1` output, `quality_gate.py --require-ue`, `unreal_gate.py --platform Win64 --include-server`, dedicated-server boot, client-join, ready-lobby, and key smoke profile evidence in a cycle file
+Windows clone records `Tools/windows/run_phase2_entry_validation.ps1` output, `quality-gate --require-ue`, `unreal-gate --platform Win64 --include-server`, dedicated-server boot, client-join, ready-lobby, and key smoke profile evidence in a cycle file
 
 Validation evidence:
 
@@ -14,7 +14,7 @@ P2-005: Dedicated server client-join validation,"Source: `docs/phase2-backlog.md
 
 Done when:
 
-`Tools/windows/run_dedicated_client_join_validation.ps1`, `Tools/windows/run_dedicated_ready_validation.ps1`, or the phase entry wrapper pass on Windows with server JSONL evidence, 5 client connections, role assignment, and ready-lobby match start
+`Tools/windows/run_dedicated_client_join_validation.ps1`, `Tools/windows/run_dedicated_ready_validation.ps1`, or the phase entry wrapper pass on Windows with server JSONL evidence, 8 client connections, role assignment, and ready-lobby match start
 
 Validation evidence:
 
@@ -36,7 +36,7 @@ P2-003: Steam Lobby create/find/join spike,"Source: `docs/phase2-backlog.md`
 
 Done when:
 
-`Tools/windows/run_steam_lobby_validation.ps1` preflight passes; `docs/steam-lobby-subsystem-design.md` is implemented in a Windows-only spike that can create a lobby, list/find it, join from a second client, validate metadata with `Tools/ops/lobby_metadata_check.py`, and travel into the same Unreal authoritative server path without trusting lobby state for gameplay
+`Tools/windows/run_steam_lobby_validation.ps1` preflight passes; `docs/steam-lobby-subsystem-design.md` is implemented in a Windows-only spike that can create a lobby, list/find it, join from a second client, validate metadata with `cargo run -p frostwake-tools -- lobby-metadata-check`, and travel into the same Unreal authoritative server path without trusting lobby state for gameplay
 
 Validation evidence:
 
@@ -47,7 +47,7 @@ P2-004: Lobby build/version rejection,"Source: `docs/phase2-backlog.md`
 
 Done when:
 
-Lobby metadata follows `Tools/ops/lobby_metadata.schema.json`; mismatched build or map id is rejected before travel with a logged reason
+Lobby metadata follows `Tools/ops/lobby_metadata.schema.json`; `cargo run -p frostwake-tools -- lobby-join-decision` and `Tools/windows/run_steam_lobby_validation.ps1` prove mismatched build or map id is rejected before travel with a logged reason
 
 Validation evidence:
 
@@ -146,7 +146,7 @@ P2-014: Voice Chat Interface provider spike,"Source: `docs/phase2-backlog.md`
 
 Done when:
 
-Unreal Voice Chat Interface provider choice is recorded with setup steps, cost/licensing constraints, mute/block behavior, and Windows test command
+`docs/voice-provider-validation-template.md` records the Unreal Voice Chat Interface provider choice, setup steps, cost/licensing constraints, mute/block behavior, local config boundary, and Windows test command
 
 Validation evidence:
 
@@ -157,7 +157,7 @@ P2-015: Proximity voice gameplay acceptance,"Source: `docs/phase2-backlog.md`
 
 Done when:
 
-5-8 player test confirms distance falloff, wall/room attenuation decision, dead/downed/contained voice rules, mute/block UX, and no external chat-service dependency in the play loop
+Completed `docs/voice-provider-validation-template.md` records an 8-player test confirming distance falloff, wall/room attenuation decision, dead/downed/contained voice rules, reconnect behavior, mute/block/report UX, and no external chat-service dependency in the play loop
 
 Validation evidence:
 

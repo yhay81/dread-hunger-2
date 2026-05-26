@@ -40,9 +40,9 @@ Full override shape:
   -ServerExe ".\Binaries\Win64\AbyssLockServer.exe" `
   -ServerConfig ".\Saved\Config\server_config.local.json" `
   -Port 7777 `
-  -Clients 5 `
-  -ExpectedPlayers 5 `
-  -ExpectedSaboteurs 1 `
+  -Clients 8 `
+  -ExpectedPlayers 8 `
+  -ExpectedSaboteurs 2 `
   -IncludeSmoke
 ```
 
@@ -50,12 +50,12 @@ Full override shape:
 
 | Gate | P2 Item | Result | Evidence Path | Notes |
 | --- | --- | --- | --- | --- |
-| Phase 2 wrapper manifest | P2-001 | pass / blocked / fail | `Saved\Phase2EntryValidation\...\manifest.json` | Should list every child step and child evidence folder |
+| Phase 2 wrapper manifest | P2-001 | pass / blocked / fail | `Saved\Phase2EntryValidation\...\manifest.json` | Should list every child step, child evidence folder, child manifest, decision, and detail |
 | Phase 1 Windows validation wrapper | P2-001 | pass / blocked / fail | `Saved\Phase2EntryValidation\...` plus `Saved\WindowsValidation\...` |  |
 | Win64 server target | P2-001 | pass / blocked / fail | `unreal_gate_win64.log` | If blocked, record Launcher vs source build |
-| Dedicated server boot | P2-005 | pass / fail | `Saved\DedicatedServerValidation\...` |  |
-| Dedicated client join | P2-005 | pass / fail | `Saved\DedicatedClientJoinValidation\...` |  |
-| Dedicated ready-lobby 5-player start | P2-005 | pass / fail | `Saved\DedicatedReadyValidation\...` | Expected 5 clients, 1 saboteur, `match_started` |
+| Dedicated server boot | P2-005 | pass / blocked / fail | `Saved\DedicatedServerValidation\...` |  |
+| Dedicated client join | P2-005 | pass / blocked / fail | `Saved\DedicatedClientJoinValidation\...` |  |
+| Dedicated ready-lobby 8-player start | P2-005 | pass / blocked / fail | `Saved\DedicatedReadyValidation\...` | Expected 8 clients, 2 saboteurs, `match_started` |
 
 ## Expected Dedicated Ready-Lobby Events
 
@@ -74,8 +74,11 @@ match_started:
 Manifest path:
 phase1_windows_validation child output:
 dedicated_server_boot child output:
+dedicated_server_boot child manifest decision/detail:
 dedicated_client_join child output:
+dedicated_client_join child manifest decision/detail:
 dedicated_ready_lobby child output:
+dedicated_ready_lobby child manifest decision/detail:
 ```
 
 ## Decision

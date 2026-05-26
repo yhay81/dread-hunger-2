@@ -25,8 +25,7 @@ If SSH is not configured on the Windows machine, use the HTTPS remote and authen
 
 - Windows 11 recommended.
 - Git for Windows with Git LFS.
-- Python 3.11 or newer; latest 3.14.x is preferred for tools.
-- Node 24 LTS for backend/admin tooling. Current-line Node can be used locally, but CI and production should target LTS.
+- Rust 1.95 or newer for backend/admin/tooling work. This repository can also use a local ignored toolchain under `Tools/install/rust`.
 - Unreal Engine 5.7 installed through Epic Games Launcher or a source build. Use the latest available 5.7.x patch on the Windows machine.
 - Visual Studio 2022 Current channel 17.14 with **Game development with C++**, MSVC 14.44-compatible tooling, and a Windows 10/11 SDK. Do not switch to the Visual Studio 2026 / MSVC 14.50 toolchain until Epic marks it supported for UE 5.7.
 
@@ -41,8 +40,8 @@ $env:UE_ROOT = "D:\Epic Games\UE_5.7"
 Run these from the repository root:
 
 ```powershell
-py -3 Tools\quality_gate.py --require-ue
-py -3 Tools\unreal_gate.py --skip-generate --platform Win64 --include-server
+cargo run -p frostwake-tools -- quality-gate --require-ue
+cargo run -p frostwake-tools -- unreal-gate --skip-generate --platform Win64 --include-server
 ```
 
 The same first-run path is also wrapped as PowerShell helpers:
@@ -56,7 +55,7 @@ Add `-UeRoot "D:\Epic Games\UE_5.7"` if Unreal is not installed in a default Epi
 
 Expected result:
 
-- `quality_gate.py` should pass.
+- `quality-gate` should pass.
 - `AbyssLockEditor` and `AbyssLock` should build.
 - `AbyssLockServer` should be attempted. If the Launcher UE distribution blocks Server targets, install or build a UE source distribution and rerun with `UE_ROOT` pointing to that source build.
 
@@ -95,23 +94,23 @@ Then open the generated solution or open `AbyssLock.uproject` in Unreal Editor a
 After Editor/Game builds pass:
 
 ```powershell
-py -3 Tools\ue\run_local_smoke.py --profile qa-bot --skip-build --null-rhi --platform Win64
-py -3 Tools\ue\run_local_smoke.py --profile match-timer --skip-build --null-rhi --platform Win64
-py -3 Tools\ue\run_local_smoke.py --profile life-action --skip-build --null-rhi --platform Win64
-py -3 Tools\ue\run_local_smoke.py --profile combined5 --skip-build --null-rhi --platform Win64
-py -3 Tools\ue\run_local_smoke.py --profile ready8 --skip-build --null-rhi --platform Win64
-py -3 Tools\ue\run_smoke_suite.py --skip-build --null-rhi --platform Win64
-py -3 Tools\ue\run_smoke_suite.py --include-heavy --skip-build --null-rhi --platform Win64
+cargo run -p frostwake-tools -- run-local-smoke --profile qa-bot --skip-build --null-rhi --platform Win64
+cargo run -p frostwake-tools -- run-local-smoke --profile match-timer --skip-build --null-rhi --platform Win64
+cargo run -p frostwake-tools -- run-local-smoke --profile life-action --skip-build --null-rhi --platform Win64
+cargo run -p frostwake-tools -- run-local-smoke --profile combined5 --skip-build --null-rhi --platform Win64
+cargo run -p frostwake-tools -- run-local-smoke --profile ready8 --skip-build --null-rhi --platform Win64
+cargo run -p frostwake-tools -- run-smoke-suite --skip-build --null-rhi --platform Win64
+cargo run -p frostwake-tools -- run-smoke-suite --include-heavy --skip-build --null-rhi --platform Win64
 ```
 
 The quick suite currently covers `qa-bot`, `qa-player-bot`, and `match-timer`. The heavy suite appends `qa-task-bot`, `life-action`, `combined5`, `ready8`, and `combined8`.
 
 The known good Mac evidence before handoff was the heavy listen-server smoke suite recorded in `docs/phase1-milestone-report.md`. The Windows clone should recreate fresh `Saved/SmokeTests` or `Saved/SmokeSuites` evidence locally; those generated folders stay ignored.
 
-The P1-024 human-test scaffold creates Windows PowerShell scripts plus legacy POSIX shell scripts:
+The P1-024 human-test scaffold creates Windows PowerShell scripts plus POSIX helper scripts:
 
 ```powershell
-py -3 Tools\playtest_run_scaffold.py --run-number 1 --target-players 6
+cargo run -p frostwake-tools -- playtest-run-scaffold --run-number 1 --target-players 8
 ```
 
 ## Visual POC
@@ -119,9 +118,9 @@ py -3 Tools\playtest_run_scaffold.py --run-number 1 --target-players 6
 Do not import marketplace/Fab assets directly into production folders. Start with:
 
 ```powershell
-py -3 Tools\asset_ledger_check.py
-py -3 Tools\ue\scaffold_frostwake_visual_poc.py --dry-run
-py -3 Tools\ue\scaffold_frostwake_visual_poc.py --write
+cargo run -p frostwake-tools -- asset-ledger-check
+cargo run -p frostwake-tools -- scaffold-frostwake-visual-poc --dry-run
+cargo run -p frostwake-tools -- scaffold-frostwake-visual-poc --write
 ```
 
 The first recommended evaluation package is the free `Modular Ship Interior Environment`, followed by one paid near-future interior kit only after a fresh license/listing check and user approval. Candidate rows are in `docs/asset-ledger-candidates.csv`.
@@ -143,8 +142,8 @@ The first recommended evaluation package is the free `Modular Ship Interior Envi
 
 ## Next Windows Task
 
-1. Clone and run `py -3 Tools\quality_gate.py --require-ue`.
-2. Run `py -3 Tools\unreal_gate.py --skip-generate --platform Win64 --include-server`.
+1. Clone and run `cargo run -p frostwake-tools -- quality-gate --require-ue`.
+2. Run `cargo run -p frostwake-tools -- unreal-gate --skip-generate --platform Win64 --include-server`.
 3. Fill [Windows Validation Template](windows-validation-template.md). If server build passes, record the result in a new cycle. If it is blocked, document whether a UE source build is required on Windows.
 4. Run the dedicated-server boot, client-join, and ready-lobby probes.
 5. Run `.\Tools\windows\run_phase2_entry_validation.ps1 -SkipGenerate` and fill [Windows Phase 2 Entry Template](windows-phase2-entry-template.md).

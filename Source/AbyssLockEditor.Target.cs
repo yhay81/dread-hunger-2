@@ -9,5 +9,6 @@ public class AbyssLockEditorTarget : TargetRules
         DefaultBuildSettings = BuildSettingsVersion.V6;
         IncludeOrderVersion = EngineIncludeOrderVersion.Latest;
         ExtraModuleNames.Add("AbyssLock");
+        ExtraModuleNames.Add("AbyssLockEditor");
     }
 }

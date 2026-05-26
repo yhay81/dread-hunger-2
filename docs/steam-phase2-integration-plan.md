@@ -23,7 +23,7 @@ Phase 2 adds Steam-facing systems after Windows dedicated-server evidence exists
    Implement `docs/steam-lobby-subsystem-design.md`: create, find, join, and build mismatch rejection. Store only metadata allowed by `Tools/ops/lobby_metadata.schema.json` and needed to get clients to the authoritative server.
 
 4. Add Steam identity.
-   Verify auth ticket and ownership before trusting reports, moderation identities, or protected server metadata.
+   Promote the local mock endpoint in `docs/steam-auth-ownership-gate.md` to real Steam Web API verification before trusting reports, moderation identities, or protected server metadata.
 
 5. Decide discovery architecture.
    Choose the staged relationship between Steam Server Browser, Steam Game Servers API, lobby metadata, and optional backend fleet metadata.
@@ -40,7 +40,7 @@ Phase 2 adds Steam-facing systems after Windows dedicated-server evidence exists
 ## Definition Of Done
 
 - A clean Windows clone can pass all Phase 1 gates and Phase 2 entry gates.
-- One dedicated server accepts 5 clients, assigns roles, and starts from ready-lobby.
+- One dedicated server accepts 8 clients, assigns roles, and starts from ready-lobby.
 - A Steam Lobby spike can bring a second client to the same server path.
 - Mismatched build metadata is rejected before travel.
 - The server browser design and Tool App packaging checklist are written before public listing work.

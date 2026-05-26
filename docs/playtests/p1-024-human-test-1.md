@@ -4,7 +4,7 @@ Date prepared: 2026-05-25
 
 ## Purpose
 
-Run the first 6-8 player human greybox test after the Phase 1 automation milestone.
+Run the first 8-player human greybox test after the Phase 1 automation milestone.
 
 This test is not for art, balance polish, store readiness, or production networking. It is for deciding whether players can understand the rough loop, produce suspicion and cooperation, and create a useful keep/cut/change list.
 
@@ -13,16 +13,14 @@ This test is not for art, balance polish, store readiness, or production network
 - Build path: Windows `Win64` Unreal Editor/Game listen-server validation.
 - Dedicated Server: retest on Windows with `--platform Win64 --include-server`; if Launcher UE blocks it, use a UE source build.
 - Best automation evidence: `Saved/SmokeSuites/suite-20260525-050522/suite_summary.md`.
-- Pre-test gate: `py -3 Tools\quality_gate.py --require-ue` must pass.
-- Optional pre-test gate: `py -3 Tools\ue\run_smoke_suite.py --include-heavy --skip-build --null-rhi --platform Win64` should pass if there was any code or map change after Cycle 26.
+- Pre-test gate: `cargo run -p frostwake-tools -- quality-gate --require-ue` must pass.
+- Optional pre-test gate: `cargo run -p frostwake-tools -- run-smoke-suite --include-heavy --skip-build --null-rhi --platform Win64` should pass if there was any code or map change after Cycle 26.
 
 ## Test Size
 
-Preferred: 8 players.
+Valid run: exactly 8 players.
 
-Minimum valid run: 6 players.
-
-If fewer than 6 players are available, do not count it as P1-024. Use it only as a technical rehearsal.
+If fewer than 8 players are available, do not count it as P1-024. Use it only as a technical rehearsal or a one-player practice check.
 
 ## Run Header
 
@@ -36,7 +34,7 @@ Host machine:
 Host LAN IP:
 Port: 7777
 Map: /Game/Maps/L_IcebreakerWhitebox
-Target players: 6 / 7 / 8
+Target players: 8
 Voice method:
 Recording consent: yes / no
 Observer A, timing and logs:
@@ -51,8 +49,6 @@ Expected role counts:
 
 | Players | Crew | Agents |
 | ---: | ---: | ---: |
-| 6 | 5 | 1 |
-| 7 | 5 | 2 |
 | 8 | 6 | 2 |
 
 Player-facing terms:
@@ -67,15 +63,15 @@ Do not use Dread Hunger names, roles, factions, or framing during the test.
 Run from the repository root:
 
 ```powershell
-py -3 Tools\quality_gate.py --require-ue
-py -3 Tools\unreal_gate.py --skip-generate --platform Win64 --include-server
-py -3 Tools\ue\run_local_smoke.py --profile ready8 --skip-build --null-rhi --platform Win64
+cargo run -p frostwake-tools -- quality-gate --require-ue
+cargo run -p frostwake-tools -- unreal-gate --skip-generate --platform Win64 --include-server
+cargo run -p frostwake-tools -- run-local-smoke --profile ready8 --skip-build --null-rhi --platform Win64
 ```
 
 Expected result:
 
-- `quality_gate.py` passes.
-- `unreal_gate.py` reports Editor/Game pass and records the Windows Server target result.
+- `quality-gate` passes.
+- `unreal-gate` reports Editor/Game pass and records the Windows Server target result.
 - `ready8` smoke passes with `8p/2s` role assignment.
 - Startup evidence appears in host logs: listen port, whitebox map load, `role_assignment_complete`, no fatal/crash log terms.
 
@@ -86,10 +82,10 @@ If the `ready8` smoke fails, do not run the human test. Fix the startup or role-
 Use one local directory per run:
 
 ```powershell
-py -3 Tools\playtest_run_scaffold.py --run-number 1 --target-players 6
+cargo run -p frostwake-tools -- playtest-run-scaffold --run-number 1 --target-players 8
 ```
 
-This creates `Saved/Playtests/P1-024/run-01/` with `host.ps1`, `client-local.ps1`, `client-lan.ps1`, `preflight.ps1`, `after-test.ps1`, legacy `.sh` scripts, notes, and local evidence folders. Raw logs and recordings stay out of git. After the test, summarize the run in a committed markdown note and keep raw evidence under `Saved/Playtests/...`.
+This creates `Saved/Playtests/P1-024/run-01/` with `host.ps1`, `client-local.ps1`, `client-lan.ps1`, `preflight.ps1`, `after-test.ps1`, POSIX helper scripts, notes, and local evidence folders. Raw logs and recordings stay out of git. After the test, summarize the run in a committed markdown note and keep raw evidence under `Saved/Playtests/...`.
 
 ## Listen Host Launch
 
@@ -180,6 +176,17 @@ Track these counts:
 | Critical blockers |  |
 | Players asking for another round |  |
 
+Track GP-09 comprehension and accessibility signals:
+
+| Signal | Observation |
+| --- | --- |
+| Objective comprehension |  |
+| Next-step clarity |  |
+| Failure-state clarity |  |
+| UI or control confusion |  |
+| Accessibility blocker |  |
+| Text or term issue |  |
+
 ## Post-Match Questions
 
 Ask every player:
@@ -189,6 +196,7 @@ Ask every player:
 - What action made you trust someone?
 - What action made you distrust someone?
 - What was the most confusing moment?
+- Did any control, readability, audio, or screen effect issue block you?
 - What was the most tense or funny moment?
 - Did you want another round?
 - What one thing should be cut?
@@ -211,7 +219,7 @@ Ask crew privately:
 
 Count P1-024 as a pass only if:
 
-- 6 or more players connect.
+- 8 players connect.
 - A match starts and role assignment is visible in `events.jsonl`.
 - Players can perform at least one repair or sabotage-relevant interaction.
 - The run produces a keep/cut/change list.
@@ -235,10 +243,10 @@ Count it as a fail if:
 Summarize telemetry:
 
 ```bash
-python3 Tools/log_summary.py Saved/Playtests/P1-024/run-01/events.jsonl
-python3 Tools/log_summary.py Saved/Playtests/P1-024/run-01/events.jsonl --out Saved/Playtests/P1-024/run-01/summary.json
-python3 Tools/playtest_summary.py Saved/Playtests/P1-024/run-01/summary.json --out docs/playtests/p1-024-run-01-summary.md
-python3 Tools/playtest_preflight.py Saved/Playtests/P1-024/run-01/summary.json --markdown docs/playtests/p1-024-run-01-summary.md
+cargo run -p frostwake-tools -- log-summary Saved/Playtests/P1-024/run-01/events.jsonl
+cargo run -p frostwake-tools -- log-summary Saved/Playtests/P1-024/run-01/events.jsonl --out Saved/Playtests/P1-024/run-01/summary.json
+cargo run -p frostwake-tools -- playtest-summary Saved/Playtests/P1-024/run-01/summary.json --out docs/playtests/p1-024-run-01-summary.md
+cargo run -p frostwake-tools -- playtest-preflight Saved/Playtests/P1-024/run-01/summary.json --markdown docs/playtests/p1-024-run-01-summary.md
 ```
 
 The summary should include `run_id`, `build_id`, `map_id`, `profile`, `players_connected`, `players_disconnected`, `duration_seconds`, and `match_duration_seconds` when the match ends.
@@ -253,7 +261,8 @@ Saved/Playtests/P1-024/run-01/recordings/
 
 Commit only an anonymized summary. Do not commit raw logs, recordings, voice transcripts, tester names, SteamIDs, IP addresses, or moderation details.
 
-`Tools/playtest_preflight.py` must pass before a human P1-024 summary is committed. It checks the `log_summary.py --out` JSON for the expected run/profile/map/player-count gates and checks the Markdown summary for unresolved placeholders, dry-run markers, and common identity or local-path leaks.
+`cargo run -p frostwake-tools -- playtest-preflight` must pass before a human P1-024 summary is committed. It checks the `log-summary --out` JSON for the expected run/profile/map/player-count gates and checks the Markdown summary for unresolved placeholders, dry-run markers, and common identity or local-path leaks.
+It also requires resolved human playability evidence for objective comprehension, confusion, a memorable social incident, repeat-play intent, and the keep/cut/change decision rows.
 
 ## Summary Template
 

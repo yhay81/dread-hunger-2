@@ -12,20 +12,26 @@ Utility area for:
 
 Implemented:
 
-- `quality_gate.py`: runs static repository gates for each improvement cycle.
-- `backlog_to_issues.py`: exports phase backlog rows to issue-import CSV and Markdown.
-- `github_issue_sync.py`: dry-runs or creates GitHub issues from the generated issue-import CSV. It defaults to Phase 1; pass `--csv docs/issue-import/phase2-issues.csv` for Phase 2.
-- `unreal_gate.py`: runs UE project generation and local Editor/Game build gates.
-- `new_cycle.py`: creates the next cycle record under `docs/cycles/`.
-- `log_summary.py`: summarizes JSONL match telemetry for Phase 1 QA.
-- `ue/run_local_smoke.py`: launches a local UE listen-server smoke test and optional localhost clients.
-- `ue/run_smoke_suite.py`: runs named smoke profiles; pass `--platform Win64` on Windows.
-- `playtest_run_scaffold.py`: creates ignored P1-024 local run folders with Windows PowerShell launch scripts and legacy bash scripts.
-- `playtest_report_upload.py`: builds or optionally uploads an anonymized playtest report payload to the local backend.
+- `cargo run -p frostwake-tools -- quality-gate`: Rust quality-gate orchestrator for repository, Rust, PowerShell, Unreal metadata, asset-ledger, and secret checks.
+- `cargo run -p frostwake-tools -- backlog-to-issues`: exports phase backlog rows to issue-import CSV and Markdown.
+- `cargo run -p frostwake-tools -- github-issue-sync`: dry-runs or creates GitHub issues from the generated issue-import CSV. It defaults to Phase 1; pass `--csv docs/issue-import/phase2-issues.csv` for Phase 2.
+- `cargo run -p frostwake-tools -- unreal-gate`: runs UE project generation and local Editor/Game build gates.
+- `cargo run -p frostwake-tools -- new-cycle`: creates the next cycle record under `docs/cycles/`.
+- `cargo run -p frostwake-tools -- log-summary`: Rust replacement for JSONL match telemetry summaries.
+- `cargo run -p frostwake-tools -- run-local-smoke`: launches a local UE listen-server smoke test and optional localhost clients.
+- `cargo run -p frostwake-tools -- run-smoke-suite`: runs named smoke profiles; pass `--platform Win64` on Windows.
+- `windows/run_single_player.ps1`: launches a visible one-player `UnrealEditor.exe -game` session for manual testing.
+- `cargo run -p frostwake-tools -- playtest-run-scaffold`: creates ignored P1-024 local run folders with Windows PowerShell and POSIX helper scripts.
+- `cargo run -p frostwake-tools -- playtest-summary`: generates the anonymized human-test summary skeleton.
+- `cargo run -p frostwake-tools -- playtest-preflight`: checks summary privacy, placeholders, and objective gates.
+- `cargo run -p frostwake-tools -- playtest-report-upload`: builds or optionally uploads an anonymized playtest report payload to the local backend.
+- `cargo run -p frostwake-tools -- asset-ledger-check`: Rust validation for candidate asset provenance and approval evidence.
+- `cargo run -p frostwake-tools -- reference-inventory`: creates ignored metadata inventories for local research copies.
+- `cargo run -p frostwake-tools -- redact-json`, `banlist-list`, `banlist-add`, and `steam-registry-list`: Rust ops helpers.
 - `windows/`: Windows-only first-run, dedicated-server, Phase 2 entry, Steam dev config, and Steam Lobby validation helpers.
-- `reference_inventory.sh`: creates ignored metadata inventories for local research copies.
-- `ops/`: safe local ops contracts, redaction helpers, banlist helpers, and config schemas.
+- `ops/`: safe local ops contracts and config schemas. The redaction, banlist, Steam registry, and config validators live in `crates/frostwake-tools`.
 
 Tests:
 
-- `python3 -m unittest discover -s tests`: fixture-based checks for the P1-024 telemetry and playtest evidence pipeline. This is also run by `quality_gate.py`.
+- `cargo test --workspace`: Rust service and tool tests, including the telemetry and playtest evidence pipeline.
+- `cargo run -p frostwake-tools -- quality-gate`: runs the full local gate. Script-language source files are no longer accepted in tracked project tooling.

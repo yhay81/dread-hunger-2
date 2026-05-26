@@ -16,8 +16,8 @@ Use this after `AbyssLockServer` builds on the Windows workstation. This runbook
 Run from the repository root:
 
 ```powershell
-py -3 Tools\quality_gate.py --require-ue
-py -3 Tools\unreal_gate.py --skip-generate --platform Win64 --include-server
+cargo run -p frostwake-tools -- quality-gate --require-ue
+cargo run -p frostwake-tools -- unreal-gate --skip-generate --platform Win64 --include-server
 ```
 
 Interpret `AbyssLockServer` result:
@@ -65,7 +65,7 @@ Recommended local test values:
 Validate any edited config before launch:
 
 ```powershell
-py -3 Tools\ops\server_config_check.py Saved\Config\server_config.local.json
+cargo run -p frostwake-tools -- server-config-check Saved\Config\server_config.local.json
 ```
 
 ## Launch Shape
@@ -111,7 +111,7 @@ Useful overrides:
   -Port 7777
 ```
 
-The wrapper validates the server config, writes ignored evidence under `Saved\DedicatedServerValidation\...`, stops the server after the probe duration, and runs `Tools\log_summary.py` if the configured event log is produced.
+The wrapper validates the server config, writes ignored evidence under `Saved\DedicatedServerValidation\...`, stops the server after the probe duration, and runs `cargo run -p frostwake-tools -- log-summary` if the configured event log is produced. Early blockers, including a missing server executable or missing config file, still write `summary.txt` and `manifest.json` in that evidence folder.
 
 After boot validation passes, run the dedicated client join probe:
 
@@ -129,9 +129,9 @@ Useful overrides:
   -Port 7777
 ```
 
-The wrapper starts the server, launches one `UnrealEditor.exe -game` client against `127.0.0.1:<port>`, stops both processes, summarizes the server JSONL log, and fails if `client_connected` is not recorded.
+The wrapper starts the server, launches one `UnrealEditor.exe -game` client against `127.0.0.1:<port>`, stops both processes, summarizes the server JSONL log, and fails if `client_connected` is not recorded. Early blockers also write `summary.txt` and `manifest.json` under `Saved\DedicatedClientJoinValidation\...`.
 
-After the single-client join passes, run the 5-player ready-lobby dedicated probe:
+After the single-client join passes, run the 8-player ready-lobby dedicated probe:
 
 ```powershell
 .\Tools\windows\run_dedicated_ready_validation.ps1
@@ -144,13 +144,13 @@ Useful overrides:
   -ServerExe ".\Binaries\Win64\AbyssLockServer.exe" `
   -ServerConfig ".\Saved\Config\server_config.local.json" `
   -UeRoot "D:\Epic Games\UE_5.7" `
-  -Clients 5 `
-  -ExpectedPlayers 5 `
-  -ExpectedSaboteurs 1 `
+  -Clients 8 `
+  -ExpectedPlayers 8 `
+  -ExpectedSaboteurs 2 `
   -Port 7777
 ```
 
-This wrapper starts a headless dedicated server with `-AbyssAutoReady`, launches five `UnrealEditor.exe -game` clients, and fails unless the server JSONL records `role_assignment_complete` with `players=5`, `saboteurs=1`, plus `match_started`.
+This wrapper starts a headless dedicated server with `-AbyssAutoReady`, launches eight `UnrealEditor.exe -game` clients, and fails unless the server JSONL records `role_assignment_complete` with `players=8`, `saboteurs=2`, plus `match_started`. Early blockers also write `summary.txt` and `manifest.json` under `Saved\DedicatedReadyValidation\...`, including the expected player/saboteur counts and per-client log paths.
 
 When boot, client join, and ready-lobby behavior are understood, run the Phase 2 entry orchestration wrapper:
 
@@ -160,12 +160,12 @@ When boot, client join, and ready-lobby behavior are understood, run the Phase 2
   -ServerExe ".\Binaries\Win64\AbyssLockServer.exe" `
   -ServerConfig ".\Saved\Config\server_config.local.json" `
   -Port 7777 `
-  -Clients 5 `
-  -ExpectedPlayers 5 `
-  -ExpectedSaboteurs 1
+  -Clients 8 `
+  -ExpectedPlayers 8 `
+  -ExpectedSaboteurs 2
 ```
 
-The wrapper writes `Saved\Phase2EntryValidation\<timestamp>\manifest.json` with links to the child validation outputs.
+The wrapper writes `Saved\Phase2EntryValidation\<timestamp>\manifest.json` with links to the child validation outputs. When a child probe writes its own `manifest.json`, the Phase 2 wrapper copies the child manifest path, decision, detail, output folder, and run id into the parent step result. A child `blocked` decision, such as a missing server executable, makes the top-level Phase 2 manifest `blocked` instead of a generic `fail`.
 
 ## Ports And Firewall
 
@@ -197,13 +197,13 @@ Telemetry path precedence is:
 Do not commit raw logs. Summarize with:
 
 ```powershell
-py -3 Tools\log_summary.py Saved\Logs\server.jsonl
+cargo run -p frostwake-tools -- log-summary Saved\Logs\server.jsonl
 ```
 
 If a suite produces `suite_summary.json`, export:
 
 ```powershell
-py -3 Tools\ue\export_smoke_suite_markdown.py Saved\SmokeSuites\<suite-id>\suite_summary.json
+cargo run -p frostwake-tools -- export-smoke-suite-markdown Saved\SmokeSuites\<suite-id>\suite_summary.json
 ```
 
 ## Community Hosting Direction
@@ -255,16 +255,3 @@ Log summary path:
 Crash/ensure lines:
 Decision:
 ```
-
-## Next Dedicated Server Gate
-
-After boot validation passes, run a client-join validation:
-
-- start `AbyssLockServer.exe`;
-- launch one Windows client against the server endpoint;
-- confirm `client_connected` telemetry;
-- launch five Windows clients against the server endpoint;
-- confirm `role_assignment_complete` and `match_started` telemetry through the dedicated-server path;
-- confirm a client can connect without a local listen host;
-- summarize the dedicated-server event log with `Tools\log_summary.py`;
-- keep raw logs under ignored `Saved\DedicatedClientJoinValidation\` and `Saved\DedicatedReadyValidation\`.

@@ -27,7 +27,7 @@ Summary author:
 Generate telemetry:
 
 ```bash
-python3 Tools/log_summary.py Saved/Playtests/P1-024/run-01/events.jsonl --out Saved/Playtests/P1-024/run-01/summary.json
+cargo run -p frostwake-tools -- log-summary Saved/Playtests/P1-024/run-01/events.jsonl --out Saved/Playtests/P1-024/run-01/summary.json
 ```
 
 Copy the relevant values into this table:
@@ -48,6 +48,7 @@ Copy the relevant values into this table:
 | `last_role_assignment.saboteurs` |  |
 | `last_match_result.winner` |  |
 | `last_match_result.reason` |  |
+| `last_match_result.criticalSystems` |  |
 | `ship_task_repairs` |  |
 | `ship_task_sabotages` |  |
 | `players_downed` |  |
@@ -97,7 +98,7 @@ Resolve each item before choosing pass, partial, or fail.
 
 | Check | Result | Evidence |
 | --- | --- | --- |
-| `players_connected >= 6` | yes / no |  |
+| `players_connected == 8` | yes / no |  |
 | `match_started > 0` | yes / no |  |
 | `last_role_assignment` exists | yes / no |  |
 | Crew/agent counts match the player count | yes / no |  |
@@ -132,6 +133,7 @@ Short narrative:
 ## Player Feedback
 
 Aggregate only. Do not name players.
+`playtest-preflight` requires the goal-comprehension, confusion, memorable/social moment, repeat-play intent, and keep/cut/change rows below to contain resolved evidence before a human summary is committed.
 
 | Question | Summary |
 | --- | --- |
@@ -154,6 +156,19 @@ Crew-only feedback:
 
 -
 
+## Comprehension And Accessibility
+
+Summarize GP-09 evidence from observer notes and post-round answers. Use `none observed` only when an observer explicitly checked the signal.
+
+| Signal | Evidence | Follow-up |
+| --- | --- | --- |
+| Objective comprehension |  |  |
+| Next-step clarity |  |  |
+| Failure-state clarity |  |  |
+| UI or control confusion |  |  |
+| Accessibility blocker |  |  |
+| Text or term issue |  |  |
+
 ## Keep / Cut / Change
 
 Keep:
@@ -173,7 +188,7 @@ Change before P1-026:
 | Area | Telemetry evidence | Observer/player evidence | Decision | Reason | Next action |
 | --- | --- | --- | --- | --- | --- |
 | Repairs and route tasks |  |  | keep / cut / change |  |  |
-| Sabotage actions |  |  | keep / cut / change |  |  |
+| Sabotage actions | sabotages=, winner=, critical_systems= |  | keep / cut / change |  |  |
 | Doors and bulkheads |  |  | keep / cut / change |  |  |
 | Flooding and pump pressure |  |  | keep / cut / change |  |  |
 | PvE, down, rescue, containment |  |  | keep / cut / change |  |  |
@@ -205,7 +220,7 @@ Severity guide:
 
 Choose one:
 
-- pass: 6 or more players connected, roles assigned, players interacted with the loop, useful social data was generated, and a keep/cut/change list exists.
+- pass: 8 players connected, roles assigned, players interacted with the loop, useful social data was generated, and a keep/cut/change list exists.
 - partial: technical or clarity issues blocked completion, but logs and observations identify what to fix.
 - fail: host, connection, role assignment, movement, interaction, or logging failed before useful data.
 

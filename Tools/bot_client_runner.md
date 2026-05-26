@@ -1,11 +1,11 @@
 # Local Client Runner Spec
 
-Phase 1 starts with `Tools/ue/run_local_smoke.py`, which launches an uncooked UE `-game` listen host through `UnrealEditor` and optional localhost clients. The later bot runner should build on the same log and process-control conventions.
+Phase 1 starts with `cargo run -p frostwake-tools -- run-local-smoke`, which launches an uncooked UE `-game` listen host through `UnrealEditor` and optional localhost clients. The later bot runner should build on the same log and process-control conventions.
 
 ## Current Smoke Command
 
 ```bash
-python3 Tools/ue/run_local_smoke.py \
+cargo run -p frostwake-tools -- run-local-smoke \
   --host-only \
   --skip-build \
   --null-rhi \
@@ -15,7 +15,7 @@ python3 Tools/ue/run_local_smoke.py \
 For a localhost client smoke:
 
 ```bash
-python3 Tools/ue/run_local_smoke.py \
+cargo run -p frostwake-tools -- run-local-smoke \
   --clients 1 \
   --skip-build \
   --smoke-interact \

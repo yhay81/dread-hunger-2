@@ -21,11 +21,13 @@ Phase 2 and later:
 - platform user id such as SteamID64 when Steam integration is enabled
 - report reason enum
 - reporter and reported player ids
+- moderation report context such as match id, build id, map id, local player slots, match time, voice state, immediate action taken, and recent event ids
 - recent server gameplay event ring buffer
 
 ## Data Not Collected
 
 - Raw voice recordings by default.
+- Raw voice transcripts or recording URLs by default.
 - Free text chat by default.
 - IP addresses in shared playtest reports.
 - Secrets, tokens, or local environment files.
@@ -54,6 +56,30 @@ If voice recording or free text retention is ever added, it requires explicit co
 - Developers and assigned QA reviewers only.
 - Do not commit raw logs, recordings, SteamIDs, or moderation reports to this repository.
 - Share only anonymized summaries in issues and docs.
+
+## Incident Intake And Escalation
+
+When an issue is reported during a private wave, collect a minimal incident summary with:
+
+- Build id
+- Run/Session id
+- Approximate timestamp
+- Wave id (planned/current)
+- Role-relevant context (match phase / major event)
+- Reporter slot id (anonymized)
+- Incident type (`harassment`, `cheat`, `crash`, `stuck`, `other`)
+- Immediate action taken
+- Severity (`low`, `medium`, `high`)
+
+Severity handling:
+
+| Severity | Action owner | Expected response |
+| --- | --- | --- |
+| Low | Production | Reply and document within same day |
+| Medium | Production + Engineering | Respond within 4 hours, follow-up with fix triage |
+| High | Production + Engineering + Owner | Respond within 1 hour and freeze growth only if abuse is reproducible or a restart safety issue |
+
+If two `high` incidents or one `high` plus unresolved `crash` happens in one wave, pause new invites and run rollback review before the next wave.
 
 ## Deletion
 

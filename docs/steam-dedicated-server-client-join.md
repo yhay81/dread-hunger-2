@@ -7,8 +7,8 @@ This plan bridges the current Windows dedicated validation scripts and the later
 Use these Windows helpers first:
 
 ```powershell
-py -3 Tools\quality_gate.py --require-ue
-py -3 Tools\unreal_gate.py --skip-generate --platform Win64 --include-server
+cargo run -p frostwake-tools -- quality-gate --require-ue
+cargo run -p frostwake-tools -- unreal-gate --skip-generate --platform Win64 --include-server
 pwsh -File Tools\windows\run_dedicated_server_validation.ps1
 pwsh -File Tools\windows\run_dedicated_client_join_validation.ps1
 pwsh -File Tools\windows\run_dedicated_ready_validation.ps1
@@ -17,7 +17,7 @@ pwsh -File Tools\windows\run_dedicated_ready_validation.ps1
 After the individual probes are understood, prefer the Phase 2 entry wrapper for repeatable evidence:
 
 ```powershell
-pwsh -File Tools\windows\run_phase2_entry_validation.ps1 -SkipGenerate -Clients 5 -ExpectedPlayers 5 -ExpectedSaboteurs 1
+pwsh -File Tools\windows\run_phase2_entry_validation.ps1 -SkipGenerate -Clients 8 -ExpectedPlayers 8 -ExpectedSaboteurs 2
 ```
 
 The wrapper writes `Saved\Phase2EntryValidation\<timestamp>\manifest.json` and references the child `Saved\WindowsValidation`, `Saved\DedicatedServerValidation`, `Saved\DedicatedClientJoinValidation`, and `Saved\DedicatedReadyValidation` outputs.
@@ -25,9 +25,9 @@ The wrapper writes `Saved\Phase2EntryValidation\<timestamp>\manifest.json` and r
 Expected dedicated ready-lobby evidence:
 
 - `session_started`
-- `client_connected` for 5 clients
-- `player_ready_changed` for 5 players
-- `role_assignment_complete` with 5 players and 1 saboteur
+- `client_connected` for 8 clients
+- `player_ready_changed` for 8 players
+- `role_assignment_complete` with 8 players and 2 saboteurs
 - `match_timer_started`
 - `match_started` from ready-lobby
 
@@ -55,7 +55,7 @@ Minimum join metadata:
 - password/private flag
 - opaque endpoint token or connection target
 
-The executable contract is `Tools\ops\lobby_metadata.schema.json`, with validation through `Tools\ops\lobby_metadata_check.py`.
+The executable contract is `Tools\ops\lobby_metadata.schema.json`, with validation through `cargo run -p frostwake-tools -- lobby-metadata-check`.
 
 Do not store role state, inventory, health, sabotage state, or match authority in lobby metadata.
 
@@ -71,5 +71,5 @@ Do not store role state, inventory, health, sabotage state, or match authority i
 
 - Dedicated server local client join passes on Windows.
 - Steam Lobby join reaches the same server-authoritative match flow.
-- Generated logs are summarized by `Tools/log_summary.py`.
+- Generated logs are summarized by `cargo run -p frostwake-tools -- log-summary`.
 - The result is recorded in a cycle file and Windows validation note.

@@ -29,7 +29,7 @@ The project can learn from broad operational patterns: server cost, DDoS risk, c
 ## Local Reference Workflow
 
 1. Put source locations in [references/external-paths.json](../references/external-paths.json).
-2. Run `Tools/reference_inventory.sh` to create local metadata under `references/inventory/`.
+2. Run `cargo run -p frostwake-tools -- reference-inventory` to create local metadata under `references/inventory/`.
 3. Keep `references/inventory/` uncommitted.
 4. If a local copy is needed, copy into `references/private/raw/` only.
 5. Convert only high-level, non-expressive lessons into docs.

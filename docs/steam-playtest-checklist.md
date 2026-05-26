@@ -24,6 +24,7 @@ This checklist is for Frostwake's first Steam Playtest path. It assumes the game
 | Asset rights tracked | Purchased or free assets added to `docs/asset-ledger.md` before import | Art/production |
 | AI disclosure ready | `docs/ai-content-disclosure.md` updated for generated/pre-generated content | Production |
 | Moderation minimum defined | Report, mute, kick, ban path scoped in backlog or implemented before public scale | Backend/gameplay |
+| Voice provider boundary defined | `docs/voice-provider-validation-template.md` has provider evidence or an explicit blocker before any voice claim is made | Gameplay/backend |
 
 ## Main Game App
 
@@ -36,6 +37,28 @@ This checklist is for Frostwake's first Steam Playtest path. It assumes the game
 | Coming Soon timing planned | Public page is live at least two weeks before release | Steam onboarding also has first-release timing requirements |
 | Store review planned | Submit at least 7 business days before target publish date | Valve docs describe typical review in business days, but plan buffer |
 | Playtest signup enabled | Main page Special Settings exposes Playtest signup after Playtest app is ready | Signups live on main game page |
+
+## Playtest Wave Gate
+
+Before each wave starts, complete this minimum launch signal.
+
+| Signal | Owner | Required Artifact | Cancel / Rollback Rule |
+| --- | --- | --- | --- |
+| Startup reproducibility | Engineering | Successful launch proof under the same config as the target wave | Cancel the wave if the build fails to launch on the intended platform or cannot reconnect after one crash/restart drill |
+| Match stability | QA | Dedicated or listen-server evidence with match start/end and at least one clean 6-8 player cycle | Roll back wave growth if match completion rate is below 90% for two consecutive local replay runs |
+| Moderation response | Backend | Incident triage owner and ban/report handling notes in `docs/playtest-data-and-moderation.md` | Cancel new invites for 24h if severe abuse cannot be acted on within one hour |
+| Support readiness | Production | Support contact method and escalation path linked in docs | Escalate to holding status if two unresolved severity incidents are reported in one wave |
+| Public claims accuracy | Production | Final claim list from `docs/store-copy-drafts.md` and checklist sign-off | Pause signup changes if a tested feature is missing from the submitted build |
+
+### Minimal Wave Evidence Log
+
+- Wave owner:
+- Target wave number:
+- Build id:
+- Start criteria checks passed:
+- Decision (start / hold / cancel):
+- Rollback trigger observed (if any):
+- Owner of rollback decision:
 
 ## Playtest App
 
@@ -64,6 +87,7 @@ Target the first Steam Playtest only after the following are true:
 - 6-8 player Windows match can start, end, and return to lobby or restart without manual process cleanup.
 - Server logs produce JSONL and summary output for match start/end, connections, roles, repairs, sabotage, downs, rescues, containment, and major system failures.
 - A tester can host or join through the in-game path being tested; out-of-band coordination is allowed only for scheduling.
+- If proximity voice is enabled, `docs/voice-provider-validation-template.md` records provider, mute/block/report, reconnect, and privacy-boundary evidence; if disabled, player-facing claims say it is unavailable in that build.
 - Muting and basic kick/ban policy are present or the test group is closed enough that manual moderation is acceptable.
 - Post-test survey and observer sheet are ready under `docs/playtests/`.
 

@@ -59,7 +59,7 @@ Current external-asset candidates are tracked in `docs/asset-ledger-candidates.c
 Validate the candidate ledger with:
 
 ```bash
-python3 Tools/asset_ledger_check.py
+cargo run -p frostwake-tools -- asset-ledger-check
 ```
 
 Candidate rows may use `unknown` or `pending` where a purchase has not happened yet. Rows promoted to `approved` must have commercial-use confirmation, proof-of-purchase path, reviewer approval, final reviewer, and a production output path.

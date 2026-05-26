@@ -12,7 +12,7 @@ This does not mean the game is commercially ready or socially proven. It means t
 
 | Gate | Status | Evidence |
 | --- | --- | --- |
-| UE project opens and builds | pass | `python3 Tools/unreal_gate.py --skip-generate --include-server` reports Editor/Game pass |
+| UE project opens and builds | pass | `cargo run -p frostwake-tools -- unreal-gate --skip-generate --include-server` reports Editor/Game pass |
 | Dedicated Server target | blocked | Launcher UE reports server targets are unsupported from this engine distribution |
 | 5-player ready match | pass | Cycles 9, 17, 21, 26 |
 | 6-player ready match | pass | Cycle 19 |
@@ -20,6 +20,8 @@ This does not mean the game is commercially ready or socially proven. It means t
 | 8-player combined systems smoke | pass | Cycles 21, 26 |
 | Crew win condition | pass at 5 players | Cycle 11 |
 | Saboteur win condition | pass at 5 players | Cycle 12 |
+| Timer saboteur win | pass in smoke | `match-timer` profile |
+| Interaction-based rescue/containment | pass in smoke | `life-action` profile |
 | Human 6-8 player test | not run | P1-024 remains open |
 | Social fun validation | not run | Requires human test notes and recordings |
 
@@ -39,7 +41,7 @@ This does not mean the game is commercially ready or socially proven. It means t
 The current best milestone artifact is the heavy smoke suite:
 
 ```text
-python3 Tools/ue/run_smoke_suite.py --include-heavy --skip-build --null-rhi
+cargo run -p frostwake-tools -- run-smoke-suite --include-heavy --skip-build --null-rhi
 ```
 
 Evidence files:
@@ -64,9 +66,7 @@ The suite passed all six key profiles:
 
 - Human playtest has not started. P1-024 through P1-028 remain open.
 - 8-player full match completion is not yet proven by a human or bot-driven terminal match. The current 8-player gate proves start, roles, and non-terminal system stability.
-- Interaction-based rescue and containment are still pending; current smoke coverage uses server-authoritative state transitions rather than a full player-facing interaction flow.
-- Timer-based saboteur win is pending; fatal ship-state win is validated.
-- Log duration extraction is pending richer event payloads.
+- Dedicated server runtime validation is blocked until a source-built or otherwise server-capable UE distribution produces `AbyssLockServer.exe`.
 - NavMesh or route-following bot movement is pending; current bot steps are deterministic automation paths.
 - Near-proximity voice, Steam lobby, Steam Server Browser, Steam Datagram Relay, moderation, and production server hosting are Phase 2 or later.
 
@@ -81,9 +81,9 @@ The suite passed all six key profiles:
 
 ## Next Three Cycles
 
-1. Create a human playtest packet: launch command, role rules, host checklist, log collection path, observer notes, and post-match questions.
-2. Add richer match telemetry fields for duration, start/end timestamps, map id, seed, and profile name so playtest logs can be summarized without manual reconstruction.
-3. Run the first 6-8 player human test or, if scheduling is blocked, add a bot-driven terminal 8-player crew/saboteur finish gate.
+1. Point `UE_ROOT` at a source-built or otherwise server-capable UE distribution and rerun the Win64 server target gate.
+2. Run the dedicated boot, client-join, ready-lobby, and Phase 2 entry wrappers once `AbyssLockServer.exe` exists.
+3. Run the first 6-8 player human test, or use a smaller rehearsal only if scheduling or Windows smoke readiness blocks the full run.
 
 ## Quality Bar
 

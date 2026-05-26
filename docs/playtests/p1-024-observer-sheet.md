@@ -1,6 +1,6 @@
 # P1-024 Observer Sheet
 
-Use this locally during the first Windows human run. Do not write tester names. Commit only anonymized summaries after `Tools\playtest_preflight.py` passes.
+Use this locally during the first Windows human run. Do not write tester names. Commit only anonymized summaries after `cargo run -p frostwake-tools -- playtest-preflight` passes.
 
 ## Run Header
 
@@ -39,6 +39,19 @@ Recording consent:
 | Did players understand why the ship was improving or failing? |  |  |
 | Did players understand what interaction failed and why? |  |  |
 | Did players know where to go next without coaching? |  |  |
+
+## GP-09 Signals
+
+Use these rows to feed the committed summary's `Comprehension And Accessibility` section.
+
+| Signal | Observation |
+| --- | --- |
+| Objective comprehension |  |
+| Next-step clarity |  |
+| Failure-state clarity |  |
+| UI or control confusion |  |
+| Accessibility blocker |  |
+| Text or term issue |  |
 
 ## Social Dynamics
 

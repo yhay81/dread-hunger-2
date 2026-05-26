@@ -13,7 +13,7 @@ function Write-Check {
 
     $Status = if ($Ok) { "PASS" } else { "FAIL" }
     if ($Detail.Length -gt 0) {
-        Write-Host "[$Status] $Name: $Detail"
+        Write-Host "[$Status] ${Name}: $Detail"
     } else {
         Write-Host "[$Status] $Name"
     }
@@ -47,6 +47,20 @@ function Find-UnrealRoot {
     return ""
 }
 
+function Find-Cargo {
+    $LocalCargo = Join-Path $RepoRoot "Tools\install\rust\cargo\bin\cargo.exe"
+    if (Test-Path $LocalCargo) {
+        return (Resolve-Path $LocalCargo).Path
+    }
+
+    $CargoCommand = Get-Command "cargo" -ErrorAction SilentlyContinue
+    if ($null -ne $CargoCommand) {
+        return $CargoCommand.Source
+    }
+
+    return ""
+}
+
 Push-Location $RepoRoot
 try {
     $GitOk = Test-CommandAvailable "git"
@@ -64,13 +78,11 @@ try {
     Write-Check "git-lfs" $LfsOk $LfsDetail
     if (-not $LfsOk) { $RequiredFailures.Add("git-lfs") }
 
-    $PythonOk = Test-CommandAvailable "py"
-    $PythonDetail = "py launcher not found"
-    if ($PythonOk) {
-        $PythonDetail = (py -3 --version 2>&1 | Out-String).Trim()
-    }
-    Write-Check "python" $PythonOk $PythonDetail
-    if (-not $PythonOk) { $RequiredFailures.Add("python launcher") }
+    $CargoPath = Find-Cargo
+    $CargoOk = $CargoPath.Length -gt 0
+    $CargoDetail = if ($CargoOk) { ((& $CargoPath --version) | Out-String).Trim() } else { "cargo not found" }
+    Write-Check "rust cargo" $CargoOk $CargoDetail
+    if (-not $CargoOk) { $RequiredFailures.Add("Rust cargo") }
 
     $ProjectOk = Test-Path (Join-Path $RepoRoot "AbyssLock.uproject")
     Write-Check "uproject" $ProjectOk (Join-Path $RepoRoot "AbyssLock.uproject")

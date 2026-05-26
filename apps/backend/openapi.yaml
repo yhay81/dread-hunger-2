@@ -4,8 +4,8 @@ info:
   version: 0.1.0
   description: >
     Non-authoritative operations API for playtest reports, moderation metadata,
-    news, ban scopes, and optional fleet metadata. Unreal Dedicated Server remains
-    authoritative for match simulation.
+    matchmaking lobby directory, news, ban scopes, and optional fleet metadata.
+    Unreal Dedicated Server remains authoritative for match simulation.
 servers:
   - url: http://localhost:8787
 paths:
@@ -54,6 +54,143 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/AcceptedResponse"
+  /v1/identity/steam/session-ticket:
+    post:
+      summary: Verify a Steam session ticket against the local mock identity contract
+      operationId: verifySteamSessionTicket
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SteamIdentityTicketRequest"
+      responses:
+        "200":
+          description: Mock Steam identity proof issued
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SteamIdentityTicketResponse"
+        "401":
+          description: Ticket was not accepted by the mock verifier
+        "403":
+          description: Mock ownership check failed for the configured AppID
+        "422":
+          description: Request shape or local diagnostic fields failed validation
+        "503":
+          description: Steam identity verification is not configured for this backend
+  /v1/matchmaking/lobbies:
+    get:
+      summary: List non-authoritative matchmaking lobbies
+      operationId: listMatchmakingLobbies
+      parameters:
+        - name: lobbyType
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [casual, standard]
+      responses:
+        "200":
+          description: Lobby listing
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/MatchmakingLobby"
+    post:
+      summary: Open a named matchmaking lobby
+      operationId: createMatchmakingLobby
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LobbyCreateRequest"
+      responses:
+        "201":
+          description: Lobby created
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [lobby]
+                properties:
+                  lobby:
+                    $ref: "#/components/schemas/JoinedMatchmakingLobby"
+  /v1/matchmaking/lobbies/{lobbyId}/join:
+    post:
+      summary: Join a matchmaking lobby
+      operationId: joinMatchmakingLobby
+      parameters:
+        - name: lobbyId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LobbyJoinRequest"
+      responses:
+        "200":
+          description: Join result
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [joined, matchStartEligible, lobby]
+                properties:
+                  joined:
+                    type: boolean
+                  alreadyJoined:
+                    type: boolean
+                  matchStartEligible:
+                    type: boolean
+                  lobby:
+                    $ref: "#/components/schemas/JoinedMatchmakingLobby"
+        "403":
+          description: Player does not meet the lobby experience requirement
+  /v1/matchmaking/lobbies/{lobbyId}/leave:
+    post:
+      summary: Leave a matchmaking lobby
+      operationId: leaveMatchmakingLobby
+      parameters:
+        - name: lobbyId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LobbyLeaveRequest"
+      responses:
+        "200":
+          description: Leave result
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [left]
+                properties:
+                  left:
+                    type: boolean
+                  alreadyAbsent:
+                    type: boolean
+                  lobbyDeleted:
+                    type: boolean
+                  lobby:
+                    $ref: "#/components/schemas/MatchmakingLobby"
   /v1/banlists/{scope}:
     get:
       summary: Fetch ban metadata by scope
@@ -126,6 +263,42 @@ components:
           type: boolean
         id:
           type: string
+    SteamIdentityTicketRequest:
+      type: object
+      required: [ticketHex, purpose]
+      additionalProperties: false
+      properties:
+        ticketHex:
+          type: string
+          minLength: 2
+          maxLength: 4096
+          pattern: "^[0-9A-Fa-f]+$"
+          description: Hex-encoded Steam Web API ticket material; never log or echo verbatim.
+        purpose:
+          type: string
+          enum: [moderation, server_metadata, support]
+        localRunId:
+          type: string
+          minLength: 1
+          maxLength: 64
+          description: Optional local diagnostic ID scanned for risky identity patterns.
+    SteamIdentityTicketResponse:
+      type: object
+      required: [verified, ownsApp, subjectHash, proofId, expiresAt]
+      properties:
+        verified:
+          type: boolean
+        ownsApp:
+          type: boolean
+        subjectHash:
+          type: string
+          description: Non-reversible backend subject hash; raw SteamID is never returned.
+        proofId:
+          type: string
+          description: Short-lived backend proof identifier for later trusted metadata calls.
+        expiresAt:
+          type: string
+          format: date-time
     PlaytestReport:
       type: object
       required: [runId, buildId, mapId, playerCount, summary]
@@ -164,12 +337,151 @@ components:
         reportedLocalId:
           type: string
           maxLength: 64
+        matchId:
+          type: string
+          maxLength: 64
+        buildId:
+          type: string
+          maxLength: 128
+        mapId:
+          type: string
+          maxLength: 128
+        matchTimeSeconds:
+          type: integer
+          minimum: 0
+          maximum: 7200
+        reporterSlot:
+          type: integer
+          minimum: 1
+          maximum: 8
+        reportedSlot:
+          type: integer
+          minimum: 1
+          maximum: 8
+        voiceState:
+          type: string
+          enum: [not_applicable, lobby, proximity, downed, contained, dead_spectator, saboteur_private, unknown]
+        actionTaken:
+          type: string
+          enum: [none, muted, blocked, kick_requested, kicked, ban_requested]
+        recentEventIds:
+          type: array
+          maxItems: 16
+          items:
+            type: string
+            minLength: 1
+            maxLength: 64
         category:
           type: string
           enum: [voice_abuse, griefing, cheating, harassment, other]
         summary:
           type: string
           maxLength: 4000
+    LobbyCreateRequest:
+      type: object
+      required: [lobbyName, lobbyType, hostLocalId, hostCompletedMatches, buildId, mapId, endpointToken]
+      additionalProperties: false
+      properties:
+        lobbyName:
+          type: string
+          minLength: 1
+          maxLength: 64
+        lobbyType:
+          type: string
+          enum: [casual, standard]
+        hostLocalId:
+          type: string
+          minLength: 1
+          maxLength: 64
+        hostCompletedMatches:
+          type: integer
+          minimum: 0
+          maximum: 100000
+        buildId:
+          type: string
+          maxLength: 128
+        mapId:
+          type: string
+          maxLength: 128
+        endpointToken:
+          type: string
+          minLength: 1
+          maxLength: 128
+    LobbyJoinRequest:
+      type: object
+      required: [playerLocalId, completedMatches]
+      additionalProperties: false
+      properties:
+        playerLocalId:
+          type: string
+          minLength: 1
+          maxLength: 64
+        completedMatches:
+          type: integer
+          minimum: 0
+          maximum: 100000
+    LobbyLeaveRequest:
+      type: object
+      required: [playerLocalId]
+      additionalProperties: false
+      properties:
+        playerLocalId:
+          type: string
+          minLength: 1
+          maxLength: 64
+    MatchmakingLobby:
+      type: object
+      required:
+        - id
+        - lobbyName
+        - lobbyType
+        - minimumCompletedMatches
+        - requiredPlayers
+        - currentPlayers
+        - buildId
+        - mapId
+        - status
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+        lobbyName:
+          type: string
+        lobbyType:
+          type: string
+          enum: [casual, standard]
+        minimumCompletedMatches:
+          type: integer
+          enum: [0, 50]
+        requiredPlayers:
+          type: integer
+          enum: [8]
+        currentPlayers:
+          type: integer
+          minimum: 1
+          maximum: 8
+        buildId:
+          type: string
+        mapId:
+          type: string
+        status:
+          type: string
+          enum: [waiting, ready_to_start]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    JoinedMatchmakingLobby:
+      allOf:
+        - $ref: "#/components/schemas/MatchmakingLobby"
+        - type: object
+          required: [endpointToken]
+          properties:
+            endpointToken:
+              type: string
     BanlistResponse:
       type: object
       required: [scope, updatedAt, entries]

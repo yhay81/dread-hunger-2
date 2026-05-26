@@ -30,7 +30,7 @@ Dedicated Server Tool App ID
 
 ## Host Game Flow
 
-1. Player selects map, max players, public/private, region, password, and ruleset.
+1. Player selects lobby name, lobby type, map, public/private, region, password, and ruleset. Match size is fixed at 8 players.
 2. Client starts the dedicated server executable when available.
 3. Dedicated server reads `ServerConfig.json`.
 4. Server registers with Steam server discovery.

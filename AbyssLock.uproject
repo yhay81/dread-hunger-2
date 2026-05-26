@@ -7,6 +7,11 @@
       "Name": "AbyssLock",
       "Type": "Runtime",
       "LoadingPhase": "Default"
+    },
+    {
+      "Name": "AbyssLockEditor",
+      "Type": "Editor",
+      "LoadingPhase": "Default"
     }
   ],
   "Plugins": [
@@ -21,14 +26,6 @@
     {
       "Name": "OnlineSubsystemSteam",
       "Enabled": false
-    },
-    {
-      "Name": "PythonScriptPlugin",
-      "Enabled": true
-    },
-    {
-      "Name": "EditorScriptingUtilities",
-      "Enabled": true
     },
     {
       "Name": "AndroidFileServer",

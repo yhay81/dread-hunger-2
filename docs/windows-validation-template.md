@@ -24,15 +24,15 @@ Run from the repository root in PowerShell.
 ```powershell
 git status --short --branch
 git lfs status
-py -3 Tools\quality_gate.py --require-ue
-py -3 Tools\unreal_gate.py --skip-generate --platform Win64 --include-server
-py -3 Tools\ue\run_local_smoke.py --profile qa-bot --skip-build --null-rhi --platform Win64
-py -3 Tools\ue\run_local_smoke.py --profile match-timer --skip-build --null-rhi --platform Win64
-py -3 Tools\ue\run_local_smoke.py --profile life-action --skip-build --null-rhi --platform Win64
-py -3 Tools\ue\run_local_smoke.py --profile combined5 --skip-build --null-rhi --platform Win64
-py -3 Tools\ue\run_local_smoke.py --profile ready8 --skip-build --null-rhi --platform Win64
-py -3 Tools\ue\run_smoke_suite.py --skip-build --null-rhi --platform Win64
-py -3 Tools\ue\run_smoke_suite.py --include-heavy --skip-build --null-rhi --platform Win64
+cargo run -p frostwake-tools -- quality-gate --require-ue
+cargo run -p frostwake-tools -- unreal-gate --skip-generate --platform Win64 --include-server
+cargo run -p frostwake-tools -- run-local-smoke --profile qa-bot --skip-build --null-rhi --platform Win64
+cargo run -p frostwake-tools -- run-local-smoke --profile match-timer --skip-build --null-rhi --platform Win64
+cargo run -p frostwake-tools -- run-local-smoke --profile life-action --skip-build --null-rhi --platform Win64
+cargo run -p frostwake-tools -- run-local-smoke --profile combined5 --skip-build --null-rhi --platform Win64
+cargo run -p frostwake-tools -- run-local-smoke --profile ready8 --skip-build --null-rhi --platform Win64
+cargo run -p frostwake-tools -- run-smoke-suite --skip-build --null-rhi --platform Win64
+cargo run -p frostwake-tools -- run-smoke-suite --include-heavy --skip-build --null-rhi --platform Win64
 ```
 
 ## Result Matrix
@@ -42,9 +42,9 @@ py -3 Tools\ue\run_smoke_suite.py --include-heavy --skip-build --null-rhi --plat
 | Git clean after clone | pass / fail | command output |  |
 | Git LFS assets present | pass / fail | command output |  |
 | Quality gate | pass / fail | command output |  |
-| Editor Win64 build | pass / fail | `Tools\unreal_gate.py` output |  |
-| Game Win64 build | pass / fail | `Tools\unreal_gate.py` output |  |
-| Server Win64 build | pass / blocked / fail | `Tools\unreal_gate.py` output | If blocked, record Launcher vs source build |
+| Editor Win64 build | pass / fail | `Tools\unreal-gate` output |  |
+| Game Win64 build | pass / fail | `Tools\unreal-gate` output |  |
+| Server Win64 build | pass / blocked / fail | `Tools\unreal-gate` output | If blocked, record Launcher vs source build |
 | `qa-bot` | pass / fail | `Saved\SmokeTests\...` |  |
 | `match-timer` | pass / fail | `Saved\SmokeTests\...` | Expected saboteur win by `timer_expired` |
 | `life-action` | pass / fail | `Saved\SmokeTests\...` | Expected 3 life-action interactions |
@@ -92,7 +92,7 @@ After these pass, run the Phase 2 entry wrapper and fill `docs\windows-phase2-en
 After a suite run, export Markdown:
 
 ```powershell
-py -3 Tools\ue\export_smoke_suite_markdown.py Saved\SmokeSuites\<suite-id>\suite_summary.json
+cargo run -p frostwake-tools -- export-smoke-suite-markdown Saved\SmokeSuites\<suite-id>\suite_summary.json
 ```
 
 Paste the compact table here, or link the local path while keeping raw logs out of git.
@@ -115,7 +115,7 @@ Defer until after P1-024:
 
 Choose exactly one:
 
-- Run P1-024 human test with `py -3 Tools\playtest_run_scaffold.py --run-number 1 --target-players 6`.
+- Run P1-024 human test with `cargo run -p frostwake-tools -- playtest-run-scaffold --run-number 1 --target-players 8`.
 - Fix Windows build/smoke blocker.
 - Install/build UE source distribution for Dedicated Server.
 - Start visual POC only after Windows smoke evidence passes.

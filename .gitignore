@@ -57,6 +57,7 @@ Script/
 *.ucas
 *.utoc
 Tools/install/
+target/
 
 # Local-only external references. Do not commit third-party game files.
 references/raw/

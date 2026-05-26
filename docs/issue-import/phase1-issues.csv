@@ -91,7 +91,7 @@ P1-009: Add local 8-client launch procedure,"Source: `docs/phase1-backlog.md`
 
 Done when:
 
-`Tools/ue/run_local_smoke.py` launches one listen host plus up to 7 localhost clients; ready-lobby and combined systems smoke pass at 8 players with 2 saboteurs
+`cargo run -p frostwake-tools -- run-local-smoke` launches one listen host plus up to 7 localhost clients; ready-lobby and combined systems smoke pass at 8 players with 2 saboteurs
 
 Validation evidence:
 
@@ -245,7 +245,7 @@ P1-023: Add log summary script,"Source: `docs/phase1-backlog.md`
 
 Done when:
 
-`Tools/log_summary.py` counts run/build/map/profile metadata, duration, match duration, match start/end, final approach, connection lifecycle, damage, deaths, down/rescue, contain/release, life-action interactions/smoke pass, disconnects, errors, events, role assignment, repair/sabotage task counts, last match winner/reason, bulkhead lock smoke counters, flooding pressure/pump smoke counters, PvE enemy/damage smoke counters, item pickup/drop smoke counters, combined systems smoke counters, QA bot smoke counters, QA player-bot smoke counters, and QA task-bot smoke counters; `Tools/ue/run_smoke_suite.py` aggregates profile summaries; `Tools/ue/export_smoke_suite_markdown.py` exports evidence tables; heavy suite and 8-player combined evidence exist
+`cargo run -p frostwake-tools -- log-summary` counts run/build/map/profile metadata, duration, match duration, match start/end, final approach, connection lifecycle, damage, deaths, down/rescue, contain/release, life-action interactions/smoke pass, disconnects, errors, events, role assignment, repair/sabotage task counts, last match winner/reason, bulkhead lock smoke counters, flooding pressure/pump smoke counters, PvE enemy/damage smoke counters, item pickup/drop smoke counters, combined systems smoke counters, QA bot smoke counters, QA player-bot smoke counters, and QA task-bot smoke counters; `cargo run -p frostwake-tools -- run-smoke-suite` aggregates profile summaries; `cargo run -p frostwake-tools -- export-smoke-suite-markdown` exports evidence tables; heavy suite and 8-player combined evidence exist
 
 Validation evidence:
 
@@ -256,7 +256,7 @@ P1-024: Run 6-8 player human test 1,"Source: `docs/phase1-backlog.md`
 
 Done when:
 
-Packet prepared in `docs/playtests/p1-024-human-test-1.md`; `Tools/playtest_run_scaffold.py` creates ignored Windows PowerShell run folders and launch scripts; anonymized summary template prepared in `docs/playtests/p1-024-summary-template.md`; `Tools/playtest_summary.py` can generate the summary skeleton from `log_summary.py` JSON; `Tools/playtest_preflight.py` checks human-summary gates and redaction before commit; non-human dry-run example exists at `docs/playtests/p1-024-dry-run-summary-example.md`; complete when human log, notes, decision list, and preflight pass are saved
+Packet prepared in `docs/playtests/p1-024-human-test-1.md`; `cargo run -p frostwake-tools -- playtest-run-scaffold` creates ignored Windows PowerShell run folders and launch scripts; anonymized summary template prepared in `docs/playtests/p1-024-summary-template.md`; `cargo run -p frostwake-tools -- playtest-summary` can generate the summary skeleton from `log-summary` JSON; `cargo run -p frostwake-tools -- playtest-preflight` checks human-summary gates and redaction before commit; non-human dry-run example exists at `docs/playtests/p1-024-dry-run-summary-example.md`; complete when human log, notes, decision list, and preflight pass are saved
 
 Validation evidence:
 
@@ -322,7 +322,7 @@ P1-030: Validate near-future visual POC direction,"Source: `docs/phase1-backlog.
 
 Done when:
 
-`Tools/ue/scaffold_frostwake_visual_poc.py` creates a dry-run/local manifest for a separate visual POC; a duplicate visual POC map then uses approved candidate assets or placeholders to show central corridor, engine/fuel/battery bay, and exterior ice access without changing whitebox automation; screenshots and asset-ledger candidate entries exist
+`cargo run -p frostwake-tools -- scaffold-frostwake-visual-poc` creates a dry-run/local manifest for a separate visual POC; a duplicate visual POC map then uses approved candidate assets or placeholders to show central corridor, engine/fuel/battery bay, and exterior ice access without changing whitebox automation; screenshots and asset-ledger candidate entries exist
 
 Validation evidence:
 
@@ -333,7 +333,7 @@ P1-031: Resume on Windows workstation,"Source: `docs/phase1-backlog.md`
 
 Done when:
 
-Windows clone passes `quality_gate.py --require-ue`, `unreal_gate.py --platform Win64 --include-server`, dedicated-server boot/client-join/ready-lobby probes, and at least `qa-bot`, `match-timer`, `life-action`, `combined5`, and `ready8` smoke profiles; `docs/windows-validation-template.md` is filled into a new cycle or dated result note; server-target result is recorded
+Windows clone passes `quality-gate --require-ue`, `unreal-gate --platform Win64 --include-server`, dedicated-server boot/client-join/ready-lobby probes, and at least `qa-bot`, `match-timer`, `life-action`, `combined5`, and `ready8` smoke profiles; `docs/windows-validation-template.md` is filled into a new cycle or dated result note; server-target result is recorded
 
 Validation evidence:
 

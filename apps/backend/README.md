@@ -1,6 +1,6 @@
 # Frostwake Backend
 
-TypeScript backend prototype.
+Rust backend prototype.
 
 This service is for reports, bans, stats, admin APIs, patch notes, surveys, and optional fleet metadata. It is not the authoritative match server.
 
@@ -10,19 +10,20 @@ Design notes: [Backend Contract](../../docs/backend-contract.md)
 
 Current local implementation:
 
-- TypeScript
-- Node HTTP server with no runtime dependencies
+- Rust with Axum/Tokio
 - In-memory storage only
 - JSON validation for anonymized playtest reports and moderation metadata
+- Structured moderation evidence fields for voice/trust reports without raw audio or transcript intake
+- Mocked Steam identity proof endpoint for local Phase 2 contract tests without real Steam credentials
+- In-memory matchmaking lobby directory for named 8-player `casual` and `standard` lobbies
 - Redaction guardrails for IP addresses, SteamID-like values, emails, local user paths, and secret-like assignments
 - Non-authoritative response header: `x-frostwake-authority: non-authoritative`
 
 Local commands:
 
 ```bash
-npm ci
-npm test
-npm start
+cargo test -p frostwake-backend
+cargo run -p frostwake-backend
 ```
 
 Default local URL:
@@ -31,14 +32,9 @@ Default local URL:
 http://localhost:8787
 ```
 
-Optional playtest report upload dry-run from repository root. The tool accepts a summary JSON or raw JSONL events:
-
-```bash
-python3 Tools/playtest_report_upload.py Saved/Playtests/P1-024/run-01/summary.json
-```
+Playtest report payload generation and local upload are handled by `cargo run -p frostwake-tools -- playtest-report-upload`; the backend accepts the same `/v1/playtest-reports` payload shape documented in `openapi.yaml`.
 
 Phase 2+:
 
-- Fastify, Hono, or NestJS if the plain Node server becomes limiting
 - PostgreSQL or SQLite persistence
-- Steam auth helper integration in Phase 2+
+- Real Steam Web API auth/ownership integration after the local mock contract is promoted

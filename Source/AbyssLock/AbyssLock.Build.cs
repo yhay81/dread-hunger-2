@@ -13,6 +13,7 @@ public class AbyssLock : ModuleRules
             "Engine",
             "InputCore",
             "NetCore",
+            "HTTP",
             "Json",
             "JsonUtilities",
             "OnlineSubsystem",

@@ -6,6 +6,6 @@ This app is for moderation review, official server visibility, reports, ban scop
 
 Recommended initial stack:
 
-- TypeScript
-- Next.js or a lightweight internal web UI
-- Auth added only when backend exists
+- Rust server-rendered UI or a Rust/WASM frontend if the admin surface needs richer interaction
+- Shared Rust backend contract types where practical
+- Auth added only when backend persistence exists

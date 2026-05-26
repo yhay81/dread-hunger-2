@@ -10,6 +10,36 @@
 #include "Net/UnrealNetwork.h"
 #include "UObject/ConstructorHelpers.h"
 
+#define LOCTEXT_NAMESPACE "AbyssShipTaskActor"
+
+namespace
+{
+FText GetShipSystemInteractionLabel(EAbyssShipSystem System)
+{
+    switch (System)
+    {
+    case EAbyssShipSystem::Hull:
+        return LOCTEXT("ShipSystemHull", "Hull");
+    case EAbyssShipSystem::Fuel:
+        return LOCTEXT("ShipSystemFuel", "Fuel");
+    case EAbyssShipSystem::Engine:
+        return LOCTEXT("ShipSystemEngine", "Engine");
+    case EAbyssShipSystem::Power:
+        return LOCTEXT("ShipSystemPower", "Power");
+    case EAbyssShipSystem::Radio:
+        return LOCTEXT("ShipSystemRadio", "Radio");
+    case EAbyssShipSystem::Route:
+        return LOCTEXT("ShipSystemRouteProgress", "Route Progress");
+    case EAbyssShipSystem::Heat:
+        return LOCTEXT("ShipSystemHeat", "Heat");
+    case EAbyssShipSystem::Flooding:
+        return LOCTEXT("ShipSystemFlooding", "Flooding");
+    default:
+        return LOCTEXT("ShipSystemUnknown", "Ship System");
+    }
+}
+}
+
 AAbyssShipTaskActor::AAbyssShipTaskActor()
 {
     MarkerMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MarkerMesh"));
@@ -260,7 +290,19 @@ void AAbyssShipTaskActor::ApplyCompletedState()
 
 void AAbyssShipTaskActor::ApplyTaskConfigState()
 {
-    InteractionText = FText::FromString(TaskMode == EAbyssShipTaskMode::Sabotage ? TEXT("Sabotage") : TEXT("Repair"));
+    if (TaskMode == EAbyssShipTaskMode::Repair && TargetSystem == EAbyssShipSystem::Route)
+    {
+        InteractionText = LOCTEXT("AdvanceRouteProgressInteraction", "Advance Route Progress");
+        return;
+    }
+
+    const FText ActionText = TaskMode == EAbyssShipTaskMode::Sabotage
+        ? LOCTEXT("SabotageInteractionAction", "Sabotage")
+        : LOCTEXT("RepairInteractionAction", "Repair");
+    InteractionText = FText::Format(
+        LOCTEXT("ShipTaskInteractionFormat", "{0} {1}"),
+        ActionText,
+        GetShipSystemInteractionLabel(TargetSystem));
 }
 
 bool AAbyssShipTaskActor::ResolveShipSystem(FName SystemName, EAbyssShipSystem& OutSystem)
@@ -309,3 +351,5 @@ bool AAbyssShipTaskActor::ResolveShipSystem(FName SystemName, EAbyssShipSystem& 
 
     return false;
 }
+
+#undef LOCTEXT_NAMESPACE

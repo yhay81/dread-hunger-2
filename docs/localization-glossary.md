@@ -1,6 +1,6 @@
 # Localization Glossary
 
-Current as of 2026-05-25 JST. This glossary keeps UI, docs, and store copy consistent across English, Japanese, and Simplified Chinese drafts.
+Current as of 2026-05-26 JST. This glossary keeps UI, docs, and store copy consistent across English, Japanese, and Simplified Chinese drafts.
 
 ## Core Terms
 
@@ -14,10 +14,12 @@ Current as of 2026-05-25 JST. This glossary keeps UI, docs, and store copy consi
 | route progress | 航路進行度 | 航线进度 | Match objective progress |
 | hull | 船体 | 船体 | Ship system |
 | fuel | 燃料 | 燃料 | Ship system |
+| engine | 機関 | 引擎 | Ship system |
 | power | 発電 | 电力 | Prefer system meaning, not political power |
 | radio | 無線 | 无线电 | Ship system |
 | heat | 暖房 | 供暖 | Survival system |
 | flooding | 浸水 | 进水 | Ship system pressure |
+| advance route progress | 航路を進める | 推进航线进度 | Crew objective action for route tasks |
 | hypothermia | 低体温 | 失温 | Player condition |
 | bulkhead | 隔壁扉 | 隔舱门 | Door/ship compartment term |
 | containment | 拘束 | 关押 | Current gameplay state; revisit if final fiction changes |

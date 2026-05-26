@@ -4,15 +4,15 @@ param(
     [string]$UeRoot = $env:UE_ROOT,
     [string]$Map = "/Game/Maps/L_IcebreakerWhitebox",
     [int]$Port = 7777,
-    [int]$Clients = 5,
-    [int]$ExpectedPlayers = 5,
-    [int]$ExpectedSaboteurs = 1,
+    [int]$Clients = 8,
+    [int]$ExpectedPlayers = 8,
+    [int]$ExpectedSaboteurs = 2,
     [int]$StartupDelaySeconds = 8,
     [int]$ClientLaunchSpacingSeconds = 2,
     [int]$MatchTimeoutSeconds = 90,
     [string]$RunId = "",
     [string]$BuildId = "AbyssLock-Win64-Development-local",
-    [string]$Profile = "dedicated-ready5"
+    [string]$Profile = "dedicated-ready8"
 )
 
 Set-StrictMode -Version Latest
@@ -27,6 +27,17 @@ New-Item -ItemType Directory -Force -Path $OutDir | Out-Null
 if ([string]::IsNullOrWhiteSpace($RunId)) {
     $RunId = "windows-dedicated-ready-$Stamp"
 }
+
+$ResolvedServerExe = ""
+$ResolvedUeRoot = ""
+$UnrealEditor = ""
+$ResolvedServerConfig = ""
+$EventLog = Join-Path $OutDir "server.jsonl"
+$ConfigCheckLog = Join-Path $OutDir "server_config_check.log"
+$ServerStdout = Join-Path $OutDir "server_stdout.log"
+$ServerStderr = Join-Path $OutDir "server_stderr.log"
+$SummaryJson = Join-Path $OutDir "log_summary.json"
+$LogSummaryLog = Join-Path $OutDir "log_summary_command.log"
 
 function Resolve-RepoPath {
     param([string]$PathValue)
@@ -64,6 +75,30 @@ function Find-UnrealRoot {
     return ""
 }
 
+function Find-Cargo {
+    $LocalCargo = Join-Path $RepoRoot "Tools\install\rust\cargo\bin\cargo.exe"
+    if (Test-Path $LocalCargo) {
+        return (Resolve-Path $LocalCargo).Path
+    }
+
+    $CargoCommand = Get-Command "cargo" -ErrorAction SilentlyContinue
+    if ($null -ne $CargoCommand) {
+        return $CargoCommand.Source
+    }
+
+    return ""
+}
+
+function Use-RustEnvironment {
+    param([string]$CargoPath)
+
+    $LocalRustRoot = Join-Path $RepoRoot "Tools\install\rust"
+    if ($CargoPath.StartsWith($LocalRustRoot, [System.StringComparison]::OrdinalIgnoreCase)) {
+        $env:CARGO_HOME = Join-Path $LocalRustRoot "cargo"
+        $env:RUSTUP_HOME = Join-Path $LocalRustRoot "rustup"
+    }
+}
+
 function Stop-ValidationProcess {
     param([AllowNull()][System.Diagnostics.Process]$Process)
 
@@ -82,22 +117,80 @@ function Write-Summary {
         [string]$Detail
     )
 
+    $Commit = "$(git -C $RepoRoot rev-parse --short HEAD)"
     $SummaryPath = Join-Path $OutDir "summary.txt"
     @(
-        "Commit: $(git -C $RepoRoot rev-parse --short HEAD)",
+        "Commit: $Commit",
         "RunId: $RunId",
+        "Platform: Win64",
+        "BuildTarget: AbyssLockServer",
+        "BuildId: $BuildId",
+        "Profile: $Profile",
         "ServerExe: $ResolvedServerExe",
+        "UeRoot: $ResolvedUeRoot",
         "UnrealEditor: $UnrealEditor",
+        "Project: $Project",
         "ServerConfig: $ResolvedServerConfig",
         "Map: $Map",
         "Port: $Port",
         "Clients: $Clients",
         "ExpectedPlayers: $ExpectedPlayers",
         "ExpectedSaboteurs: $ExpectedSaboteurs",
+        "StartupDelaySeconds: $StartupDelaySeconds",
+        "ClientLaunchSpacingSeconds: $ClientLaunchSpacingSeconds",
+        "MatchTimeoutSeconds: $MatchTimeoutSeconds",
         "EventLog: $EventLog",
+        "ServerStdout: $ServerStdout",
+        "ServerStderr: $ServerStderr",
+        "ConfigCheckLog: $ConfigCheckLog",
+        "LogSummary: $SummaryJson",
         "Decision: $Decision",
         "Detail: $Detail"
     ) | Set-Content -Path $SummaryPath -Encoding UTF8
+
+    $ClientLogs = @()
+    for ($Index = 1; $Index -le $Clients; $Index++) {
+        $ClientLogs += [ordered]@{
+            index = $Index
+            stdout = Join-Path $OutDir ("client_{0:D2}_stdout.log" -f $Index)
+            stderr = Join-Path $OutDir ("client_{0:D2}_stderr.log" -f $Index)
+        }
+    }
+
+    $ManifestPath = Join-Path $OutDir "manifest.json"
+    $Payload = [ordered]@{
+        decision = $Decision
+        detail = $Detail
+        timestamp = $Stamp
+        commit = $Commit
+        runId = $RunId
+        platform = "Win64"
+        buildTarget = "AbyssLockServer"
+        buildId = $BuildId
+        profile = $Profile
+        serverExe = $ResolvedServerExe
+        ueRoot = $ResolvedUeRoot
+        unrealEditor = $UnrealEditor
+        project = $Project
+        serverConfig = $ResolvedServerConfig
+        map = $Map
+        port = $Port
+        clients = $Clients
+        expectedPlayers = $ExpectedPlayers
+        expectedSaboteurs = $ExpectedSaboteurs
+        startupDelaySeconds = $StartupDelaySeconds
+        clientLaunchSpacingSeconds = $ClientLaunchSpacingSeconds
+        matchTimeoutSeconds = $MatchTimeoutSeconds
+        eventLog = $EventLog
+        serverStdout = $ServerStdout
+        serverStderr = $ServerStderr
+        clientLogs = $ClientLogs
+        configCheckLog = $ConfigCheckLog
+        logSummary = $SummaryJson
+        logSummaryCommandLog = $LogSummaryLog
+        output = $OutDir
+    }
+    $Payload | ConvertTo-Json -Depth 8 | Set-Content -Path $ManifestPath -Encoding UTF8
 }
 
 $ServerProcess = $null
@@ -106,7 +199,9 @@ $ClientProcesses = New-Object System.Collections.Generic.List[System.Diagnostics
 Push-Location $RepoRoot
 try {
     if ($Clients -lt 1) {
+        Write-Summary "fail" "-Clients must be >= 1"
         Write-Host "[FAIL] -Clients must be >= 1"
+        Write-Host "Output: $OutDir"
         exit 2
     }
 
@@ -117,28 +212,35 @@ try {
     }
 
     if (-not (Test-Path $ResolvedServerExe)) {
+        Write-Summary "blocked" "Missing server executable: $ResolvedServerExe"
         Write-Host "[FAIL] Missing server executable: $ResolvedServerExe"
+        Write-Host "Output: $OutDir"
         exit 3
     }
 
     $ResolvedUeRoot = Find-UnrealRoot
     if ([string]::IsNullOrWhiteSpace($ResolvedUeRoot)) {
+        Write-Summary "blocked" "Missing Unreal Engine root. Pass -UeRoot or set UE_ROOT."
         Write-Host "[FAIL] Missing Unreal Engine root. Pass -UeRoot or set UE_ROOT."
+        Write-Host "Output: $OutDir"
         exit 4
     }
 
     $UnrealEditor = Join-Path $ResolvedUeRoot "Engine\Binaries\Win64\UnrealEditor.exe"
     if (-not (Test-Path $UnrealEditor)) {
+        Write-Summary "blocked" "Missing UnrealEditor: $UnrealEditor"
         Write-Host "[FAIL] Missing UnrealEditor: $UnrealEditor"
+        Write-Host "Output: $OutDir"
         exit 5
     }
 
     if (-not (Test-Path $Project)) {
+        Write-Summary "fail" "Missing project: $Project"
         Write-Host "[FAIL] Missing project: $Project"
+        Write-Host "Output: $OutDir"
         exit 6
     }
 
-    $EventLog = Join-Path $OutDir "server.jsonl"
     if ([string]::IsNullOrWhiteSpace($ServerConfig)) {
         $ResolvedServerConfig = Join-Path $OutDir "server_config.validation.json"
         $ExampleConfig = Join-Path $RepoRoot "Tools\ops\server_config.example.json"
@@ -150,7 +252,9 @@ try {
     } else {
         $ResolvedServerConfig = Resolve-RepoPath $ServerConfig
         if (-not (Test-Path $ResolvedServerConfig)) {
+            Write-Summary "fail" "Missing server config: $ResolvedServerConfig"
             Write-Host "[FAIL] Missing server config: $ResolvedServerConfig"
+            Write-Host "Output: $OutDir"
             exit 7
         }
 
@@ -160,16 +264,23 @@ try {
         }
     }
 
-    $ConfigCheckLog = Join-Path $OutDir "server_config_check.log"
-    py -3 Tools\ops\server_config_check.py $ResolvedServerConfig 2>&1 | Tee-Object -FilePath $ConfigCheckLog
+    $CargoPath = Find-Cargo
+    if ([string]::IsNullOrWhiteSpace($CargoPath)) {
+        Write-Summary "blocked" "cargo not found"
+        Write-Host "[FAIL] cargo not found. Run Tools\windows\check_prereqs.ps1."
+        Write-Host "Output: $OutDir"
+        exit 8
+    }
+    Use-RustEnvironment $CargoPath
+    $ConfigCheckArgs = @("run", "-p", "frostwake-tools", "--", "server-config-check", $ResolvedServerConfig)
+    & $CargoPath @ConfigCheckArgs 2>&1 | Tee-Object -FilePath $ConfigCheckLog
     if ($LASTEXITCODE -ne 0) {
+        Write-Summary "fail" "Invalid server config: $ResolvedServerConfig"
         Write-Host "[FAIL] Invalid server config: $ResolvedServerConfig"
         Write-Host "Output: $OutDir"
         exit 8
     }
 
-    $ServerStdout = Join-Path $OutDir "server_stdout.log"
-    $ServerStderr = Join-Path $OutDir "server_stderr.log"
     $ServerArgs = @(
         $Map,
         "-log",
@@ -291,11 +402,11 @@ try {
         exit 13
     }
 
-    $SummaryJson = Join-Path $OutDir "log_summary.json"
-    py -3 Tools\log_summary.py $EventLog | Set-Content -Path $SummaryJson -Encoding UTF8
+    $LogSummaryArgs = @("run", "-p", "frostwake-tools", "--", "log-summary", $EventLog, "--out", $SummaryJson)
+    & $CargoPath @LogSummaryArgs 2>&1 | Tee-Object -FilePath $LogSummaryLog
     if ($LASTEXITCODE -ne 0) {
-        Write-Summary "fail" "log_summary.py failed"
-        Write-Host "[FAIL] log_summary.py failed for $EventLog"
+        Write-Summary "fail" "frostwake-tools log-summary failed"
+        Write-Host "[FAIL] frostwake-tools log-summary failed for $EventLog"
         Write-Host "Output: $OutDir"
         exit 14
     }

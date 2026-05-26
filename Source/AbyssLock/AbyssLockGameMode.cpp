@@ -22,6 +22,88 @@
 #include "Misc/Parse.h"
 #include "TimerManager.h"
 
+namespace
+{
+constexpr int32 AbyssFixedMatchPlayers = 8;
+constexpr int32 AbyssPracticePlayers = 1;
+
+const TCHAR* AbyssShipSystemJsonName(EAbyssShipSystem System)
+{
+    switch (System)
+    {
+    case EAbyssShipSystem::Hull:
+        return TEXT("hull");
+    case EAbyssShipSystem::Fuel:
+        return TEXT("fuel");
+    case EAbyssShipSystem::Engine:
+        return TEXT("engine");
+    case EAbyssShipSystem::Power:
+        return TEXT("power");
+    case EAbyssShipSystem::Radio:
+        return TEXT("radio");
+    case EAbyssShipSystem::Route:
+        return TEXT("route");
+    case EAbyssShipSystem::Heat:
+        return TEXT("heat");
+    case EAbyssShipSystem::Flooding:
+        return TEXT("flooding");
+    default:
+        return TEXT("unknown");
+    }
+}
+
+FString BuildFatalShipStatePayload(const AAbyssLockGameState& AbyssGameState)
+{
+    static const EAbyssShipSystem TrackedSystems[] = {
+        EAbyssShipSystem::Hull,
+        EAbyssShipSystem::Fuel,
+        EAbyssShipSystem::Engine,
+        EAbyssShipSystem::Power,
+        EAbyssShipSystem::Radio,
+        EAbyssShipSystem::Route,
+        EAbyssShipSystem::Heat,
+        EAbyssShipSystem::Flooding,
+    };
+
+    FString CriticalSystemsJson;
+    FString SystemConditionsJson;
+    bool bFirstCriticalSystem = true;
+    bool bFirstCondition = true;
+
+    for (const EAbyssShipSystem System : TrackedSystems)
+    {
+        FAbyssShipSystemStatus Status;
+        if (!AbyssGameState.GetShipSystemStatus(System, Status))
+        {
+            continue;
+        }
+
+        const TCHAR* SystemName = AbyssShipSystemJsonName(System);
+        if (Status.Condition <= 0.0f)
+        {
+            if (!bFirstCriticalSystem)
+            {
+                CriticalSystemsJson += TEXT(",");
+            }
+            CriticalSystemsJson += FString::Printf(TEXT("\"%s\""), SystemName);
+            bFirstCriticalSystem = false;
+        }
+
+        if (!bFirstCondition)
+        {
+            SystemConditionsJson += TEXT(",");
+        }
+        SystemConditionsJson += FString::Printf(TEXT("\"%s\":%.3f"), SystemName, Status.Condition);
+        bFirstCondition = false;
+    }
+
+    return FString::Printf(
+        TEXT("{\"winner\":\"saboteur\",\"reason\":\"fatal_ship_state\",\"criticalSystems\":[%s],\"systemConditions\":{%s}}"),
+        *CriticalSystemsJson,
+        *SystemConditionsJson);
+}
+}
+
 AAbyssLockGameMode::AAbyssLockGameMode()
 {
     bUseSeamlessTravel = true;
@@ -55,6 +137,47 @@ void AAbyssLockGameMode::BeginPlay()
     TryAutoStartMatchForDev();
 }
 
+void AAbyssLockGameMode::PreLogin(const FString& Options, const FString& Address, const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage)
+{
+    Super::PreLogin(Options, Address, UniqueId, ErrorMessage);
+    if (!ErrorMessage.IsEmpty())
+    {
+        return;
+    }
+
+    const int32 ConnectedPlayers = GameState ? GameState->PlayerArray.Num() : 0;
+    FString RejectReason;
+    const int32 MaxConnectedPlayers = IsSinglePlayerModeEnabled() ? AbyssPracticePlayers : AbyssFixedMatchPlayers;
+    if (ConnectedPlayers >= MaxConnectedPlayers)
+    {
+        RejectReason = TEXT("lobby_full");
+    }
+    else if (const AAbyssLockGameState* AbyssGameState = GetGameState<AAbyssLockGameState>())
+    {
+        if (AbyssGameState->GetMatchPhase() != EAbyssMatchPhase::WaitingForPlayers)
+        {
+            RejectReason = TEXT("match_already_started");
+        }
+    }
+
+    if (RejectReason.IsEmpty())
+    {
+        return;
+    }
+
+    ErrorMessage = RejectReason;
+    UE_LOG(LogAbyssSession, Log, TEXT("lobby_join_rejected reason=%s connectedPlayers=%d maxPlayers=%d"), *RejectReason, ConnectedPlayers, MaxConnectedPlayers);
+    if (UGameInstance* GameInstance = GetGameInstance())
+    {
+        if (UAbyssTelemetrySubsystem* TelemetrySubsystem = GameInstance->GetSubsystem<UAbyssTelemetrySubsystem>())
+        {
+            TelemetrySubsystem->LogEvent(
+                TEXT("lobby_join_rejected"),
+                FString::Printf(TEXT("{\"reason\":\"%s\",\"connectedPlayers\":%d,\"maxPlayers\":%d}"), *RejectReason, ConnectedPlayers, MaxConnectedPlayers));
+        }
+    }
+}
+
 void AAbyssLockGameMode::PostLogin(APlayerController* NewPlayer)
 {
     Super::PostLogin(NewPlayer);
@@ -72,6 +195,12 @@ void AAbyssLockGameMode::PostLogin(APlayerController* NewPlayer)
                     *GetNameSafe(NewPlayer),
                     ConnectedPlayers));
         }
+    }
+
+    if (IsSinglePlayerModeEnabled())
+    {
+        TryStartSinglePlayerMatch();
+        return;
     }
 
 #if !UE_BUILD_SHIPPING
@@ -1791,14 +1920,15 @@ bool AAbyssLockGameMode::EvaluateMatchEnd()
 
     if (AbyssGameState->HasFatalShipSystem())
     {
+        const FString MatchEndPayload = BuildFatalShipStatePayload(*AbyssGameState);
         AbyssGameState->SetMatchResult(EAbyssTeam::Saboteur, TEXT("fatal_ship_state"));
         StopMatchTimer();
-        UE_LOG(LogAbyssGameplay, Log, TEXT("match_end winner=saboteur reason=fatal_ship_state"));
+        UE_LOG(LogAbyssGameplay, Log, TEXT("match_end winner=saboteur reason=fatal_ship_state payload=%s"), *MatchEndPayload);
         if (UGameInstance* GameInstance = GetGameInstance())
         {
             if (UAbyssTelemetrySubsystem* TelemetrySubsystem = GameInstance->GetSubsystem<UAbyssTelemetrySubsystem>())
             {
-                TelemetrySubsystem->LogEvent(TEXT("match_ended"), TEXT("{\"winner\":\"saboteur\",\"reason\":\"fatal_ship_state\"}"));
+                TelemetrySubsystem->LogEvent(TEXT("match_ended"), MatchEndPayload);
             }
         }
         return true;
@@ -1871,26 +2001,35 @@ bool AAbyssLockGameMode::TryStartMatchFromReady()
         }
     }
 
-    int32 MinimumPlayers = 5;
+    const bool bSinglePlayerMode = IsSinglePlayerModeEnabled();
+    int32 RequiredPlayers = bSinglePlayerMode ? AbyssPracticePlayers : AbyssFixedMatchPlayers;
 #if !UE_BUILD_SHIPPING
-    FParse::Value(FCommandLine::Get(), TEXT("AbyssLobbyMinPlayers="), MinimumPlayers);
-#endif
-
-    if (PlayerCount < FMath::Max(1, MinimumPlayers) || PlayerCount > 8 || ReadyCount != PlayerCount)
+    if (!bSinglePlayerMode)
     {
-        UE_LOG(LogAbyssGameplay, Log, TEXT("lobby_start_waiting players=%d ready=%d"), PlayerCount, ReadyCount);
+        FParse::Value(FCommandLine::Get(), TEXT("AbyssLobbyMinPlayers="), RequiredPlayers);
+    }
+#endif
+    const int32 ClampedRequiredPlayers = FMath::Clamp(RequiredPlayers, 1, AbyssFixedMatchPlayers);
+
+    if (PlayerCount != ClampedRequiredPlayers || ReadyCount != PlayerCount)
+    {
+        UE_LOG(LogAbyssGameplay, Log, TEXT("lobby_start_waiting players=%d ready=%d required=%d"), PlayerCount, ReadyCount, ClampedRequiredPlayers);
         return false;
     }
 
-    int32 SaboteurOverride = INDEX_NONE;
+    int32 SaboteurOverride = bSinglePlayerMode ? 0 : INDEX_NONE;
 #if !UE_BUILD_SHIPPING
-    FParse::Value(FCommandLine::Get(), TEXT("AbyssLobbyDevSaboteurs="), SaboteurOverride);
+    if (!bSinglePlayerMode)
+    {
+        FParse::Value(FCommandLine::Get(), TEXT("AbyssLobbyDevSaboteurs="), SaboteurOverride);
+    }
 #endif
 
     AssignRolesForCurrentPlayersInternal(SaboteurOverride);
     AbyssGameState->SetMatchPhase(EAbyssMatchPhase::InProgress);
     StartMatchTimer();
-    UE_LOG(LogAbyssGameplay, Log, TEXT("match_started source=ready_lobby players=%d ready=%d"), PlayerCount, ReadyCount);
+    const FString StartSource = bSinglePlayerMode ? TEXT("single_player") : TEXT("ready_lobby");
+    UE_LOG(LogAbyssGameplay, Log, TEXT("match_started source=%s players=%d ready=%d required=%d"), *StartSource, PlayerCount, ReadyCount, ClampedRequiredPlayers);
 
     if (UGameInstance* GameInstance = GetGameInstance())
     {
@@ -1898,7 +2037,7 @@ bool AAbyssLockGameMode::TryStartMatchFromReady()
         {
             TelemetrySubsystem->LogEvent(
                 TEXT("match_started"),
-                FString::Printf(TEXT("{\"source\":\"ready_lobby\",\"players\":%d,\"ready\":%d}"), PlayerCount, ReadyCount));
+                FString::Printf(TEXT("{\"source\":\"%s\",\"players\":%d,\"ready\":%d,\"requiredPlayers\":%d}"), *StartSource, PlayerCount, ReadyCount, ClampedRequiredPlayers));
         }
     }
 
@@ -1964,6 +2103,39 @@ bool AAbyssLockGameMode::TryStartMatchFromReady()
     return true;
 }
 
+bool AAbyssLockGameMode::TryStartPracticeMatch()
+{
+    return TryStartSinglePlayerMatch();
+}
+
+bool AAbyssLockGameMode::TryStartSinglePlayerMatch()
+{
+    if (!HasAuthority() || !IsSinglePlayerModeEnabled() || !GameState)
+    {
+        return false;
+    }
+
+    for (APlayerState* PlayerState : GameState->PlayerArray)
+    {
+        if (AAbyssLockPlayerState* AbyssPlayerState = Cast<AAbyssLockPlayerState>(PlayerState))
+        {
+            AbyssPlayerState->SetReadyForMatch(true);
+        }
+    }
+
+    return TryStartMatchFromReady();
+}
+
+bool AAbyssLockGameMode::IsPracticeModeEnabled() const
+{
+    return FParse::Param(FCommandLine::Get(), TEXT("AbyssPracticeMode"));
+}
+
+bool AAbyssLockGameMode::IsSinglePlayerModeEnabled() const
+{
+    return FParse::Param(FCommandLine::Get(), TEXT("AbyssSinglePlayer")) || IsPracticeModeEnabled();
+}
+
 int32 AAbyssLockGameMode::CalculateSaboteurCount(int32 PlayerCount) const
 {
     if (PlayerCount >= 7)
@@ -1981,6 +2153,11 @@ int32 AAbyssLockGameMode::CalculateSaboteurCount(int32 PlayerCount) const
 
 int32 AAbyssLockGameMode::GetRequiredCrewSurvivors(int32 PlayerCount) const
 {
+    if (PlayerCount <= AbyssPracticePlayers)
+    {
+        return 1;
+    }
+
     if (PlayerCount >= 8)
     {
         return 5;

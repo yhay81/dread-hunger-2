@@ -1,6 +1,6 @@
 # Asset Acquisition Plan
 
-Current snapshot: 2026-05-25 JST. Re-check Fab listings, prices, compatibility, and license terms immediately before purchase or import.
+Current snapshot: 2026-05-26 JST. Re-check Fab listings, prices, compatibility, and license terms immediately before purchase or import.
 
 ## Visual Decision
 
@@ -44,6 +44,14 @@ Do not overwrite `/Game/Maps/L_IcebreakerWhitebox`. Create a duplicate POC map s
 
 Use [Asset Scorecard](asset-scorecard.md) for the current ranking and purchase order.
 
+## Current GP-08 Decision
+
+The current rights gate is [Visual POC Rights Gate](visual-poc-rights-gate.md), followed by [Visual POC Import Checklist](visual-poc-import-checklist.md) for the first quarantined candidate.
+
+Start with an environment-only, quarantined POC using the free `Modular Ship Interior Environment` candidate if the user approves acquisition after a fresh listing check. Dress it with project-owned Frostwake materials and system props so the scene reads as a near-future polar research vessel. Do not purchase paid interior, exterior, character, logo, UI, music, voice, or hero marketing assets until this POC proves the direction is useful.
+
+The first paid fallback remains `Sci-fi Rooms and Corridors Interior Kit`, but only if the free ship POC reads too plain or present-day after Frostwake dressing. The fallback must be grounded away from orbital/spacestation cues before it appears in any screenshot.
+
 ## Purchase Gates
 
 Before any purchase:
@@ -68,14 +76,15 @@ Before production use:
 - Fab Standard License summary says assets may be used commercially or privately, modified for projects, and distributed as part of a project, while standalone resale or redistribution is not allowed: https://www.fab.com/eula
 - Fab documentation describes Standard license Personal and Professional tiers and notes that some migrated products can temporarily use the legacy UE Marketplace license: https://dev.epicgames.com/documentation/fab/licenses-and-pricing-in-fab?lang=en-US
 - Fab listing pages must still be checked individually for current price, license tier, UE version support, AI flags, seller, and package details before purchase.
+- The 2026-05-26 GP-08 listing review and POC acceptance gate are recorded in `docs/visual-poc-rights-gate.md`.
 
 ## Next Implementation Step
 
 Use the dry-run scaffold before any import:
 
 ```bash
-python3 Tools/ue/scaffold_frostwake_visual_poc.py --dry-run
-python3 Tools/ue/scaffold_frostwake_visual_poc.py --write
+cargo run -p frostwake-tools -- scaffold-frostwake-visual-poc --dry-run
+cargo run -p frostwake-tools -- scaffold-frostwake-visual-poc --write
 ```
 
-The scaffold writes a local ignored manifest under `Saved/VisualPOC/` and intentionally does not create or modify `.umap` assets. Cycle 36 should use that manifest to create `L_FrostwakeVisualPOC` only after a specific asset package is selected and its candidate ledger entry is reviewed. Do not import purchased assets until the user confirms the first package to acquire.
+The scaffold writes a local ignored manifest under `Saved/VisualPOC/` and intentionally does not create or modify `.umap` assets. Use that manifest to create `L_FrostwakeVisualPOC` only after a specific asset package is selected, its candidate ledger entry is reviewed, the visual POC rights gate passes, and the import checklist is complete. Do not import purchased assets until the user confirms the first package to acquire.
