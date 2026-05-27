@@ -37,9 +37,14 @@ Key source docs:
 - `docs/roles.md`
 - `docs/items.md`
 - `docs/sabotage.md`
+- `docs/gp03-fatal-sabotage-smoke-summary.md`
 - `docs/map-flow.md`
 - `docs/network-rules.md`
 - `docs/commercial-quality-target.md`
+
+Current focused automation evidence:
+
+- `fatal-sabotage` smoke proof at `Saved/SmokeTests/local-20260526-183356/` confirms a sabotage-driven match end with `winner=saboteur`, `reason=fatal_ship_state`, `criticalSystems=["radio"]`, and `systemConditions.radio=0`. This supports the technical explanation path only; human readability remains gated on P1-024/P1-025 notes.
 
 ## Boundaries
 
