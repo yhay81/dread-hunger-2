@@ -25,3 +25,25 @@ public:
 
     virtual int32 Main(const FString& Params) override;
 };
+
+UCLASS()
+class ABYSSLOCKEDITOR_API UCreateFrostwakeVisualPocCommandlet : public UCommandlet
+{
+    GENERATED_BODY()
+
+public:
+    UCreateFrostwakeVisualPocCommandlet();
+
+    virtual int32 Main(const FString& Params) override;
+};
+
+UCLASS()
+class ABYSSLOCKEDITOR_API UValidateFrostwakeVisualPocCommandlet : public UCommandlet
+{
+    GENERATED_BODY()
+
+public:
+    UValidateFrostwakeVisualPocCommandlet();
+
+    virtual int32 Main(const FString& Params) override;
+};

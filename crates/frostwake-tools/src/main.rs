@@ -357,6 +357,32 @@ enum Command {
         #[arg(long)]
         skip_build: bool,
     },
+    #[command(
+        about = "Create a separate Frostwake visual POC map with free/CC0-ready dressing placeholders."
+    )]
+    CreateFrostwakeVisualPoc {
+        #[arg(long)]
+        ue_root: Option<PathBuf>,
+        #[arg(long)]
+        platform: Option<String>,
+        #[arg(long)]
+        print_command: bool,
+        #[arg(long)]
+        skip_build: bool,
+    },
+    #[command(
+        about = "Validate the Frostwake visual POC map exists and contains the required zones."
+    )]
+    ValidateFrostwakeVisualPoc {
+        #[arg(long)]
+        ue_root: Option<PathBuf>,
+        #[arg(long)]
+        platform: Option<String>,
+        #[arg(long)]
+        print_command: bool,
+        #[arg(long)]
+        skip_build: bool,
+    },
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, ValueEnum)]
@@ -973,6 +999,34 @@ fn run(cli: Cli) -> Result<(), String> {
         } => {
             run_unreal_editor_commandlet(
                 "ValidateIcebreakerWhitebox",
+                ue_root,
+                platform.unwrap_or_else(host_platform),
+                print_command,
+                skip_build,
+            )?;
+        }
+        Command::CreateFrostwakeVisualPoc {
+            ue_root,
+            platform,
+            print_command,
+            skip_build,
+        } => {
+            run_unreal_editor_commandlet(
+                "CreateFrostwakeVisualPoc",
+                ue_root,
+                platform.unwrap_or_else(host_platform),
+                print_command,
+                skip_build,
+            )?;
+        }
+        Command::ValidateFrostwakeVisualPoc {
+            ue_root,
+            platform,
+            print_command,
+            skip_build,
+        } => {
+            run_unreal_editor_commandlet(
+                "ValidateFrostwakeVisualPoc",
                 ue_root,
                 platform.unwrap_or_else(host_platform),
                 print_command,
@@ -9334,6 +9388,20 @@ Next backlog item: P1-025
         assert!(command.contains(&"-run=CreateIcebreakerWhitebox".to_string()));
         assert!(!joined.contains("python"));
         assert!(!joined.contains(".py"));
+    }
+
+    #[test]
+    fn visual_poc_automation_uses_unreal_cpp_commandlets() {
+        let create =
+            unreal_commandlet_command("CreateFrostwakeVisualPoc", Path::new("C:/UE_5.7"), "Win64");
+        let validate = unreal_commandlet_command(
+            "ValidateFrostwakeVisualPoc",
+            Path::new("C:/UE_5.7"),
+            "Win64",
+        );
+
+        assert!(create.contains(&"-run=CreateFrostwakeVisualPoc".to_string()));
+        assert!(validate.contains(&"-run=ValidateFrostwakeVisualPoc".to_string()));
     }
 
     #[test]

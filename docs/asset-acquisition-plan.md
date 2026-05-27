@@ -50,6 +50,8 @@ The current rights gate is [Visual POC Rights Gate](visual-poc-rights-gate.md), 
 
 Start with an environment-only, quarantined POC using the free `Modular Ship Interior Environment` candidate if the user approves acquisition after a fresh listing check. Dress it with project-owned Frostwake materials and system props so the scene reads as a near-future polar research vessel. Do not purchase paid interior, exterior, character, logo, UI, music, voice, or hero marketing assets until this POC proves the direction is useful.
 
+While Fab acquisition is blocked on account authentication, use the CC0 material intake in [Free Asset Intake](free-asset-intake.md) to build visual POC dressing without paid purchases or login-gated packages. These materials stay in `candidate` state until quarantine import, in-engine texture setup, screenshot review, and named approval are complete.
+
 The first paid fallback remains `Sci-fi Rooms and Corridors Interior Kit`, but only if the free ship POC reads too plain or present-day after Frostwake dressing. The fallback must be grounded away from orbital/spacestation cues before it appears in any screenshot.
 
 ## Purchase Gates

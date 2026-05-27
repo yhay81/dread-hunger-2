@@ -27,7 +27,7 @@ FString TrimTrailingSlash(FString Value)
     return Value;
 }
 
-void ReadStringField(const TSharedPtr<FJsonObject>& Object, const TCHAR* FieldName, FString& OutValue)
+void ReadSteamStringField(const TSharedPtr<FJsonObject>& Object, const TCHAR* FieldName, FString& OutValue)
 {
     FString ParsedValue;
     if (Object.IsValid() && Object->TryGetStringField(FieldName, ParsedValue))
@@ -36,7 +36,7 @@ void ReadStringField(const TSharedPtr<FJsonObject>& Object, const TCHAR* FieldNa
     }
 }
 
-void ReadBoolField(const TSharedPtr<FJsonObject>& Object, const TCHAR* FieldName, bool& OutValue)
+void ReadSteamBoolField(const TSharedPtr<FJsonObject>& Object, const TCHAR* FieldName, bool& OutValue)
 {
     bool ParsedValue = false;
     if (Object.IsValid() && Object->TryGetBoolField(FieldName, ParsedValue))
@@ -187,8 +187,8 @@ bool UAbyssSteamIdentitySubsystem::TryParseSessionTicketResponseJson(
 
     if (!IsSuccessStatus(HttpStatus))
     {
-        ReadStringField(RootObject, TEXT("error"), OutResult.ErrorCode);
-        ReadStringField(RootObject, TEXT("message"), OutResult.Message);
+        ReadSteamStringField(RootObject, TEXT("error"), OutResult.ErrorCode);
+        ReadSteamStringField(RootObject, TEXT("message"), OutResult.Message);
         if (OutResult.ErrorCode.IsEmpty())
         {
             OutResult.ErrorCode = TEXT("steam_identity_http_error");
@@ -196,11 +196,11 @@ bool UAbyssSteamIdentitySubsystem::TryParseSessionTicketResponseJson(
         return true;
     }
 
-    ReadBoolField(RootObject, TEXT("verified"), OutResult.bVerified);
-    ReadBoolField(RootObject, TEXT("ownsApp"), OutResult.bOwnsApp);
-    ReadStringField(RootObject, TEXT("subjectHash"), OutResult.SubjectHash);
-    ReadStringField(RootObject, TEXT("proofId"), OutResult.ProofId);
-    ReadStringField(RootObject, TEXT("expiresAt"), OutResult.ExpiresAt);
+    ReadSteamBoolField(RootObject, TEXT("verified"), OutResult.bVerified);
+    ReadSteamBoolField(RootObject, TEXT("ownsApp"), OutResult.bOwnsApp);
+    ReadSteamStringField(RootObject, TEXT("subjectHash"), OutResult.SubjectHash);
+    ReadSteamStringField(RootObject, TEXT("proofId"), OutResult.ProofId);
+    ReadSteamStringField(RootObject, TEXT("expiresAt"), OutResult.ExpiresAt);
     if (!OutResult.bVerified || !OutResult.bOwnsApp || OutResult.SubjectHash.IsEmpty() || OutResult.ProofId.IsEmpty())
     {
         OutResult.ErrorCode = TEXT("incomplete_steam_identity_proof");

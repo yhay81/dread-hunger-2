@@ -12,6 +12,7 @@
 #include "Engine/World.h"
 #include "EngineUtils.h"
 #include "FileHelpers.h"
+#include "Materials/Material.h"
 #include "GameFramework/PlayerStart.h"
 #include "LevelEditorSubsystem.h"
 #include "Misc/FileHelper.h"
@@ -609,4 +610,308 @@ int32 UValidateIcebreakerWhiteboxCommandlet::Main(const FString& Params)
 {
     FString Error;
     return FrostwakeWhitebox::ValidateWhitebox(Error) ? 0 : 1;
+}
+
+namespace FrostwakeVisualPOC
+{
+const FString MapPackage = TEXT("/Game/Maps/L_FrostwakeVisualPOC");
+const FName VisualPocTag = TEXT("FrostwakeVisualPOC");
+
+struct FMaterialSpec
+{
+    const TCHAR* Name;
+};
+
+struct FVisualCubeSpec
+{
+    const TCHAR* Label;
+    FVector Location;
+    FVector Size;
+    const TCHAR* MaterialName;
+};
+
+struct FVisualPointSpec
+{
+    const TCHAR* Label;
+    FVector Location;
+};
+
+bool Fail(FString& Error, const FString& Message)
+{
+    Error = Message;
+    UE_LOG(LogAbyssWhiteboxCommandlet, Error, TEXT("%s"), *Message);
+    return false;
+}
+
+bool IsVisualPocActor(const AActor* Actor)
+{
+    if (!Actor)
+    {
+        return false;
+    }
+
+    const FString Label = Actor->GetActorLabel();
+    return Label.StartsWith(TEXT("POC_")) || Label.StartsWith(TEXT("CC0_")) || Actor->Tags.Contains(VisualPocTag);
+}
+
+bool LoadOrCreateMap(UWorld*& OutWorld, FString& Error)
+{
+    if (FPackageName::DoesPackageExist(MapPackage))
+    {
+        OutWorld = UEditorLoadingAndSavingUtils::LoadMap(MapPackage);
+    }
+    else
+    {
+        OutWorld = UEditorLoadingAndSavingUtils::NewBlankMap(false);
+    }
+
+    if (!OutWorld)
+    {
+        return Fail(Error, FString::Printf(TEXT("Could not load or create %s."), *MapPackage));
+    }
+    return true;
+}
+
+bool ClearExistingVisualPoc(UWorld* World, FString& Error)
+{
+    TArray<AActor*> ActorsToDestroy;
+    for (TActorIterator<AActor> It(World); It; ++It)
+    {
+        if (IsVisualPocActor(*It))
+        {
+            ActorsToDestroy.Add(*It);
+        }
+    }
+
+    for (AActor* Actor : ActorsToDestroy)
+    {
+        if (Actor && !World->EditorDestroyActor(Actor, true))
+        {
+            return Fail(Error, FString::Printf(TEXT("Could not remove visual POC actor %s."), *GetNameSafe(Actor)));
+        }
+    }
+    return true;
+}
+
+UMaterial* CreateOrUpdateMaterial(const FMaterialSpec& Spec, FString& Error)
+{
+    UMaterial* Material = LoadObject<UMaterial>(nullptr, TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"));
+    if (!Material)
+    {
+        Fail(Error, FString::Printf(TEXT("Could not load placeholder material for %s."), Spec.Name));
+        return nullptr;
+    }
+    return Material;
+}
+
+AActor* SpawnActor(UClass* ActorClass, const TCHAR* Label, const FVector& Location, const FRotator& Rotation, FString& Error)
+{
+    UEditorActorSubsystem* ActorSubsystem = GEditor ? GEditor->GetEditorSubsystem<UEditorActorSubsystem>() : nullptr;
+    AActor* Actor = ActorSubsystem ? ActorSubsystem->SpawnActorFromClass(TSubclassOf<AActor>(ActorClass), Location, Rotation, false) : nullptr;
+    if (!Actor)
+    {
+        Fail(Error, FString::Printf(TEXT("Could not spawn actor %s."), Label));
+        return nullptr;
+    }
+
+    Actor->SetActorLabel(Label);
+    Actor->Tags.AddUnique(VisualPocTag);
+    return Actor;
+}
+
+bool SpawnCube(const FVisualCubeSpec& Spec, UStaticMesh* CubeMesh, const TMap<FString, UMaterial*>& Materials, FString& Error)
+{
+    AStaticMeshActor* Actor = Cast<AStaticMeshActor>(SpawnActor(AStaticMeshActor::StaticClass(), Spec.Label, Spec.Location, FRotator::ZeroRotator, Error));
+    if (!Actor)
+    {
+        return false;
+    }
+
+    Actor->SetActorScale3D(FVector(Spec.Size.X / 100.0, Spec.Size.Y / 100.0, Spec.Size.Z / 100.0));
+    UStaticMeshComponent* MeshComponent = Actor->GetStaticMeshComponent();
+    if (!MeshComponent)
+    {
+        return Fail(Error, FString::Printf(TEXT("StaticMeshComponent missing on %s."), Spec.Label));
+    }
+    MeshComponent->SetStaticMesh(CubeMesh);
+    if (UMaterial* const* Material = Materials.Find(Spec.MaterialName))
+    {
+        MeshComponent->SetMaterial(0, *Material);
+    }
+    return true;
+}
+
+bool SpawnPoint(const FVisualPointSpec& Spec, FString& Error)
+{
+    return SpawnActor(ATargetPoint::StaticClass(), Spec.Label, Spec.Location, FRotator::ZeroRotator, Error) != nullptr;
+}
+
+bool CreateVisualPoc(FString& Error)
+{
+    UWorld* World = nullptr;
+    if (!LoadOrCreateMap(World, Error) || !ClearExistingVisualPoc(World, Error))
+    {
+        return false;
+    }
+
+    UStaticMesh* CubeMesh = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cube.Cube"));
+    if (!CubeMesh)
+    {
+        return Fail(Error, TEXT("Could not load /Engine/BasicShapes/Cube.Cube."));
+    }
+
+    const TArray<FMaterialSpec> MaterialSpecs = {
+        {TEXT("M_POC_DiamondPlate009_Bulkhead")},
+        {TEXT("M_POC_PaintedMetal004_Warning")},
+        {TEXT("M_POC_MetalWalkway014_Rust")},
+        {TEXT("M_POC_Snow015_IceDeck")},
+        {TEXT("M_POC_Ice003_WindowFrost")},
+        {TEXT("M_POC_EmergencyRed")},
+        {TEXT("M_POC_RadioGreen")},
+    };
+
+    TMap<FString, UMaterial*> Materials;
+    for (const FMaterialSpec& MaterialSpec : MaterialSpecs)
+    {
+        UMaterial* Material = CreateOrUpdateMaterial(MaterialSpec, Error);
+        if (!Material)
+        {
+            return false;
+        }
+        Materials.Add(MaterialSpec.Name, Material);
+    }
+
+    const TArray<FVisualCubeSpec> Cubes = {
+        {TEXT("POC_Zone_CentralCorridor_Deck"), FVector(0, 0, 0), FVector(2200, 420, 36), TEXT("M_POC_DiamondPlate009_Bulkhead")},
+        {TEXT("POC_Zone_CentralCorridor_PortBulkhead"), FVector(0, -240, 190), FVector(2200, 40, 360), TEXT("M_POC_DiamondPlate009_Bulkhead")},
+        {TEXT("POC_Zone_CentralCorridor_StarboardBulkhead"), FVector(0, 240, 190), FVector(2200, 40, 360), TEXT("M_POC_DiamondPlate009_Bulkhead")},
+        {TEXT("POC_Central_SightBreak_RadioRack"), FVector(-260, -130, 150), FVector(220, 80, 260), TEXT("M_POC_RadioGreen")},
+        {TEXT("POC_Central_SightBreak_BatteryLocker"), FVector(290, 130, 145), FVector(260, 90, 250), TEXT("M_POC_MetalWalkway014_Rust")},
+        {TEXT("POC_Central_WarningStripe_A"), FVector(-820, 0, 40), FVector(220, 430, 18), TEXT("M_POC_PaintedMetal004_Warning")},
+        {TEXT("POC_Central_WarningStripe_B"), FVector(820, 0, 40), FVector(220, 430, 18), TEXT("M_POC_PaintedMetal004_Warning")},
+        {TEXT("POC_Zone_BatteryBay_Deck"), FVector(-1500, 0, -10), FVector(880, 760, 36), TEXT("M_POC_DiamondPlate009_Bulkhead")},
+        {TEXT("POC_BatteryBay_BatteryRack_A"), FVector(-1620, -230, 150), FVector(520, 100, 260), TEXT("M_POC_MetalWalkway014_Rust")},
+        {TEXT("POC_BatteryBay_BatteryRack_B"), FVector(-1620, 230, 150), FVector(520, 100, 260), TEXT("M_POC_MetalWalkway014_Rust")},
+        {TEXT("POC_BatteryBay_PowerBus"), FVector(-1220, 0, 185), FVector(80, 560, 110), TEXT("M_POC_EmergencyRed")},
+        {TEXT("POC_BatteryBay_ServicePanel_Repair"), FVector(-1140, -280, 135), FVector(110, 90, 190), TEXT("M_POC_RadioGreen")},
+        {TEXT("POC_BatteryBay_ServicePanel_Sabotage"), FVector(-1140, 280, 135), FVector(110, 90, 190), TEXT("M_POC_EmergencyRed")},
+        {TEXT("POC_Zone_ExteriorIceDeck"), FVector(1500, 0, -20), FVector(1050, 860, 42), TEXT("M_POC_Snow015_IceDeck")},
+        {TEXT("POC_Exterior_Rail_Port"), FVector(1500, -450, 100), FVector(1060, 40, 170), TEXT("M_POC_DiamondPlate009_Bulkhead")},
+        {TEXT("POC_Exterior_Rail_Starboard"), FVector(1500, 450, 100), FVector(1060, 40, 170), TEXT("M_POC_DiamondPlate009_Bulkhead")},
+        {TEXT("POC_Exterior_AirlockDoor"), FVector(950, 0, 160), FVector(80, 360, 280), TEXT("M_POC_PaintedMetal004_Warning")},
+        {TEXT("POC_Exterior_Winch"), FVector(1660, 220, 105), FVector(300, 180, 170), TEXT("M_POC_MetalWalkway014_Rust")},
+        {TEXT("POC_Exterior_FrostedWindow"), FVector(1110, -250, 185), FVector(40, 180, 140), TEXT("M_POC_Ice003_WindowFrost")},
+        {TEXT("CC0_Pending_DiamondPlate009_Surface"), FVector(0, 330, 100), FVector(260, 36, 160), TEXT("M_POC_DiamondPlate009_Bulkhead")},
+        {TEXT("CC0_Pending_Snow015_Surface"), FVector(1640, -245, 42), FVector(220, 220, 26), TEXT("M_POC_Snow015_IceDeck")},
+        {TEXT("CC0_Pending_Ice003_Surface"), FVector(1640, -40, 42), FVector(220, 170, 24), TEXT("M_POC_Ice003_WindowFrost")},
+    };
+    for (const FVisualCubeSpec& Cube : Cubes)
+    {
+        if (!SpawnCube(Cube, CubeMesh, Materials, Error))
+        {
+            return false;
+        }
+    }
+
+    const TArray<FVisualPointSpec> Points = {
+        {TEXT("POC_Acceptance_CentralCorridor"), FVector(0, 0, 180)},
+        {TEXT("POC_Acceptance_BatteryBay"), FVector(-1500, 0, 180)},
+        {TEXT("POC_Acceptance_ExteriorIceDeck"), FVector(1500, 0, 180)},
+    };
+    for (const FVisualPointSpec& Point : Points)
+    {
+        if (!SpawnPoint(Point, Error))
+        {
+            return false;
+        }
+    }
+
+    if (!SpawnActor(ADirectionalLight::StaticClass(), TEXT("POC_Light_WhiteoutSun"), FVector(600, -900, 2100), FRotator(-48, -25, 0), Error))
+    {
+        return false;
+    }
+    if (!SpawnActor(ASkyLight::StaticClass(), TEXT("POC_Light_ColdSkylight"), FVector(0, 0, 1200), FRotator::ZeroRotator, Error))
+    {
+        return false;
+    }
+
+    World->MarkPackageDirty();
+    if (!UEditorLoadingAndSavingUtils::SaveMap(World, MapPackage))
+    {
+        return Fail(Error, FString::Printf(TEXT("Could not save map %s."), *MapPackage));
+    }
+
+    UE_LOG(LogAbyssWhiteboxCommandlet, Display, TEXT("Created and saved %s."), *MapPackage);
+    return true;
+}
+
+bool ValidateVisualPoc(FString& Error)
+{
+    if (!FPackageName::DoesPackageExist(MapPackage))
+    {
+        return Fail(Error, FString::Printf(TEXT("Missing map asset: %s"), *MapPackage));
+    }
+
+    UWorld* World = UEditorLoadingAndSavingUtils::LoadMap(MapPackage);
+    if (!World)
+    {
+        return Fail(Error, FString::Printf(TEXT("Could not load map: %s"), *MapPackage));
+    }
+
+    TSet<FString> Labels;
+    for (TActorIterator<AActor> It(World); It; ++It)
+    {
+        Labels.Add(It->GetActorLabel());
+    }
+
+    const TArray<const TCHAR*> RequiredLabels = {
+        TEXT("POC_Zone_CentralCorridor_Deck"),
+        TEXT("POC_Central_SightBreak_RadioRack"),
+        TEXT("POC_Zone_BatteryBay_Deck"),
+        TEXT("POC_BatteryBay_ServicePanel_Repair"),
+        TEXT("POC_Zone_ExteriorIceDeck"),
+        TEXT("POC_Exterior_AirlockDoor"),
+        TEXT("CC0_Pending_DiamondPlate009_Surface"),
+        TEXT("CC0_Pending_Snow015_Surface"),
+        TEXT("CC0_Pending_Ice003_Surface"),
+    };
+    for (const TCHAR* RequiredLabel : RequiredLabels)
+    {
+        if (!Labels.Contains(RequiredLabel))
+        {
+            return Fail(Error, FString::Printf(TEXT("Missing visual POC label: %s"), RequiredLabel));
+        }
+    }
+
+    UE_LOG(LogAbyssWhiteboxCommandlet, Display, TEXT("%s passed validation with %d actors."), *MapPackage, Labels.Num());
+    return true;
+}
+}
+
+UCreateFrostwakeVisualPocCommandlet::UCreateFrostwakeVisualPocCommandlet()
+{
+    IsClient = false;
+    IsEditor = true;
+    IsServer = false;
+    LogToConsole = true;
+}
+
+int32 UCreateFrostwakeVisualPocCommandlet::Main(const FString& Params)
+{
+    FString Error;
+    return FrostwakeVisualPOC::CreateVisualPoc(Error) ? 0 : 1;
+}
+
+UValidateFrostwakeVisualPocCommandlet::UValidateFrostwakeVisualPocCommandlet()
+{
+    IsClient = false;
+    IsEditor = true;
+    IsServer = false;
+    LogToConsole = true;
+}
+
+int32 UValidateFrostwakeVisualPocCommandlet::Main(const FString& Params)
+{
+    FString Error;
+    return FrostwakeVisualPOC::ValidateVisualPoc(Error) ? 0 : 1;
 }

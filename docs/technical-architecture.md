@@ -220,6 +220,8 @@ Editor-only automation lives in the `AbyssLockEditor` module, not in runtime gam
 | `AbyssLockEditor` module | Editor-only commandlets and validation utilities. |
 | `CreateIcebreakerWhitebox` commandlet | Generates or refreshes the automation whitebox map. |
 | `ValidateIcebreakerWhitebox` commandlet | Validates whitebox layout, task placement, doors, and expected map structure. |
+| `CreateFrostwakeVisualPoc` commandlet | Generates a separate placeholder visual POC map with three review zones. |
+| `ValidateFrostwakeVisualPoc` commandlet | Validates the visual POC map, required zone labels, and unchanged default maps. |
 | `frostwake-tools` command wrappers | Launch the commandlets from a repeatable Rust CLI surface. |
 
 The automation whitebox map is `/Game/Maps/L_IcebreakerWhitebox`. Visual POC work must stay separate from this map so art experiments do not break automation evidence.
