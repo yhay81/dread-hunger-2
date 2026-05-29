@@ -5,7 +5,7 @@ Lane: GP-03 (Core Match Experience) · Reviewer: IP Review · Created: 2026-05-2
 ## Goal
 
 Frostwake should **play and feel as close to Dread Hunger as possible at the level of
-mechanics, systems, pacing, and controls** — while keeping **all creative expression original**.
+mechanics, systems, pacing, and controls** — while keeping **all shipped creative expression original** (DH-near placeholders are allowed during the prototype phase and originalized before public exposure — see the Development Phase Policy in `docs/ip-boundary.md`).
 This is legal and intended: game **mechanics, rules, systems, and control schemes are functional
 ideas and are not protected by copyright**; only specific **expression** is. So we copy the
 *how it plays*, never the *how it looks/sounds/reads/is named*.
@@ -15,7 +15,7 @@ This sharpens GP-03's north-star with a concrete reference point. It does not ch
 
 ## The line (what we match vs. what stays original)
 
-| Replicate freely (functional) | Keep original — never copy (expression / trademark) |
+| Replicate freely (functional) | Keep original by ship — DH-near placeholder OK in prototype (expression / trademark) |
 | --- | --- |
 | Core loop: keep a ship advancing across a hostile frozen route | The name "Dread Hunger", logo, any affiliation claim |
 | Role structure: 8 players, 2 hidden saboteurs vs. crew | Character/role names, class identities, character art |
@@ -58,7 +58,7 @@ guides (functional lessons only; no expression copied).
 - Recreate the **gather → mounting tension → climactic escape** arc. Map Dread Hunger's
   multi-"day" build-up onto Frostwake **voyage phases** (e.g., 2–3 escalating route legs / ice
   pressure tiers) compressed into the **18–25 min product match** (existing target).
-- Exactly **one clear peak** (existing gate) = the final approach / hazard climax.
+- Exactly **one clear peak** (existing gate) = the final approach / hazard climax. **Terminal cold/temperature escalation forces resolution by ~30 min (hard cap): standard completion is 18–25 min, but a stalled match dies by ~30 min — this is also the saboteur's run-out-the-clock win. See `docs/business-model.md` D11.**
 - Early resources are precious, late surplus becomes liability — preserve this value curve so
   inventory and timing decisions stay meaningful.
 
@@ -75,6 +75,8 @@ These are starting points to test, not final values:
   whole crew to clump (existing "白箱で削る基準").
 
 ## Hard guardrails (from `docs/ip-boundary.md`)
+
+By ship (prototype placeholders allowed, originalized before public exposure):
 
 - No protected names, item names, role names, UI layouts, map layouts, ship silhouette, audio,
   or lore. No occult/blood/totem/cannibalism/human-meat systems or theme.
