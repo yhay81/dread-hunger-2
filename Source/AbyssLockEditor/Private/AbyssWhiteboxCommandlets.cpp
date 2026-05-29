@@ -11,9 +11,11 @@
 #include "Editor.h"
 #include "Engine/DirectionalLight.h"
 #include "Engine/SkyLight.h"
+#include "Engine/PointLight.h"
 #include "Engine/TextureCube.h"
 #include "Engine/ExponentialHeightFog.h"
 #include "Components/SkyLightComponent.h"
+#include "Components/PointLightComponent.h"
 #include "Components/ExponentialHeightFogComponent.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/StaticMeshActor.h"
@@ -330,35 +332,49 @@ bool CreateWhitebox(FString& Error)
         return Fail(Error, TEXT("Could not load /Engine/BasicShapes/Cube.Cube."));
     }
 
+    // Single-deck ship interior: a central spine corridor flanked by walled rooms, with a bow ice
+    // deck open to the sky. Rooms are HOLLOW (thin wall segments with doorway gaps) instead of the
+    // old solid blocks (the "white box" problem). Required labels (validator) ride on each room's
+    // representative wall. Walls: 40cm thick, 340cm tall, centered Z=150 (run Z -20..320).
     const TArray<FCubeSpec> Cubes = {
-        {TEXT("WB_Hull_MainDeck"), FVector(0, 0, -20), FVector(4200, 1350, 40)},
-        {TEXT("WB_Hull_LowerServiceDeck"), FVector(-250, 0, -260), FVector(2900, 950, 40)},
-        {TEXT("WB_Foredeck_IceWorkArea"), FVector(1650, 0, 20), FVector(900, 1200, 40)},
-        {TEXT("WB_AftDeck_MusterArea"), FVector(-1750, 0, 20), FVector(700, 1050, 40)},
-        {TEXT("WB_PortHullWall"), FVector(0, -700, 150), FVector(4200, 60, 340)},
-        {TEXT("WB_StarboardHullWall"), FVector(0, 700, 150), FVector(4200, 60, 340)},
-        {TEXT("WB_BowBulkhead"), FVector(2120, 0, 150), FVector(60, 1350, 340)},
-        {TEXT("WB_SternBulkhead"), FVector(-2120, 0, 150), FVector(60, 1350, 340)},
-        {TEXT("WB_Bridge"), FVector(1100, 0, 320), FVector(620, 520, 260)},
-        {TEXT("WB_RadioRoom"), FVector(450, -380, 170), FVector(520, 360, 260)},
-        {TEXT("WB_Infirmary"), FVector(450, 380, 170), FVector(520, 360, 260)},
-        {TEXT("WB_Wardroom"), FVector(-250, 380, 170), FVector(560, 360, 260)},
-        {TEXT("WB_QuartermasterStore"), FVector(-250, -380, 170), FVector(560, 360, 260)},
-        {TEXT("WB_EngineRoom"), FVector(-1050, 0, 170), FVector(720, 640, 300)},
-        {TEXT("WB_FuelBay"), FVector(-1550, -360, 170), FVector(520, 380, 260)},
-        {TEXT("WB_BatteryRoom"), FVector(-1550, 360, 170), FVector(520, 380, 260)},
-        {TEXT("WB_Hold"), FVector(850, 0, -120), FVector(700, 760, 220)},
-        {TEXT("WB_CentralCompanionway"), FVector(-150, 0, 40), FVector(2100, 280, 80)},
-        {TEXT("WB_PortSidePassage"), FVector(-400, -520, 40), FVector(2600, 180, 80)},
-        {TEXT("WB_StarboardSidePassage"), FVector(-400, 520, 40), FVector(2600, 180, 80)},
-        {TEXT("WB_BridgeLadder"), FVector(900, 0, 160), FVector(220, 220, 280)},
-        {TEXT("WB_LowerDeckLadder"), FVector(100, 0, -120), FVector(220, 220, 260)},
+        // Deck plate + outer hull shell + interior ceiling (ice deck left open to the HDRI sky).
+        {TEXT("WB_Hull_MainDeck"), FVector(0, 0, -20), FVector(4300, 1450, 40)},
+        {TEXT("WB_Hull_PortWall"), FVector(-50, -720, 150), FVector(4300, 40, 340)},
+        {TEXT("WB_Hull_StarboardWall"), FVector(-50, 720, 150), FVector(4300, 40, 340)},
+        {TEXT("WB_Hull_SternWall"), FVector(-2150, 0, 150), FVector(40, 1480, 340)},
+        {TEXT("WB_Hull_BowRail"), FVector(2150, 0, 60), FVector(40, 1480, 160)},
+        {TEXT("WB_Ceiling_Interior"), FVector(-450, 0, 320), FVector(3200, 1450, 30)},
+        // Central spine corridor (segmented so the spawn cluster + doorways stay open).
+        {TEXT("WB_Corridor_PortWall_Fwd"), FVector(700, -130, 150), FVector(1200, 40, 340)},
+        {TEXT("WB_Corridor_PortWall_Aft"), FVector(-1000, -130, 150), FVector(1400, 40, 340)},
+        {TEXT("WB_Corridor_StbdWall_Fwd"), FVector(700, 130, 150), FVector(1200, 40, 340)},
+        {TEXT("WB_Corridor_StbdWall_Aft"), FVector(-1000, 130, 150), FVector(1400, 40, 340)},
+        // Bridge (port-fwd) + Radio (stbd-fwd) — required labels on the aft walls.
+        {TEXT("WB_Bridge"), FVector(700, -380, 150), FVector(40, 460, 340)},
+        {TEXT("WB_Bridge_FwdWall"), FVector(1300, -380, 150), FVector(40, 460, 340)},
+        {TEXT("WB_Bridge_Console"), FVector(1150, -560, 110), FVector(360, 200, 200)},
+        {TEXT("WB_RadioRoom"), FVector(700, 380, 150), FVector(40, 460, 340)},
+        {TEXT("WB_Radio_FwdWall"), FVector(1300, 380, 150), FVector(40, 460, 340)},
+        {TEXT("WB_Radio_Rack"), FVector(1150, 560, 130), FVector(300, 200, 240)},
+        // Crew quarters (port-mid, =QuartermasterStore) + Infirmary (stbd-mid) — required labels on fwd walls.
+        {TEXT("WB_QuartermasterStore"), FVector(100, -380, 150), FVector(40, 460, 340)},
+        {TEXT("WB_Quarters_Bunks"), FVector(-150, -560, 100), FVector(520, 200, 180)},
+        {TEXT("WB_Infirmary"), FVector(100, 380, 150), FVector(40, 460, 340)},
+        {TEXT("WB_Infirmary_Cots"), FVector(-150, 560, 100), FVector(520, 200, 160)},
+        // Engine (port-aft) + Battery/Power (stbd-aft) — required labels on fwd walls.
+        {TEXT("WB_EngineRoom"), FVector(-700, -380, 150), FVector(40, 460, 340)},
+        {TEXT("WB_Engine_Block"), FVector(-1050, -520, 140), FVector(520, 280, 260)},
+        {TEXT("WB_BatteryRoom"), FVector(-700, 380, 150), FVector(40, 460, 340)},
+        {TEXT("WB_Battery_RackA"), FVector(-1050, 480, 150), FVector(520, 160, 260)},
+        // Fuel bay (aft, full width with a centerline passage) + bow exterior ice deck.
+        {TEXT("WB_FuelBay"), FVector(-1500, -360, 150), FVector(40, 700, 340)},
+        {TEXT("WB_Fuel_FwdWall_Stbd"), FVector(-1500, 360, 150), FVector(40, 700, 340)},
+        {TEXT("WB_Fuel_DrumCluster"), FVector(-1880, 0, 100), FVector(360, 700, 180)},
+        {TEXT("WB_Ice_DeckPlate"), FVector(1800, 0, -10), FVector(700, 1450, 60)},
+        {TEXT("WB_Ice_RailPort"), FVector(1800, -640, 110), FVector(700, 40, 180)},
+        {TEXT("WB_Ice_RailStbd"), FVector(1800, 640, 110), FVector(700, 40, 180)},
+        {TEXT("WB_Ice_Winch"), FVector(1650, 420, 100), FVector(300, 220, 160)},
         {TEXT("WB_IcePressureGate"), FVector(1980, 0, 110), FVector(90, 1100, 180)},
-        {TEXT("WB_FuelLine"), FVector(-1120, -560, 90), FVector(1120, 80, 100)},
-        {TEXT("WB_PumpManifold"), FVector(-960, 560, 90), FVector(780, 80, 100)},
-        {TEXT("WB_RadioMastBase"), FVector(650, -520, 240), FVector(160, 160, 360)},
-        {TEXT("WB_DeckWinch"), FVector(1570, 420, 120), FVector(360, 220, 180)},
-        {TEXT("WB_CargoCrates"), FVector(1350, -420, 120), FVector(420, 260, 180)},
     };
     for (const FCubeSpec& Cube : Cubes)
     {
@@ -368,15 +384,16 @@ bool CreateWhitebox(FString& Error)
         }
     }
 
+    // Spawn cluster in the open central gap (between the fwd/aft corridor wall segments), on the deck.
     const TArray<FPlayerStartSpec> PlayerStarts = {
-        {1, FVector(-1800, -320, 120), 15},
-        {2, FVector(-1800, 0, 120), 0},
-        {3, FVector(-1800, 320, 120), -15},
-        {4, FVector(-1350, -510, 120), 35},
-        {5, FVector(-1350, 510, 120), -35},
-        {6, FVector(-650, -520, 120), 60},
-        {7, FVector(-650, 520, 120), -60},
-        {8, FVector(-80, 0, 120), 0},
+        {1, FVector(-280, -200, 110), 20},
+        {2, FVector(-280, 0, 110), 0},
+        {3, FVector(-280, 200, 110), -20},
+        {4, FVector(-150, -200, 110), 20},
+        {5, FVector(-150, 0, 110), 0},
+        {6, FVector(-150, 200, 110), -20},
+        {7, FVector(0, -100, 110), 10},
+        {8, FVector(0, 100, 110), -10},
     };
     for (const FPlayerStartSpec& PlayerStart : PlayerStarts)
     {
@@ -387,14 +404,14 @@ bool CreateWhitebox(FString& Error)
     }
 
     const TArray<FTargetSpec> Targets = {
-        {TEXT("TP_RouteControl"), FVector(1140, 0, 500)},
-        {TEXT("TP_RadioRepair"), FVector(450, -380, 330)},
-        {TEXT("TP_MedicalRescue"), FVector(450, 380, 330)},
-        {TEXT("TP_FuelContamination"), FVector(-1550, -360, 330)},
-        {TEXT("TP_PowerRepair"), FVector(-1550, 360, 330)},
-        {TEXT("TP_EngineRepair"), FVector(-1050, 0, 360)},
-        {TEXT("TP_IcePressureObjective"), FVector(1980, 0, 260)},
-        {TEXT("TP_HullFlooding"), FVector(850, 0, 40)},
+        {TEXT("TP_RouteControl"), FVector(1150, -430, 200)},
+        {TEXT("TP_RadioRepair"), FVector(1150, 430, 200)},
+        {TEXT("TP_MedicalRescue"), FVector(350, 430, 200)},
+        {TEXT("TP_FuelContamination"), FVector(-1850, -300, 200)},
+        {TEXT("TP_PowerRepair"), FVector(-1050, 360, 200)},
+        {TEXT("TP_EngineRepair"), FVector(-1050, -360, 200)},
+        {TEXT("TP_IcePressureObjective"), FVector(1980, 0, 200)},
+        {TEXT("TP_HullFlooding"), FVector(350, -300, 200)},
     };
     for (const FTargetSpec& Target : Targets)
     {
@@ -404,16 +421,18 @@ bool CreateWhitebox(FString& Error)
         }
     }
 
+    // Positions updated to the single-deck rooms (Z~70 on the deck). Labels/systems/modes/flags
+    // are LOCKED by ValidateTaskConfig — do not change those, only the locations.
     const TArray<FTaskSpec> Tasks = {
-        {TEXT("TASK_Repair_Radio"), TEXT("Radio"), false, FVector(450, -220, 150), 0.40f, false, false, false},
-        {TEXT("TASK_Sabotage_Radio"), TEXT("Radio"), true, FVector(450, -540, 150), 0.35f, false, true, true},
-        {TEXT("TASK_Repair_Power"), TEXT("Power"), false, FVector(-1450, 420, 150), 0.40f, false, false, false},
-        {TEXT("TASK_Sabotage_Power"), TEXT("Power"), true, FVector(-1450, 560, 150), 0.35f, false, true, true},
-        {TEXT("TASK_Repair_Engine"), TEXT("Engine"), false, FVector(-1050, -160, 150), 0.30f, false, false, false},
-        {TEXT("TASK_Sabotage_Fuel"), TEXT("Fuel"), true, FVector(-1550, -520, 150), 0.35f, false, true, false},
-        {TEXT("TASK_Repair_HullFlooding"), TEXT("Flooding"), false, FVector(820, 180, 70), 0.35f, false, false, false},
-        {TEXT("TASK_Sabotage_HullFlooding"), TEXT("Flooding"), true, FVector(820, -180, 70), 0.35f, false, true, false},
-        {TEXT("TASK_Repair_Route"), TEXT("Route"), false, FVector(1140, 180, 440), 0.35f, false, false, false},
+        {TEXT("TASK_Repair_Radio"), TEXT("Radio"), false, FVector(1150, 430, 70), 0.40f, false, false, false},
+        {TEXT("TASK_Sabotage_Radio"), TEXT("Radio"), true, FVector(1050, 620, 70), 0.35f, false, true, true},
+        {TEXT("TASK_Repair_Power"), TEXT("Power"), false, FVector(-1050, 360, 70), 0.40f, false, false, false},
+        {TEXT("TASK_Sabotage_Power"), TEXT("Power"), true, FVector(-1050, 600, 70), 0.35f, false, true, true},
+        {TEXT("TASK_Repair_Engine"), TEXT("Engine"), false, FVector(-1050, -360, 70), 0.30f, false, false, false},
+        {TEXT("TASK_Sabotage_Fuel"), TEXT("Fuel"), true, FVector(-1850, -300, 70), 0.35f, false, true, false},
+        {TEXT("TASK_Repair_HullFlooding"), TEXT("Flooding"), false, FVector(350, 300, 70), 0.35f, false, false, false},
+        {TEXT("TASK_Sabotage_HullFlooding"), TEXT("Flooding"), true, FVector(350, -300, 70), 0.35f, false, true, false},
+        {TEXT("TASK_Repair_Route"), TEXT("Route"), false, FVector(1150, -430, 70), 0.35f, false, false, false},
     };
     for (const FTaskSpec& Task : Tasks)
     {
@@ -423,10 +442,11 @@ bool CreateWhitebox(FString& Error)
         }
     }
 
+    // Doors sit in the corridor/room wall gaps on the single deck (Z=10; the panel auto-fills above).
     const TArray<FDoorSpec> Doors = {
-        {TEXT("DOOR_RadioBulkhead"), TEXT("RadioBulkhead"), FVector(170, -380, 100), 0},
-        {TEXT("DOOR_EngineBulkhead"), TEXT("EngineBulkhead"), FVector(-650, 0, 100), 90},
-        {TEXT("DOOR_HoldFloodBulkhead"), TEXT("HoldFloodBulkhead"), FVector(520, 0, -80), 90},
+        {TEXT("DOOR_RadioBulkhead"), TEXT("RadioBulkhead"), FVector(1000, 150, 10), 0},
+        {TEXT("DOOR_EngineBulkhead"), TEXT("EngineBulkhead"), FVector(-700, 0, 10), 90},
+        {TEXT("DOOR_HoldFloodBulkhead"), TEXT("HoldFloodBulkhead"), FVector(-1500, 0, 10), 90},
     };
     for (const FDoorSpec& Door : Doors)
     {
@@ -474,16 +494,48 @@ bool CreateWhitebox(FString& Error)
         }
     }
 
+    // Interior point lights (Movable, no bake) so the enclosed rooms read at runtime; the arctic sun
+    // only reaches the open bow ice deck. WB_ prefix + auto WhiteboxTag → cleared on regenerate.
+    struct FRoomLightSpec { const TCHAR* Label; FVector Location; FLinearColor Color; float Intensity; float Radius; };
+    const TArray<FRoomLightSpec> RoomLights = {
+        {TEXT("WB_Light_Corridor"), FVector(0, 0, 280), FLinearColor(0.95f, 0.96f, 1.0f), 3200.0f, 850.0f},
+        {TEXT("WB_Light_Bridge"), FVector(1150, -430, 280), FLinearColor(0.95f, 0.97f, 1.0f), 3000.0f, 750.0f},
+        {TEXT("WB_Light_Radio"), FVector(1150, 430, 280), FLinearColor(0.95f, 0.97f, 1.0f), 3000.0f, 750.0f},
+        {TEXT("WB_Light_Quarters"), FVector(-150, -430, 280), FLinearColor(1.0f, 0.92f, 0.78f), 2600.0f, 750.0f},
+        {TEXT("WB_Light_Infirmary"), FVector(-150, 430, 280), FLinearColor(0.9f, 0.95f, 1.0f), 2800.0f, 750.0f},
+        {TEXT("WB_Light_Engine"), FVector(-1050, -360, 280), FLinearColor(1.0f, 0.85f, 0.62f), 3000.0f, 800.0f},
+        {TEXT("WB_Light_Battery"), FVector(-1050, 360, 280), FLinearColor(1.0f, 0.9f, 0.72f), 2800.0f, 800.0f},
+        {TEXT("WB_Light_Fuel"), FVector(-1850, 0, 280), FLinearColor(1.0f, 0.85f, 0.62f), 2600.0f, 800.0f},
+    };
+    for (const FRoomLightSpec& RoomLight : RoomLights)
+    {
+        AActor* PointLight = SpawnActor(APointLight::StaticClass(), RoomLight.Label, RoomLight.Location, FRotator::ZeroRotator, Error);
+        if (!PointLight)
+        {
+            return false;
+        }
+        if (USceneComponent* PointRoot = PointLight->GetRootComponent())
+        {
+            PointRoot->SetMobility(EComponentMobility::Movable);
+        }
+        if (UPointLightComponent* PointComp = PointLight->FindComponentByClass<UPointLightComponent>())
+        {
+            PointComp->SetIntensity(RoomLight.Intensity);
+            PointComp->SetAttenuationRadius(RoomLight.Radius);
+            PointComp->SetLightColor(RoomLight.Color);
+        }
+    }
+
     // CC0 prop dressing (Poly Haven, provenanced in docs/asset-ledger-candidates.csv; imported in
     // cycle 88). Skipped gracefully if not imported. Scale/placement are first-pass — refine after
     // owner screenshot review (Poly Haven fbx are metric; verify they read at the right size).
     const TArray<FPropSpec> Props = {
-        {TEXT("Barrel_01"), TEXT("WB_Prop_Barrel_A"), FVector(1500, 480, 5), 20.0f, 1.0f},
-        {TEXT("Barrel_02"), TEXT("WB_Prop_Barrel_B"), FVector(1560, 560, 5), -35.0f, 1.0f},
-        {TEXT("can_rusted"), TEXT("WB_Prop_Can_A"), FVector(1470, 540, 5), 0.0f, 1.0f},
-        {TEXT("cardboard_box_01"), TEXT("WB_Prop_Crate_A"), FVector(-1200, -520, 5), 10.0f, 1.0f},
-        {TEXT("cardboard_box_01"), TEXT("WB_Prop_Crate_B"), FVector(-1270, -560, 5), -25.0f, 1.0f},
-        {TEXT("Lantern_01"), TEXT("WB_Prop_Lantern_A"), FVector(-1180, -450, 5), 0.0f, 1.0f},
+        {TEXT("Barrel_01"), TEXT("WB_Prop_Barrel_A"), FVector(1650, 520, 5), 20.0f, 1.0f},
+        {TEXT("Barrel_02"), TEXT("WB_Prop_Barrel_B"), FVector(1720, 600, 5), -35.0f, 1.0f},
+        {TEXT("can_rusted"), TEXT("WB_Prop_Can_A"), FVector(1600, 560, 5), 0.0f, 1.0f},
+        {TEXT("cardboard_box_01"), TEXT("WB_Prop_Crate_A"), FVector(-1850, -520, 5), 10.0f, 1.0f},
+        {TEXT("cardboard_box_01"), TEXT("WB_Prop_Crate_B"), FVector(-1780, -560, 5), -25.0f, 1.0f},
+        {TEXT("Lantern_01"), TEXT("WB_Prop_Lantern_A"), FVector(-150, -560, 185), 0.0f, 1.0f},
     };
     for (const FPropSpec& Prop : Props)
     {
@@ -505,15 +557,15 @@ bool CreateWhitebox(FString& Error)
     }
 
     // Pickable items near the spawn so the player can pick up + scroll-select them (HUD hotbar).
-    SpawnItemPickup(TEXT("Wrench"), TEXT("WB_Item_Wrench"), FVector(300, 220, 30), Error);
-    SpawnItemPickup(TEXT("FuelDrum"), TEXT("WB_Item_FuelDrum"), FVector(300, -220, 30), Error);
-    SpawnItemPickup(TEXT("Fuse"), TEXT("WB_Item_Fuse"), FVector(480, 0, 30), Error);
-    SpawnItemPickup(TEXT("Headlamp"), TEXT("WB_Item_Headlamp"), FVector(140, 0, 30), Error);
+    SpawnItemPickup(TEXT("Wrench"), TEXT("WB_Item_Wrench"), FVector(250, 60, 30), Error);
+    SpawnItemPickup(TEXT("FuelDrum"), TEXT("WB_Item_FuelDrum"), FVector(250, -60, 30), Error);
+    SpawnItemPickup(TEXT("Fuse"), TEXT("WB_Item_Fuse"), FVector(430, 60, 30), Error);
+    SpawnItemPickup(TEXT("Headlamp"), TEXT("WB_Item_Headlamp"), FVector(430, -60, 30), Error);
 
     // Survival loop: a ration restores Food (F to eat the selected item); heat sources restore Warmth (E).
-    SpawnItemPickup(TEXT("Ration"), TEXT("WB_Item_Ration"), FVector(140, 220, 30), Error);
-    SpawnHeatSource(TEXT("WB_HeatSource_A"), FVector(-220, 360, 40), Error);
-    SpawnHeatSource(TEXT("WB_HeatSource_B"), FVector(620, -260, 40), Error);
+    SpawnItemPickup(TEXT("Ration"), TEXT("WB_Item_Ration"), FVector(120, 0, 30), Error);
+    SpawnHeatSource(TEXT("WB_HeatSource_A"), FVector(600, 0, 40), Error);
+    SpawnHeatSource(TEXT("WB_HeatSource_B"), FVector(-900, -300, 40), Error);
 
     World->MarkPackageDirty();
     if (!UEditorLoadingAndSavingUtils::SaveMap(World, MapPackage))
@@ -583,13 +635,16 @@ bool ValidateDefaultMaps(FString& Error)
         }
     }
 
-    if (Values.FindRef(TEXT("EditorStartupMap")) != MapAsset)
+    // Boot goes through the dedicated front-end map (cycle 85); the whitebox is reached from it via
+    // 一人モード/solo. So the engine boot maps must point at L_MainMenu, not the whitebox itself.
+    const FString MenuMapAsset = TEXT("/Game/Maps/L_MainMenu.L_MainMenu");
+    if (Values.FindRef(TEXT("EditorStartupMap")) != MenuMapAsset)
     {
-        return Fail(Error, FString::Printf(TEXT("EditorStartupMap is not %s: %s"), *MapAsset, *Values.FindRef(TEXT("EditorStartupMap"))));
+        return Fail(Error, FString::Printf(TEXT("EditorStartupMap is not %s: %s"), *MenuMapAsset, *Values.FindRef(TEXT("EditorStartupMap"))));
     }
-    if (Values.FindRef(TEXT("GameDefaultMap")) != MapAsset)
+    if (Values.FindRef(TEXT("GameDefaultMap")) != MenuMapAsset)
     {
-        return Fail(Error, FString::Printf(TEXT("GameDefaultMap is not %s: %s"), *MapAsset, *Values.FindRef(TEXT("GameDefaultMap"))));
+        return Fail(Error, FString::Printf(TEXT("GameDefaultMap is not %s: %s"), *MenuMapAsset, *Values.FindRef(TEXT("GameDefaultMap"))));
     }
     return true;
 }
