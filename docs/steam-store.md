@@ -9,7 +9,7 @@ Current as of 2026-05-24 JST. Re-check official Steamworks documentation before 
 3. Coming Soon page.
 4. Steam Playtest.
 5. Demo if retention is promising.
-6. Early Access only after stability, moderation, and community-host gates.
+6. Early Access only after stability, moderation, and official-AWS-hosting gates. (community-host gate dropped — `docs/business-model.md` D8.)
 
 ## Official Requirements To Track
 
@@ -30,6 +30,7 @@ Reasoning:
 - This genre needs friend-group adoption.
 - Price must be low enough for players to invite others.
 - Do not monetize Steam Playtest.
+- **完全な課金モデル（$10買い切り＋$10/月プレミアム＝MP作成権＋見た目のみコスメ）は `docs/business-model.md` が正典。** EA価格はそれに整合させる。
 
 ## Store Positioning Draft
 
@@ -68,5 +69,5 @@ Do not sell until:
 - New players want a second match.
 - Post-match discussion happens naturally.
 - Moderation exists: report, mute, kick, ban.
-- Community server path exists.
+- Official AWS hosting path exists and is stable. (community server path dropped — `docs/business-model.md` D8.)
 - Steam page claims only implemented features.

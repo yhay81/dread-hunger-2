@@ -2,6 +2,8 @@
 
 This document is the high-level architecture map for Frostwake. It explains how the Unreal gameplay runtime, Rust services, Rust tooling, Steam integration, and project content fit together.
 
+> 📌 Hosting/monetization direction is owned by `docs/business-model.md` (2026-05-29). The Non-Goal "official-server-only architecture" below is updated there.
+
 The short version: Unreal owns the match. Rust owns surrounding software. Steam owns distribution, discovery, identity, and transport features where useful. Voice is integrated through a proven voice provider abstraction, not a custom voice transport.
 
 ## Architecture Goals
@@ -370,7 +372,7 @@ Open architecture risks:
 - Moving realtime movement, combat, inventory, hatches, sabotage, or win/loss into the Rust backend.
 - Using an external chat service as room creation, matchmaking, or gameplay voice authority.
 - Building custom voice transport.
-- Shipping official-server-only architecture.
+- ~~Shipping official-server-only architecture.~~ **UPDATED 2026-05-29 (`docs/business-model.md` D4/D8):** multiplayer is now intentionally **official-AWS-only** with premium-gated match creation; community self-hosting is dropped for now. Keep endpoints opaque and ship a **Linux** dedicated binary so community hosting stays cheap to re-add later.
 - Depending on raw IP addresses in gameplay code.
 - Enabling Iris or large-scale replication systems before profiling evidence.
 - Treating `docs/cycles` as active implementation guidance.

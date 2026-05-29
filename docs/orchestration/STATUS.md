@@ -2,6 +2,10 @@
 
 Updated: 2026-05-29 · Phase 1 (local-automation milestone reached) · 10 parallel lanes
 
+> 📌 **商用・課金・ホスティングの正典: `docs/business-model.md`**（2026-05-29 decision record） —
+> $10買い切り＋$10/月プレミアム(=MP作成権)＋見た目のみコスメ／全MP公式AWS／コミュニティ廃止／
+> 一人モードは真の1人(AI仲間なし)。複数docを同レコードで更新済み（§Supersedes）。
+
 > **🎯 CURRENT FOCUS (owner override 2026-05-29): make the player-facing build look good + play like a game.**
 > Lead with **GP-08** (dress the playable scene with IP-safe free/CC0 assets + atmosphere) and
 > **GP-03** (solo HUD / match feel), then **GP-09** (menu/UI polish incl. JP font). Aesthetics are
@@ -21,7 +25,7 @@ priority order below + `DISPATCH.md` §2.
 | **GP-05** Voice & Trust | 🟡 YELLOW | One voice provider chosen + 8p acceptance plan | Write `docs/voice-provider-decision.md` (VCI+EOS vs Vivox vs Steam Voice) | Runtime acceptance gated by server (decision itself unblocked) | 2026-05-29 |
 | **GP-06** Services & Tools | 🟢 GREEN | Backend ↔ `openapi.yaml` ↔ tests parity; `cargo test --workspace` green | ✅ 404s documented + tested (cycle 83) → add the 409 `lobby_full` test | none | 2026-05-29 |
 | **GP-07** Evidence/QA/Perf | 🟡 YELLOW | Perf budgets + measurement method; gates reproducible | Draft `docs/performance-budget.md`; verify `quality-gate` | Server-side perf rows need server build (doc still writable) | 2026-05-29 |
-| **GP-08** Presentation/Rights | 🟢 GREEN | **TOP**: dress the *playable* scene with IP-safe CC0 assets | ✅ **proper ship map implemented** — hollow walled rooms + corridor + ice deck + interior lights (cycle 95, builds+validates) → **owner screenshot** then CC0 wall/deck materials (Path B) | none (awaiting owner screenshot) | 2026-05-29 |
+| **GP-08** Presentation/Rights | 🟢 GREEN | **TOP**: dress the *playable* scene with IP-safe CC0 assets | ✅ ship map (cycle 95) + **exterior field canvas** `WB_Field_FrozenSea` (cycle 96); owner chose **real field via Quixel/Fab Megascans** → owner downloads arctic set (`docs/gp08-megascans-field-plan.md`), loop applies snow material + scatters ice rocks | owner Fab login (Megascans acquisition is GUI/login-gated) | 2026-05-29 |
 | **GP-09** Comprehension/A11y | 🟡 YELLOW | First-match comprehension checklist + stable strings + glossary · dedicated **L_MainMenu** boot + start→lobby→**solo** debug (cycle 85) | ✅ **JP localization + OFL-font plan ready** `docs/gp09-jp-localization-font-plan.md` (cycle 94) → LOCTEXT wrap (no download) or owner OK to fetch Noto Sans JP | No human comprehension data yet | 2026-05-29 |
 | **GP-10** Release/Community | 🟡 YELLOW | Steam Playtest readiness snapshot (owner/artifact/status/blocker/cancel) | Create `docs/steam-playtest-readiness.md`; verify `quality-gate` | No moderation-triage owner assigned anywhere | 2026-05-29 |
 
@@ -49,6 +53,12 @@ Everything else advances now, headless, in parallel.
 
 ## Last loop iteration
 
+- 2026-05-29 **cycle 96** (GP-08, interactive) — **exterior arctic field, start**. Owner chose a
+  **real field via Quixel/Fab (Megascans)**. Added the ground canvas `WB_Field_FrozenSea` (200×160 m
+  plane the ship sits on, extends past the bow into fog) — Megascans surfaces are materials, so the
+  plane is the permanent ground; only its material changes. Acquisition is owner-gated (Epic login in
+  Fab): `docs/gp08-megascans-field-plan.md` has the steps + arctic shortlist; the loop applies the
+  snow material + scatters ice rocks once assets land. create+validate+quality-gate green.
 - 2026-05-29 **cycle 95** (GP-08, interactive) — **PROPER SHIP MAP** (owner #1: "白い箱がだめ").
   Replaced the solid greybox room *blocks* with a walkable single-deck **hollow walled** ship interior
   — spine corridor + bridge/radio/quarters/infirmary/engine/battery/fuel rooms + open bow ice deck —

@@ -54,7 +54,7 @@ GATED (need a server-capable / source-built UE 5.7 so AbyssLockServer.exe can bu
 ```
 
 Dependency edges:
-- `GP-02 (server boots)` → unlocks `GP-04 impl` → contributes to `GP-10 community hosting`.
+- `GP-02 (server boots)` → unlocks `GP-04 impl` → contributes to `GP-10 official-AWS hosting ops` (community hosting dropped — `docs/business-model.md` D8).
 - `GP-01 human notes` → feed `GP-03` (readability), `GP-09` (comprehension), `GP-08` (art timing).
 - `GP-07 evidence` underpins every other lane's claims and `GP-10` wave discipline.
 

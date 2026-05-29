@@ -8,7 +8,7 @@
 | 1 | 30日 | 8人白箱プロトタイプ | 8人で試合が終わり、再戦意欲が観測される |
 | 2 | 3か月 | Vertical Slice | 近接VC、Steam Lobby、主要UI、AI敵、ログ、通報 |
 | 3 | 6か月 | Steam Playtest | 100-500人規模の外部テスト |
-| 4 | 9-15か月 | Early Access | 安定した8人マッチ、モデレーション、コミュニティホスト |
+| 4 | 9-15か月 | Early Access | 安定した8人マッチ、モデレーション、**公式AWSホスト**（コミュニティホストは廃止 — `docs/business-model.md` D4/D8） |
 
 ## Phase 0 完了条件
 

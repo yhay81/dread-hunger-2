@@ -370,6 +370,10 @@ bool CreateWhitebox(FString& Error)
         {TEXT("WB_FuelBay"), FVector(-1500, -360, 150), FVector(40, 700, 340)},
         {TEXT("WB_Fuel_FwdWall_Stbd"), FVector(-1500, 360, 150), FVector(40, 700, 340)},
         {TEXT("WB_Fuel_DrumCluster"), FVector(-1880, 0, 100), FVector(360, 700, 180)},
+        // Frozen sea: a vast ground plane the ship sits on, extending past the bow into the fog.
+        // This is the FIELD canvas — a Megascans snow/ice surface material + scattered ice rocks
+        // dress it next (the plane is the permanent ground; only its material changes).
+        {TEXT("WB_Field_FrozenSea"), FVector(2400, 0, -40), FVector(20000, 16000, 40)},
         {TEXT("WB_Ice_DeckPlate"), FVector(1800, 0, -10), FVector(700, 1450, 60)},
         {TEXT("WB_Ice_RailPort"), FVector(1800, -640, 110), FVector(700, 40, 180)},
         {TEXT("WB_Ice_RailStbd"), FVector(1800, 640, 110), FVector(700, 40, 180)},

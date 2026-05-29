@@ -1,5 +1,7 @@
 # Network Rules
 
+> ⚠️ **ホスティング方針は `docs/business-model.md`（2026-05-29）が正典。** マルチは **公式AWSのみ・プレミアム作成ゲート**、**コミュニティホストは廃止（D8）**。本書中の Community Host / official+community server browser / official-community ban 分離 等の記述は同レコードで更新済み。
+
 ## 方針
 
 Unreal Engine の Replication を中心にし、Blueprint は見た目、配置、演出に寄せる。ゲームルール、権限、勝敗、ログ、インベントリ、タスク進行は C++ と DataTable を中心に置く。
@@ -118,8 +120,7 @@ RepNotify 候補:
 4. **Dedicated Server**
    同じ `GameMode` が local player 不在で動くことを確認する。Vertical Slice 以降に公式サーバー少数とコミュニティホストを両立する。
 
-5. **Community Host**
-   server config, admin token, banlist, log upload/export を公式運用と分離する。
+5. **Community Host** — ⚠️ **いったん廃止（2026-05-29, `docs/business-model.md` D8）**。マルチは公式AWSのみ・プレミアム作成ゲート。dedicated は Linux バイナリ＋opaque endpoint を保ち将来再導入可能にしておく。
 
 6. **Steam Datagram Relay**
    Dedicated Server が安定してから導入する。最初からIP直書きに依存せず、接続先を opaque endpoint として抽象化しておく。
@@ -223,7 +224,7 @@ UE log category:
 外部チャットサービスの bot を中核にしない。ゲーム内/Steam中心の導線を採用する。
 
 - Steam Lobby: friend invite, quick join, private lobby.
-- Server Browser: official and community dedicated servers.
+- Server Browser / match list: **official AWS dedicated servers のみ**（community は廃止 — `docs/business-model.md` D8）。Open 試合をリスト掲載し、quick-queue で参加。
 - Dedicated Server Config: map, region, max players, ruleset, admin token, banlist path.
 - In-game Admin: kick, mute, report view, shutdown warning.
 - Logs: server-side JSONL export and optional upload.

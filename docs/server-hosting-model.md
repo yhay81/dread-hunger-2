@@ -1,5 +1,7 @@
 # Server Hosting Model
 
+> ⚠️ **SUPERSEDED IN PART (2026-05-29) — `docs/business-model.md` が正典。** 現方針は **公式AWSのみ・プレミアム作成ゲートのマルチプレイ**。本書の **Community Host Flow / 「official minimal + community」/ Phase Plan の community 行は "いったん廃止"（D8）**。Steam rendezvous・ServerConfig・moderation・SDR の記述は公式fleetに有効だが、**community 経路は現行計画外**。dedicated は **Linux** バイナリ＋opaque endpoint で将来の再導入を安く保つ。
+
 ## Direction
 
 Use a Steam-native and game-native hosting model. Do not depend on external chat services for core play, matchmaking, server operations, or moderation.

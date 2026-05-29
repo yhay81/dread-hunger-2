@@ -65,9 +65,11 @@ Do not use these in public store copy until implemented and verified on Windows:
 - Dedicated Server
 - Steam Server Browser
 - Steam Datagram Relay
-- Community-hosted servers
+- Community-hosted servers — **計画外（2026-05-29 廃止, `docs/business-model.md` D8）。将来機能として示唆しないこと。**
 - Proximity voice chat
-- In-game server hosting
+- In-game server hosting (現方針 = premium-gated official AWS hosting; `docs/business-model.md`)
+- Premium subscription / paid official hosting (実装＆検証前は公開不可)
+- Cosmetic / paid cosmetic items (実装＆検証前は公開不可)
 - Report, mute, kick, and ban tooling
 - Simplified Chinese or Japanese full localization
 - Multiple maps

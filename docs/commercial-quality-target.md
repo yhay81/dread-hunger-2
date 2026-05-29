@@ -22,7 +22,7 @@ Target a commercial multiplayer survival deduction game at the quality level pla
    The game must stand on its own: near-future fictional icebound research vessel, diesel-electric/battery failure chains, agents, radio/route deception, industrial audio, and original UI language. Do not ship placeholder text, names, silhouettes, layouts, or mechanics that invite confusion with another title.
 
 6. **Operational trust**
-   Players need confidence that sessions are joinable, moderation works, abuse can be acted on, and community hosts can keep the game alive. Reporting, muting, bans, server visibility, and crash diagnostics are part of the core feature set.
+   Players need confidence that sessions are joinable, moderation works, and abuse can be acted on. Reporting, muting, bans, server visibility, and crash diagnostics are part of the core feature set. **(Updated 2026-05-29, `docs/business-model.md` D4/D8: multiplayer runs on official AWS; community hosting is dropped for now, so operational trust depends on the official fleet's availability rather than community hosts.)**
 
 ## Measurable Gates By Phase
 
@@ -32,7 +32,7 @@ Target a commercial multiplayer survival deduction game at the quality level pla
 | 1: Whitebox | Prove the social loop before production art. | 8-player matches complete end to end. At least 5 human matches are recorded. Median match length is 10-35 minutes. At least 60% of testers answer that they would play another match. Logs can reconstruct role assignment, tasks, sabotage, deaths, disconnects, and match end. |
 | 2: Vertical Slice | Prove one shippable match slice. | 8-player Steam lobby or dedicated-server flow works. Proximity voice, mute, kick, report, reconnect, results screen, tutorial prompts, and one polished map route are playable. Crash-free completion is at least 90% across 30 external test matches. p95 server tick time and p95 ping are tracked. |
 | 3: Closed Playtest | Prove retention and supportability. | 100-500 external players. Day-1 return among invited testers is at least 25%. Median time-to-first-match is under 4 minutes. Critical bug repro rate is above 80% from logs and crash bundles. Balance stays within 40-60% win rate by team after excluding known-abuse matches. |
-| 4: Early Access | Prove commercial baseline. | Public build supports stable matchmaking/server browser, community hosting, moderation workflow, crash reporting, patch notes, and onboarding. 95% of completed matches end by rules rather than crash, timeout, or forced restart. New-player objective comprehension is at least 70% after one match. |
+| 4: Early Access | Prove commercial baseline. | Public build supports stable matchmaking/match list (official AWS), premium-gated match hosting, moderation workflow, crash reporting, patch notes, and onboarding (community hosting dropped — `docs/business-model.md` D8). 95% of completed matches end by rules rather than crash, timeout, or forced restart. New-player objective comprehension is at least 70% after one match. |
 | 5: 1.0 Candidate | Prove durable product quality. | No P0/P1 known issues. All release content has ownership recorded. Localization, accessibility baseline, server operations, support queue, store assets, trailer capture, and legal review are complete. Two release-candidate weekends pass without rollback. |
 
 ## Non-Negotiable Release Bars
@@ -46,7 +46,7 @@ Target a commercial multiplayer survival deduction game at the quality level pla
 - **Performance:** target 60 FPS client performance on minimum spec in representative scenes, with documented p95 frame time, server tick time, memory, bandwidth, and load limits.
 - **Operations:** crash IDs, build IDs, session IDs, server logs, moderation records, and patch versions are linked well enough to investigate live issues within one business day.
 - **Content rights:** every shipped asset, sound, font, animation, text block, generated asset, and marketplace dependency has a recorded source, license, and approval status.
-- **Rollback readiness:** release builds can be rolled back, hotfixed, or server-disabled without corrupting player progress or community-hosted sessions.
+- **Rollback readiness:** release builds can be rolled back, hotfixed, or server-disabled without corrupting player progress or active official-fleet sessions (community-hosted sessions dropped — `docs/business-model.md` D8).
 
 ## Quality Review Cadence
 

@@ -4,6 +4,8 @@ Last checked: 2026-05-25 JST.
 
 This document records whether the project direction matches current official Unreal, Steamworks, Rust, Apple, and Microsoft guidance. Treat it as a planning gate, not marketing copy.
 
+> 📌 **ホスティング方針更新 (2026-05-29, `docs/business-model.md` D4/D8):** マルチは**公式AWSのみ・プレミアム作成ゲート**。**Dedicated Server Tool App / SteamCMD配布（コミュニティホスト）は廃止**。本番fleetの**サーバOSは Linux**（Windows dedicated は開発/検証用）。下記の Tool App / community 関連行はこの方針で読むこと。
+
 ## Sources Checked
 
 - Unreal Engine 5.7 release notes: https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-engine-5-7-release-notes
@@ -27,7 +29,7 @@ The core approach is aligned:
 - Use C++ for server-authoritative gameplay and Blueprint/DataAsset for presentation and tuning.
 - Keep non-Unreal services and tools in Rust. PowerShell remains only as a Windows operator wrapper surface.
 - Validate Phase 1 with `OnlineSubsystemNull`, LAN/listen-server, and local automation before Steam integration.
-- Use Steam-native lobby, server discovery, Playtest, Dedicated Server Tool App, SteamCMD, and SDR later.
+- Use Steam-native lobby, server discovery, Playtest, and SDR later. (~~Dedicated Server Tool App / SteamCMD distribution~~ = community hosting, **dropped 2026-05-29 — `docs/business-model.md` D8**; the same Linux dedicated binary still serves the official AWS fleet.)
 - Avoid external chat-service dependency for core matchmaking, hosting, moderation, or proximity voice.
 
 ## Required Improvements From This Review
@@ -35,7 +37,7 @@ The core approach is aligned:
 | Area | Current Decision | Improvement |
 | --- | --- | --- |
 | Dedicated server validation | Boot, client-join, and ready-lobby probes exist | Run all three on the Windows workstation and record summarized evidence before Steam server discovery work |
-| Steam Tool App | Tool App is planned | Phase 3 gate must include Dedicated Server Redistributables, `steam_appid.txt`, depot upload, release checklist, and anonymous SteamCMD download verification |
+| Steam Tool App | ~~Tool App is planned~~ **dropped (D8, 2026-05-29)** — community hosting removed | Not in current plan. If re-added later (preservation/private leagues): Dedicated Server Redistributables, `steam_appid.txt`, depot upload, anonymous SteamCMD verification. See `docs/business-model.md` |
 | SDR | Phase 3/4 implementation | Add Phase 2 design spike to choose Hosted Dedicated Server, FakeIP, or known data center flow before public server browser work |
 | Voice | Steam Voice or Unreal Voice Chat Interface | Prefer Unreal Voice Chat Interface with EOS Voice/Vivox-style provider; keep Steam Voice as Steam-only fallback |
 | Iris | Not enabled | Keep generic replication for Phase 1; evaluate Iris only as an opt-in Phase 2 performance spike because Epic still labels it experimental/caution-for-shipping |
