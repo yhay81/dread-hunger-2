@@ -7,6 +7,7 @@
 #include "AbyssLockPlayerState.h"
 #include "AbyssTelemetrySubsystem.h"
 #include "Engine/GameInstance.h"
+#include "Engine/World.h"
 
 AAbyssLockPlayerController::AAbyssLockPlayerController()
 {
@@ -22,6 +23,18 @@ void AAbyssLockPlayerController::BeginPlay()
         return;
     }
 
+    const FString MapName = GetWorld() ? GetWorld()->GetMapName() : FString();
+    const bool bOnMenuMap = MapName.Contains(TEXT("L_MainMenu"));
+
+    // Reaching a gameplay map in standalone is the solo path: the GameMode auto-starts the
+    // practice match, so show no menu and hand control straight to the player.
+    if (!bOnMenuMap && GetNetMode() == NM_Standalone)
+    {
+        bShowMouseCursor = false;
+        SetInputMode(FInputModeGameOnly());
+        return;
+    }
+
     MainMenuWidget = CreateWidget<UAbyssMainMenuWidget>(this, UAbyssMainMenuWidget::StaticClass());
     if (MainMenuWidget)
     {
@@ -31,7 +44,8 @@ void AAbyssLockPlayerController::BeginPlay()
         InputMode.SetWidgetToFocus(MainMenuWidget->TakeWidget());
         SetInputMode(InputMode);
 
-        if (GetNetMode() != NM_Standalone)
+        // Joined a hosted lobby (listen/client) rather than the menu map: go to the lobby screen.
+        if (!bOnMenuMap)
         {
             MainMenuWidget->ShowLobbyScreen();
         }

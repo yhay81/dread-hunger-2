@@ -407,6 +407,17 @@ enum Command {
         #[arg(long)]
         skip_build: bool,
     },
+    #[command(about = "Create the L_MainMenu front-end map (menu GameMode, no whitebox geometry).")]
+    CreateMainMenu {
+        #[arg(long)]
+        ue_root: Option<PathBuf>,
+        #[arg(long)]
+        platform: Option<String>,
+        #[arg(long)]
+        print_command: bool,
+        #[arg(long)]
+        skip_build: bool,
+    },
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, ValueEnum)]
@@ -1079,6 +1090,20 @@ fn run(cli: Cli) -> Result<(), String> {
         } => {
             run_unreal_editor_commandlet(
                 "ValidateAmbientCgVisualPocAssets",
+                ue_root,
+                platform.unwrap_or_else(host_platform),
+                print_command,
+                skip_build,
+            )?;
+        }
+        Command::CreateMainMenu {
+            ue_root,
+            platform,
+            print_command,
+            skip_build,
+        } => {
+            run_unreal_editor_commandlet(
+                "CreateMainMenu",
                 ue_root,
                 platform.unwrap_or_else(host_platform),
                 print_command,

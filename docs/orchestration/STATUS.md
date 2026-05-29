@@ -16,7 +16,7 @@ priority order below + `DISPATCH.md` §2.
 | **GP-06** Services & Tools | 🟢 GREEN | Backend ↔ `openapi.yaml` ↔ tests parity; `cargo test --workspace` green | ✅ 404s documented + tested (cycle 83) → add the 409 `lobby_full` test | none | 2026-05-29 |
 | **GP-07** Evidence/QA/Perf | 🟡 YELLOW | Perf budgets + measurement method; gates reproducible | Draft `docs/performance-budget.md`; verify `quality-gate` | Server-side perf rows need server build (doc still writable) | 2026-05-29 |
 | **GP-08** Presentation/Rights | 🟡 YELLOW | POC screenshots + review + ≥1 provenance decision | ✅ rubric written (cycle 80) → now **Editor-gated**: capture screenshots per `docs/visual-poc-screenshot-review.md`; headless loop rotates to GP-06 | Screenshot capture needs interactive Editor | 2026-05-29 |
-| **GP-09** Comprehension/A11y | 🟡 YELLOW | First-match comprehension checklist + stable strings + glossary · front-end menu (start→lobby→**solo**) boots clean (cycle 84) | Write `docs/gp09-comprehension-checklist.md`; verify `quality-gate` | No human comprehension data yet | 2026-05-29 |
+| **GP-09** Comprehension/A11y | 🟡 YELLOW | First-match comprehension checklist + stable strings + glossary · dedicated **L_MainMenu** boot + start→lobby→**solo** debug (cycle 85) | Write `docs/gp09-comprehension-checklist.md`; verify `quality-gate` | No human comprehension data yet | 2026-05-29 |
 | **GP-10** Release/Community | 🟡 YELLOW | Steam Playtest readiness snapshot (owner/artifact/status/blocker/cancel) | Create `docs/steam-playtest-readiness.md`; verify `quality-gate` | No moderation-triage owner assigned anywhere | 2026-05-29 |
 
 Legend: 🟢 GREEN = healthy & advancing · 🟡 YELLOW = workable, signal needs work · 🔴 BLOCKED = needs an external unblock.
@@ -43,6 +43,10 @@ Everything else advances now, headless, in parallel.
 
 ## Last loop iteration
 
+- 2026-05-29 **cycle 85** (GP-09, interactive) — dedicated front-end map: boot now loads
+  `L_MainMenu` (own `AbyssMenuGameMode`, no whitebox); **一人モード** travels to `whitebox?solo`
+  and the GameMode auto-starts the 1-player practice match. Verified headlessly (boot→L_MainMenu;
+  solo→`match_started source=single_player`). Editor build + quality-gate green.
 - 2026-05-29 **cycle 84** (GP-09, interactive) — front-end: added a full-screen dark backdrop to
   the menu so boot shows a clean start screen (Frostwake + ゲーム開始) instead of the whitebox;
   confirmed Start → Lobby-choice → **一人モード** → controllable solo debug match. Editor/Game

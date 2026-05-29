@@ -1,6 +1,7 @@
 #include "AbyssWhiteboxCommandlets.h"
 
 #include "AbyssDoorActor.h"
+#include "AbyssMenuGameMode.h"
 #include "AbyssShipTaskActor.h"
 #include "AssetToolsModule.h"
 #include "AutomatedAssetImportData.h"
@@ -17,6 +18,7 @@
 #include "Framework/Application/SlateApplication.h"
 #include "Materials/Material.h"
 #include "GameFramework/PlayerStart.h"
+#include "GameFramework/WorldSettings.h"
 #include "LevelEditorSubsystem.h"
 #include "Misc/FileHelper.h"
 #include "Misc/PackageName.h"
@@ -1053,4 +1055,40 @@ int32 UValidateAmbientCgVisualPocAssetsCommandlet::Main(const FString& Params)
 {
     FString Error;
     return FrostwakeVisualPOC::ValidateAmbientCgVisualPocAssets(Error) ? 0 : 1;
+}
+
+UCreateMainMenuCommandlet::UCreateMainMenuCommandlet()
+{
+    IsClient = false;
+    IsEditor = true;
+    IsServer = false;
+    LogToConsole = true;
+}
+
+int32 UCreateMainMenuCommandlet::Main(const FString& Params)
+{
+    const FString MapPackage = TEXT("/Game/Maps/L_MainMenu");
+
+    UWorld* World = FPackageName::DoesPackageExist(MapPackage)
+        ? UEditorLoadingAndSavingUtils::LoadMap(MapPackage)
+        : UEditorLoadingAndSavingUtils::NewBlankMap(false);
+    if (!World)
+    {
+        UE_LOG(LogAbyssWhiteboxCommandlet, Error, TEXT("Could not load or create %s."), *MapPackage);
+        return 1;
+    }
+
+    if (AWorldSettings* WorldSettings = World->GetWorldSettings())
+    {
+        WorldSettings->DefaultGameMode = AAbyssMenuGameMode::StaticClass();
+    }
+
+    if (!UEditorLoadingAndSavingUtils::SaveMap(World, MapPackage))
+    {
+        UE_LOG(LogAbyssWhiteboxCommandlet, Error, TEXT("Could not save %s."), *MapPackage);
+        return 1;
+    }
+
+    UE_LOG(LogAbyssWhiteboxCommandlet, Display, TEXT("Created main menu map %s with menu GameMode."), *MapPackage);
+    return 0;
 }

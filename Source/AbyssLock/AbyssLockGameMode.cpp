@@ -137,6 +137,19 @@ void AAbyssLockGameMode::BeginPlay()
     TryAutoStartMatchForDev();
 }
 
+void AAbyssLockGameMode::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
+{
+    Super::InitGame(MapName, Options, ErrorMessage);
+
+    // A travel URL of `?solo` (used by the main-menu "一人モード" button) enables single-player
+    // practice for this gameplay map, which the existing PostLogin auto-start path then begins.
+    bSoloUrlRequested = Options.Contains(TEXT("solo"));
+    if (bSoloUrlRequested)
+    {
+        UE_LOG(LogAbyssSession, Log, TEXT("solo_url_requested map=%s"), *MapName);
+    }
+}
+
 void AAbyssLockGameMode::PreLogin(const FString& Options, const FString& Address, const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage)
 {
     Super::PreLogin(Options, Address, UniqueId, ErrorMessage);
@@ -2219,7 +2232,7 @@ bool AAbyssLockGameMode::IsPracticeModeEnabled() const
 
 bool AAbyssLockGameMode::IsSinglePlayerModeEnabled() const
 {
-    return FParse::Param(FCommandLine::Get(), TEXT("AbyssSinglePlayer")) || IsPracticeModeEnabled();
+    return bSoloUrlRequested || FParse::Param(FCommandLine::Get(), TEXT("AbyssSinglePlayer")) || IsPracticeModeEnabled();
 }
 
 int32 AAbyssLockGameMode::CalculateSaboteurCount(int32 PlayerCount) const

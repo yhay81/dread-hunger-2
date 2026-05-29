@@ -69,3 +69,14 @@ public:
 
     virtual int32 Main(const FString& Params) override;
 };
+
+UCLASS()
+class ABYSSLOCKEDITOR_API UCreateMainMenuCommandlet : public UCommandlet
+{
+    GENERATED_BODY()
+
+public:
+    UCreateMainMenuCommandlet();
+
+    virtual int32 Main(const FString& Params) override;
+};

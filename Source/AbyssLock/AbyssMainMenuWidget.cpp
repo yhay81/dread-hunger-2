@@ -215,11 +215,13 @@ void UAbyssMainMenuWidget::HandleHostLobbyClicked()
 
 void UAbyssMainMenuWidget::HandleSoloModeClicked()
 {
-    if (AAbyssLockPlayerController* PlayerController = Cast<AAbyssLockPlayerController>(GetOwningPlayer()))
+    if (APlayerController* PlayerController = GetOwningPlayer())
     {
-        PlayerController->RequestSoloMatch();
-        EnterGameInputAndClose();
+        // Travel to the gameplay map in standalone (no ?listen). The gameplay GameMode reads the
+        // "solo" option in InitGame and auto-starts a 1-player, 0-saboteur practice match.
+        PlayerController->ConsoleCommand(TEXT("open /Game/Maps/L_IcebreakerWhitebox?solo"));
     }
+    EnterGameInputAndClose();
 }
 
 void UAbyssMainMenuWidget::HandleJoinLobbyClicked()

@@ -17,6 +17,7 @@ public:
     virtual void PreLogin(const FString& Options, const FString& Address, const FUniqueNetIdRepl& UniqueId, FString& ErrorMessage) override;
     virtual void PostLogin(APlayerController* NewPlayer) override;
     virtual void Logout(AController* Exiting) override;
+    virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;
 
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Abyss|Match")
     void AssignRolesForCurrentPlayers();
@@ -41,6 +42,7 @@ public:
 
 private:
     bool bDevAutoStarted = false;
+    bool bSoloUrlRequested = false;
     FTimerHandle MatchTimerHandle;
     float MatchDurationSeconds = 25.0f * 60.0f;
     double MatchEndWorldSeconds = 0.0;
