@@ -39,4 +39,7 @@ protected:
 private:
     UPROPERTY()
     class UAbyssMainMenuWidget* MainMenuWidget = nullptr;
+
+    UPROPERTY()
+    class UAbyssHudWidget* HudWidget = nullptr;
 };

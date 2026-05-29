@@ -3,6 +3,7 @@
 #include "AbyssLockCharacter.h"
 #include "AbyssLockGameMode.h"
 #include "AbyssLockLog.h"
+#include "AbyssHudWidget.h"
 #include "AbyssMainMenuWidget.h"
 #include "AbyssLockPlayerState.h"
 #include "AbyssTelemetrySubsystem.h"
@@ -32,6 +33,13 @@ void AAbyssLockPlayerController::BeginPlay()
     {
         bShowMouseCursor = false;
         SetInputMode(FInputModeGameOnly());
+
+        // Solo/practice: show a minimal in-match HUD so the round reads as a game.
+        HudWidget = CreateWidget<UAbyssHudWidget>(this, UAbyssHudWidget::StaticClass());
+        if (HudWidget)
+        {
+            HudWidget->AddToViewport(0);
+        }
         return;
     }
 

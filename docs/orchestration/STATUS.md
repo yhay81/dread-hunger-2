@@ -16,7 +16,7 @@ priority order below + `DISPATCH.md` §2.
 | --- | --- | --- | --- | --- | --- |
 | **GP-01** Human Playability | 🟡 YELLOW | First real 6-8p human run + anonymized summary (`playtest-preflight --mode human`) | Re-confirm Windows listen-server preflight is green (`playtest-run-scaffold`/`preflight`) | **8 real humans** (no code change removes it) | 2026-05-29 |
 | **GP-02** Network/Hosting | 🔴 BLOCKED | `AbyssLockServer.exe` builds+boots+8 clients+ready-lobby | Keep runbook + `UE_ROOT` instructions consistent; verify `quality-gate` | **Server-capable UE 5.7** (Launcher UE can't build Server targets) | 2026-05-29 |
-| **GP-03** Core Match | 🟡 YELLOW | DH-parity feel + readable round (`docs/mechanics-parity-target.md`, `docs/control-scheme.md`) | **Add minimal solo HUD** (role/objective/interaction prompt/result) so it plays like a game; then end-state readability audit | Human P1-024/025 notes for tuning | 2026-05-29 |
+| **GP-03** Core Match | 🟡 YELLOW | DH-parity feel + readable round (`docs/mechanics-parity-target.md`, `docs/control-scheme.md`) | ✅ minimal solo HUD (cycle 91) → make HUD dynamic (role/phase/route) + win-lose result; then readability audit | Human P1-024/025 notes for tuning | 2026-05-29 |
 | **GP-04** Steam Online | 🟡 YELLOW | Lobby create/find/join + build/map-mismatch reject (P2-003/004) | Run `run_steam_lobby_validation.ps1` → `preflight_pass` on 5 steps | Runtime spike gated behind GP-02 (contracts already green) | 2026-05-29 |
 | **GP-05** Voice & Trust | 🟡 YELLOW | One voice provider chosen + 8p acceptance plan | Write `docs/voice-provider-decision.md` (VCI+EOS vs Vivox vs Steam Voice) | Runtime acceptance gated by server (decision itself unblocked) | 2026-05-29 |
 | **GP-06** Services & Tools | 🟢 GREEN | Backend ↔ `openapi.yaml` ↔ tests parity; `cargo test --workspace` green | ✅ 404s documented + tested (cycle 83) → add the 409 `lobby_full` test | none | 2026-05-29 |
@@ -49,6 +49,9 @@ Everything else advances now, headless, in parallel.
 
 ## Last loop iteration
 
+- 2026-05-29 **cycle 91** (GP-03, loop) — added a minimal **solo HUD** (`UAbyssHudWidget`:
+  role/objective/`[E]` hint) shown in the solo path, so the round reads as a game; editor build +
+  quality-gate green. Next: make the HUD dynamic + win/lose result. View: `L_IcebreakerWhitebox?solo`.
 - 2026-05-29 **cycle 90** (GP-08, loop) — atmosphere: imported HDRI as SkyLight source + height fog
   in the playable whitebox (on top of cycle-89 props). Further visual tuning is **owner-judged** →
   headless loop now rotates to **GP-03 (solo HUD)** until owner screenshot feedback. View:
