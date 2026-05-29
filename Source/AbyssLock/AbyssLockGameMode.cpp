@@ -485,7 +485,7 @@ void AAbyssLockGameMode::TryAutoStartMatchForDev()
         {
             TelemetrySubsystem->LogEvent(
                 TEXT("match_started"),
-                FString::Printf(TEXT("{\"source\":\"dev_auto_start\",\"players\":%d,\"saboteurs\":%d}"), PlayerCount, FMath::Clamp(SaboteurOverride, 0, PlayerCount)));
+                AppendMatchConfigTelemetry(FString::Printf(TEXT("{\"source\":\"dev_auto_start\",\"players\":%d,\"saboteurs\":%d}"), PlayerCount, FMath::Clamp(SaboteurOverride, 0, PlayerCount))));
             TelemetrySubsystem->LogEvent(
                 TEXT("dev_auto_start"),
                 FString::Printf(TEXT("{\"players\":%d,\"saboteurs\":%d}"), PlayerCount, FMath::Clamp(SaboteurOverride, 0, PlayerCount)));
@@ -626,7 +626,7 @@ void AAbyssLockGameMode::HandleMatchTimerTick()
         if (UAbyssTelemetrySubsystem* TelemetrySubsystem = GameInstance->GetSubsystem<UAbyssTelemetrySubsystem>())
         {
             TelemetrySubsystem->LogEvent(TEXT("match_timer_expired"), TEXT("{\"winner\":\"saboteur\",\"reason\":\"timer_expired\"}"));
-            TelemetrySubsystem->LogEvent(TEXT("match_ended"), TEXT("{\"winner\":\"saboteur\",\"reason\":\"timer_expired\"}"));
+            TelemetrySubsystem->LogEvent(TEXT("match_ended"), AppendMatchConfigTelemetry(TEXT("{\"winner\":\"saboteur\",\"reason\":\"timer_expired\"}")));
         }
     }
 }
@@ -2073,7 +2073,7 @@ bool AAbyssLockGameMode::EvaluateMatchEnd()
         {
             if (UAbyssTelemetrySubsystem* TelemetrySubsystem = GameInstance->GetSubsystem<UAbyssTelemetrySubsystem>())
             {
-                TelemetrySubsystem->LogEvent(TEXT("match_ended"), MatchEndPayload);
+                TelemetrySubsystem->LogEvent(TEXT("match_ended"), AppendMatchConfigTelemetry(MatchEndPayload));
             }
         }
         return true;
@@ -2090,7 +2090,7 @@ bool AAbyssLockGameMode::EvaluateMatchEnd()
             {
                 TelemetrySubsystem->LogEvent(
                     TEXT("match_ended"),
-                    FString::Printf(TEXT("{\"winner\":\"saboteur\",\"reason\":\"crew_threshold\",\"livingCrew\":%d}"), LivingCrew));
+                    AppendMatchConfigTelemetry(FString::Printf(TEXT("{\"winner\":\"saboteur\",\"reason\":\"crew_threshold\",\"livingCrew\":%d}"), LivingCrew)));
             }
         }
         return true;
@@ -2107,7 +2107,7 @@ bool AAbyssLockGameMode::EvaluateMatchEnd()
             {
                 TelemetrySubsystem->LogEvent(
                     TEXT("match_ended"),
-                    FString::Printf(TEXT("{\"winner\":\"crew\",\"reason\":\"final_approach_complete\",\"activeCrew\":%d}"), ActiveCrew));
+                    AppendMatchConfigTelemetry(FString::Printf(TEXT("{\"winner\":\"crew\",\"reason\":\"final_approach_complete\",\"activeCrew\":%d}"), ActiveCrew)));
             }
         }
         return true;
@@ -2182,7 +2182,7 @@ bool AAbyssLockGameMode::TryStartMatchFromReady()
         {
             TelemetrySubsystem->LogEvent(
                 TEXT("match_started"),
-                FString::Printf(TEXT("{\"source\":\"%s\",\"players\":%d,\"ready\":%d,\"requiredPlayers\":%d}"), *StartSource, PlayerCount, ReadyCount, ClampedRequiredPlayers));
+                AppendMatchConfigTelemetry(FString::Printf(TEXT("{\"source\":\"%s\",\"players\":%d,\"ready\":%d,\"requiredPlayers\":%d}"), *StartSource, PlayerCount, ReadyCount, ClampedRequiredPlayers)));
         }
     }
 
@@ -2289,7 +2289,7 @@ bool AAbyssLockGameMode::TryStartMatchFromHost(APlayerController* RequestingPlay
         {
             TelemetrySubsystem->LogEvent(
                 TEXT("match_started"),
-                FString::Printf(TEXT("{\"source\":\"host_start\",\"players\":%d,\"host\":\"%s\"}"), PlayerCount, *GetNameSafe(RequestingPlayer->PlayerState)));
+                AppendMatchConfigTelemetry(FString::Printf(TEXT("{\"source\":\"host_start\",\"players\":%d,\"host\":\"%s\"}"), PlayerCount, *GetNameSafe(RequestingPlayer->PlayerState))));
         }
     }
 
@@ -2327,7 +2327,7 @@ bool AAbyssLockGameMode::TryStartSoloMatchFromMenu(APlayerController* Requesting
         {
             TelemetrySubsystem->LogEvent(
                 TEXT("match_started"),
-                FString::Printf(TEXT("{\"source\":\"solo_menu\",\"players\":%d,\"player\":\"%s\"}"), PlayerCount, *GetNameSafe(RequestingPlayer->PlayerState)));
+                AppendMatchConfigTelemetry(FString::Printf(TEXT("{\"source\":\"solo_menu\",\"players\":%d,\"player\":\"%s\"}"), PlayerCount, *GetNameSafe(RequestingPlayer->PlayerState))));
         }
     }
 
@@ -2365,6 +2365,25 @@ bool AAbyssLockGameMode::IsPracticeModeEnabled() const
 bool AAbyssLockGameMode::IsSinglePlayerModeEnabled() const
 {
     return bSoloUrlRequested || FParse::Param(FCommandLine::Get(), TEXT("AbyssSinglePlayer")) || IsPracticeModeEnabled();
+}
+
+FString AAbyssLockGameMode::AppendMatchConfigTelemetry(const FString& JsonObject) const
+{
+    if (!JsonObject.EndsWith(TEXT("}")))
+    {
+        return JsonObject;
+    }
+
+    const FString Fields = FString::Printf(
+        TEXT("\"mode\":\"%s\",\"difficulty\":\"%s\""),
+        *AbyssMatchModeToString(ActiveMatchConfig.Mode),
+        *AbyssDifficultyToString(ActiveMatchConfig.Difficulty));
+
+    const FString Body = JsonObject.LeftChop(1); // everything before the closing brace
+    const bool bEmptyObject = Body.TrimEnd().EndsWith(TEXT("{"));
+    return bEmptyObject
+        ? FString::Printf(TEXT("%s%s}"), *Body, *Fields)
+        : FString::Printf(TEXT("%s,%s}"), *Body, *Fields);
 }
 
 int32 AAbyssLockGameMode::CalculateSaboteurCount(int32 PlayerCount) const

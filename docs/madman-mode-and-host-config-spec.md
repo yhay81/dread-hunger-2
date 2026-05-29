@@ -179,7 +179,8 @@ struct FAbyssMatchConfig {
   実際に埋める配線（host UI と合わせて）。
 - **GP-09**: ホスト設定UMGパネル（モード／難易度／数値）＋全ラベルの LOCTEXT 日本語化
   （`docs/gp09-jp-localization-font-plan.md` に合流）。
-- **GP-07**: `match_started` / `match_ended` に `mode` / `difficulty` を載せ、モード別の集計を可能に。
+- **GP-07**: ✅ **(cycle 100)** `match_started` / `match_ended` に `mode` / `difficulty` を載せた
+  （`AppendMatchConfigTelemetry` で全 lifecycle イベントに付与）。モード別の勝敗集計が `events.jsonl` 単体で可能。
 
 ---
 

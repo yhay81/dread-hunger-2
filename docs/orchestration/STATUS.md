@@ -24,7 +24,7 @@ priority order below + `DISPATCH.md` §2.
 | **GP-04** Steam Online | 🟡 YELLOW | Lobby create/find/join + build/map-mismatch reject (P2-003/004) | ✅ **lobby metadata now carries `mode`/`difficulty` (cycle 99)** → run `run_steam_lobby_validation.ps1` preflight; runtime spike still GP-02-gated | Runtime spike gated behind GP-02 (contracts already green) | 2026-05-29 |
 | **GP-05** Voice & Trust | 🟡 YELLOW | One voice provider chosen + 8p acceptance plan | Write `docs/voice-provider-decision.md` (VCI+EOS vs Vivox vs Steam Voice) | Runtime acceptance gated by server (decision itself unblocked) | 2026-05-29 |
 | **GP-06** Services & Tools | 🟢 GREEN | Backend ↔ `openapi.yaml` ↔ tests parity; `cargo test --workspace` green | ✅ 404s documented + tested (cycle 83) → add the 409 `lobby_full` test | none | 2026-05-29 |
-| **GP-07** Evidence/QA/Perf | 🟡 YELLOW | Perf budgets + measurement method; gates reproducible | Draft `docs/performance-budget.md`; verify `quality-gate` | Server-side perf rows need server build (doc still writable) | 2026-05-29 |
+| **GP-07** Evidence/QA/Perf | 🟡 YELLOW | Perf budgets + measurement method; gates reproducible | ✅ **match_started/ended telemetry now carries mode/difficulty (cycle 100)** → draft `docs/performance-budget.md`; verify `quality-gate` | Server-side perf rows need server build (doc still writable) | 2026-05-29 |
 | **GP-08** Presentation/Rights | 🟢 GREEN | **TOP**: dress the *playable* scene with IP-safe CC0 assets | ✅ ship map (cycle 95) + **exterior field canvas** `WB_Field_FrozenSea` (cycle 96); owner chose **real field via Quixel/Fab Megascans** → owner downloads arctic set (`docs/gp08-megascans-field-plan.md`), loop applies snow material + scatters ice rocks | owner Fab login (Megascans acquisition is GUI/login-gated) | 2026-05-29 |
 | **GP-09** Comprehension/A11y | 🟡 YELLOW | First-match comprehension checklist + stable strings + glossary · dedicated **L_MainMenu** boot + start→lobby→**solo** debug (cycle 85) | ✅ **JP localization + OFL-font plan ready** `docs/gp09-jp-localization-font-plan.md` (cycle 94) → LOCTEXT wrap (no download) or owner OK to fetch Noto Sans JP | No human comprehension data yet | 2026-05-29 |
 | **GP-10** Release/Community | 🟡 YELLOW | Steam Playtest readiness snapshot (owner/artifact/status/blocker/cancel) | Create `docs/steam-playtest-readiness.md`; verify `quality-gate` | No moderation-triage owner assigned anywhere | 2026-05-29 |
@@ -53,6 +53,12 @@ Everything else advances now, headless, in parallel.
 
 ## Last loop iteration
 
+- 2026-05-29 **cycle 100** (GP-07, interactive) — **match telemetry carries mode + difficulty**. Added a
+  `AppendMatchConfigTelemetry` GameMode helper and wrapped all 4 `match_started` + 4 `match_ended`
+  events so each carries `mode`/`difficulty` from the server-authoritative `ActiveMatchConfig` — per-mode
+  outcome analytics from `events.jsonl` alone (no cross-event join). `quality-gate` green; Editor+Game
+  build PASS. (Closes the Madman-mode/host-config follow-up set: GP-03 rules+difficulty, GP-04 lobby meta,
+  GP-07 telemetry. Remaining: host UI + Madman HUD role text — gated on the in-flight GP-09 HUD work.)
 - 2026-05-29 **cycle 99** (GP-04, interactive) — **lobby metadata carries match mode + difficulty**.
   So a browser/joiner can see what kind of match a lobby runs: added optional `mode`
   (`standard`/`madman`) + `difficulty` (`easy`/`normal`/`hard`) enums to `lobby_metadata.schema.json`,

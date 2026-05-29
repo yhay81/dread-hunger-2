@@ -85,4 +85,6 @@ private:
     int32 CalculateSaboteurCount(int32 PlayerCount) const;
     int32 GetRequiredCrewSurvivors(int32 PlayerCount) const;
     int32 GetSaboteurEliminationThreshold(int32 PlayerCount) const;
+    // Returns a copy of a `{...}` telemetry JSON object with "mode"/"difficulty" fields appended.
+    FString AppendMatchConfigTelemetry(const FString& JsonObject) const;
 };
