@@ -15,7 +15,7 @@ priority order below + `DISPATCH.md` §2.
 | **GP-05** Voice & Trust | 🟡 YELLOW | One voice provider chosen + 8p acceptance plan | Write `docs/voice-provider-decision.md` (VCI+EOS vs Vivox vs Steam Voice) | Runtime acceptance gated by server (decision itself unblocked) | 2026-05-29 |
 | **GP-06** Services & Tools | 🟢 GREEN | Backend ↔ `openapi.yaml` ↔ tests parity; `cargo test --workspace` green | Add `startedAt` to `HealthResponse` schema + test; `cargo test --workspace` | none | 2026-05-29 |
 | **GP-07** Evidence/QA/Perf | 🟡 YELLOW | Perf budgets + measurement method; gates reproducible | Draft `docs/performance-budget.md`; verify `quality-gate` | Server-side perf rows need server build (doc still writable) | 2026-05-29 |
-| **GP-08** Presentation/Rights | 🟡 YELLOW | POC screenshots + review + ≥1 provenance decision | Write `docs/visual-poc-screenshot-review.md` + fill 1 `reviewer_approval`; `asset-ledger-check` | Screenshot capture needs interactive Editor (rubric is writable now) | 2026-05-29 |
+| **GP-08** Presentation/Rights | 🟡 YELLOW | POC screenshots + review + ≥1 provenance decision | ✅ rubric written (cycle 80) → now **Editor-gated**: capture screenshots per `docs/visual-poc-screenshot-review.md`; headless loop rotates to GP-06 | Screenshot capture needs interactive Editor | 2026-05-29 |
 | **GP-09** Comprehension/A11y | 🟡 YELLOW | First-match comprehension checklist + stable strings + glossary | Write `docs/gp09-comprehension-checklist.md`; verify `quality-gate` | No human comprehension data yet (checklist writable now) | 2026-05-29 |
 | **GP-10** Release/Community | 🟡 YELLOW | Steam Playtest readiness snapshot (owner/artifact/status/blocker/cancel) | Create `docs/steam-playtest-readiness.md`; verify `quality-gate` | No moderation-triage owner assigned anywhere | 2026-05-29 |
 
@@ -43,6 +43,9 @@ Everything else advances now, headless, in parallel.
 
 ## Last loop iteration
 
-- 2026-05-29 — **Initial setup.** Orchestration system created; all 10 lane state files
-  authored by parallel lane agents. Loop not yet run. First eligible step per priority: confirm
-  `quality-gate` is green, then GP-08 (write `docs/visual-poc-screenshot-review.md`).
+- 2026-05-29 **cycle 80** (GP-08) — wrote `docs/visual-poc-screenshot-review.md` (capture +
+  keep/replace/reject rubric for the three POC zones). GP-08's remaining step is Editor-gated;
+  next headless step rotates to **GP-06** (add `startedAt` to the backend `HealthResponse`
+  schema + test). See `docs/cycles/2026-05-29-cycle-80.md`.
+- 2026-05-29 — Initial setup. Orchestration system created; all 10 lane state files authored by
+  parallel lane agents.
