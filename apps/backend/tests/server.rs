@@ -651,6 +651,59 @@ async fn banlist_unknown_scope_returns_not_found() {
 }
 
 #[tokio::test]
+async fn joining_a_full_lobby_returns_conflict() {
+    let app = fixed_app();
+    let (_, _, created) = request_json(
+        app.clone(),
+        json_request(
+            Method::POST,
+            "/v1/matchmaking/lobbies",
+            json!({
+                "lobbyName": "Full Test",
+                "lobbyType": "casual",
+                "hostLocalId": "host-1",
+                "hostCompletedMatches": 0,
+                "buildId": "AbyssLock-Win64-Development-local",
+                "mapId": "L_IcebreakerWhitebox",
+                "endpointToken": "full-token-001"
+            }),
+        ),
+    )
+    .await;
+    let lobby_id = created["lobby"]["id"]
+        .as_str()
+        .expect("lobby id")
+        .to_string();
+
+    // Fill to capacity: host + players 2..=8 == 8 == required_players.
+    for player_index in 2..=8 {
+        let (join_status, _, _) = request_json(
+            app.clone(),
+            json_request(
+                Method::POST,
+                &format!("/v1/matchmaking/lobbies/{lobby_id}/join"),
+                json!({ "playerLocalId": format!("player-{player_index}"), "completedMatches": 0 }),
+            ),
+        )
+        .await;
+        assert_eq!(join_status, StatusCode::OK);
+    }
+
+    // The next join exceeds capacity and must be rejected before any travel.
+    let (status, _, body) = request_json(
+        app,
+        json_request(
+            Method::POST,
+            &format!("/v1/matchmaking/lobbies/{lobby_id}/join"),
+            json!({ "playerLocalId": "player-9", "completedMatches": 0 }),
+        ),
+    )
+    .await;
+    assert_eq!(status, StatusCode::CONFLICT);
+    assert_eq!(body["error"], "lobby_full");
+}
+
+#[tokio::test]
 async fn read_only_metadata_endpoints_return_empty_local_prototype_data() {
     let app = fixed_app();
 
