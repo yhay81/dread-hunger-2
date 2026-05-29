@@ -9,6 +9,10 @@
 #include "Editor.h"
 #include "Engine/DirectionalLight.h"
 #include "Engine/SkyLight.h"
+#include "Engine/TextureCube.h"
+#include "Engine/ExponentialHeightFog.h"
+#include "Components/SkyLightComponent.h"
+#include "Components/ExponentialHeightFogComponent.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/StaticMeshActor.h"
 #include "Engine/TargetPoint.h"
@@ -435,6 +439,22 @@ bool CreateWhitebox(FString& Error)
     {
         SkyRoot->SetMobility(EComponentMobility::Movable);
     }
+    if (USkyLightComponent* SkyComp = SkyLight->FindComponentByClass<USkyLightComponent>())
+    {
+        // Light the scene with the imported CC0 overcast HDRI when available (graceful fallback to
+        // the dynamic captured-scene skylight if the HDRI did not import as a cubemap).
+        if (UTextureCube* HdriCube = LoadObject<UTextureCube>(nullptr, TEXT("/Game/ThirdParty/Quarantine/polyhaven/hdri/blaubeuren_outskirts_1k")))
+        {
+            SkyComp->SourceType = ESkyLightSourceType::SLS_SpecifiedCubemap;
+            SkyComp->Cubemap = HdriCube;
+            SkyComp->RecaptureSky();
+            UE_LOG(LogAbyssWhiteboxCommandlet, Display, TEXT("SkyLight using imported HDRI cubemap."));
+        }
+        else
+        {
+            UE_LOG(LogAbyssWhiteboxCommandlet, Warning, TEXT("Imported HDRI cubemap not found; keeping dynamic skylight."));
+        }
+    }
 
     // CC0 prop dressing (Poly Haven, provenanced in docs/asset-ledger-candidates.csv; imported in
     // cycle 88). Skipped gracefully if not imported. Scale/placement are first-pass — refine after
@@ -452,6 +472,17 @@ bool CreateWhitebox(FString& Error)
         if (!SpawnProp(Prop, Error))
         {
             return false;
+        }
+    }
+
+    // Atmosphere: light exponential height fog for cold polar depth (rendering-only; null-RHI smoke unaffected).
+    if (AExponentialHeightFog* Fog = Cast<AExponentialHeightFog>(SpawnActor(AExponentialHeightFog::StaticClass(), TEXT("WB_Atmo_Fog"), FVector(0, 0, 120), FRotator::ZeroRotator, Error)))
+    {
+        if (UExponentialHeightFogComponent* FogComp = Fog->FindComponentByClass<UExponentialHeightFogComponent>())
+        {
+            FogComp->SetFogDensity(0.012f);
+            FogComp->SetStartDistance(300.0f);
+            FogComp->SetFogInscatteringColor(FLinearColor(0.42f, 0.5f, 0.6f));
         }
     }
 
