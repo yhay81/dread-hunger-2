@@ -62,6 +62,13 @@ Dependency edges:
 
 ## Loop priority order (used by DISPATCH §2)
 
+> **OWNER OVERRIDE (2026-05-29): make it look good + play like a game.** Top priority is the
+> *player-facing build*: dress the playable scene with beautiful **IP-safe free/CC0 assets**
+> (GP-08) and make the solo/match loop *feel like a real game* (GP-03 HUD/feel), plus menu/UI
+> polish incl. a JP-capable font (GP-09). Order after health: **GP-08 → GP-03 → GP-09 → GP-06 →
+> GP-07 → GP-04/GP-02 upkeep → GP-01/GP-05/GP-10**. Aesthetics are owner-judged via screenshots;
+> assets must be provenanced — no unattended downloads, no game rips (see DISPATCH visual rules).
+
 When choosing the single next step, prefer the **highest** eligible (non-blocked) lane:
 
 1. **GP-07 health** — if `quality-gate` is red, fix it (gate before features).

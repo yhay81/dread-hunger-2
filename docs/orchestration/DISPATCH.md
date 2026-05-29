@@ -53,6 +53,13 @@ then stop. A correct map is worth more than a rushed step.
   work-in-progress in the tree that is not yours to commit.
 - **Do not fake progress.** If the only honest outcome is "still blocked", update the
   blocker evidence and say so. Keeping the map accurate is real progress.
+- **Visual & free-asset rules (owner focus).** When dressing the build: use ONLY assets already
+  provenanced in `docs/asset-ledger-candidates.csv` + `Content/ThirdParty/Quarantine/`; record
+  license + source for anything used; **never download new external assets unattended** (flag it
+  for the owner); **never use assets from another game**; route final `approved` promotion through
+  IP Review. Aesthetic quality is **owner-judged** — ship one small visual change plus a
+  screenshot (`Saved/Screenshots/`) or the exact map + command to view it, and let the owner
+  decide the next visual step; do not self-certify "beautiful". Keep null-RHI smoke working.
 
 ---
 

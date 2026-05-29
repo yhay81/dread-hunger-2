@@ -2,6 +2,12 @@
 
 Updated: 2026-05-29 · Phase 1 (local-automation milestone reached) · 10 parallel lanes
 
+> **🎯 CURRENT FOCUS (owner override 2026-05-29): make the player-facing build look good + play like a game.**
+> Lead with **GP-08** (dress the playable scene with IP-safe free/CC0 assets + atmosphere) and
+> **GP-03** (solo HUD / match feel), then **GP-09** (menu/UI polish incl. JP font). Aesthetics are
+> owner-judged via screenshots; assets must be provenanced — no unattended downloads, no game rips.
+> Working today: boot → menu → 一人モード → lit whitebox solo.
+
 This is the fast picture the routine reads first. Drill into `lanes/GP-0X.state.md` for the
 full **Next Action** (exact command, verify gate, allowed paths). Pick the lane per the
 priority order below + `DISPATCH.md` §2.
@@ -10,12 +16,12 @@ priority order below + `DISPATCH.md` §2.
 | --- | --- | --- | --- | --- | --- |
 | **GP-01** Human Playability | 🟡 YELLOW | First real 6-8p human run + anonymized summary (`playtest-preflight --mode human`) | Re-confirm Windows listen-server preflight is green (`playtest-run-scaffold`/`preflight`) | **8 real humans** (no code change removes it) | 2026-05-29 |
 | **GP-02** Network/Hosting | 🔴 BLOCKED | `AbyssLockServer.exe` builds+boots+8 clients+ready-lobby | Keep runbook + `UE_ROOT` instructions consistent; verify `quality-gate` | **Server-capable UE 5.7** (Launcher UE can't build Server targets) | 2026-05-29 |
-| **GP-03** Core Match | 🟡 YELLOW | Sabotage loss explainable (pillar 6 of the IP-safe **DH-parity target** `docs/mechanics-parity-target.md` + `docs/control-scheme.md`) | Audit `match_ended` `fatal_ship_state` payload → `docs/gp03-endstate-readability-audit.md` | Human P1-024/025 readability notes don't exist yet | 2026-05-29 |
+| **GP-03** Core Match | 🟡 YELLOW | DH-parity feel + readable round (`docs/mechanics-parity-target.md`, `docs/control-scheme.md`) | **Add minimal solo HUD** (role/objective/interaction prompt/result) so it plays like a game; then end-state readability audit | Human P1-024/025 notes for tuning | 2026-05-29 |
 | **GP-04** Steam Online | 🟡 YELLOW | Lobby create/find/join + build/map-mismatch reject (P2-003/004) | Run `run_steam_lobby_validation.ps1` → `preflight_pass` on 5 steps | Runtime spike gated behind GP-02 (contracts already green) | 2026-05-29 |
 | **GP-05** Voice & Trust | 🟡 YELLOW | One voice provider chosen + 8p acceptance plan | Write `docs/voice-provider-decision.md` (VCI+EOS vs Vivox vs Steam Voice) | Runtime acceptance gated by server (decision itself unblocked) | 2026-05-29 |
 | **GP-06** Services & Tools | 🟢 GREEN | Backend ↔ `openapi.yaml` ↔ tests parity; `cargo test --workspace` green | ✅ 404s documented + tested (cycle 83) → add the 409 `lobby_full` test | none | 2026-05-29 |
 | **GP-07** Evidence/QA/Perf | 🟡 YELLOW | Perf budgets + measurement method; gates reproducible | Draft `docs/performance-budget.md`; verify `quality-gate` | Server-side perf rows need server build (doc still writable) | 2026-05-29 |
-| **GP-08** Presentation/Rights | 🟡 YELLOW | POC screenshots + review + ≥1 provenance decision | ✅ rubric written (cycle 80) → now **Editor-gated**: capture screenshots per `docs/visual-poc-screenshot-review.md`; headless loop rotates to GP-06 | Screenshot capture needs interactive Editor | 2026-05-29 |
+| **GP-08** Presentation/Rights | 🟢 GREEN | **TOP**: dress the *playable* scene with IP-safe CC0 assets + atmosphere (looks like a real game) | Build CC0 material instances + apply to playable map + fog/post-process; screenshot for owner review | New meshes/props need owner to acquire CC0 packs | 2026-05-29 |
 | **GP-09** Comprehension/A11y | 🟡 YELLOW | First-match comprehension checklist + stable strings + glossary · dedicated **L_MainMenu** boot + start→lobby→**solo** debug (cycle 85) | Write `docs/gp09-comprehension-checklist.md`; verify `quality-gate` | No human comprehension data yet | 2026-05-29 |
 | **GP-10** Release/Community | 🟡 YELLOW | Steam Playtest readiness snapshot (owner/artifact/status/blocker/cancel) | Create `docs/steam-playtest-readiness.md`; verify `quality-gate` | No moderation-triage owner assigned anywhere | 2026-05-29 |
 
@@ -43,6 +49,12 @@ Everything else advances now, headless, in parallel.
 
 ## Last loop iteration
 
+- 2026-05-29 — **Loop RESUMED (owner refocus).** Top priority = player-facing build: GP-08 IP-safe
+  CC0 visual dressing of the playable scene + GP-03 solo HUD/feel + GP-09 menu/UI polish (JP font).
+  Front-end works (menu → 一人モード → lit whitebox). Aesthetics owner-judged via screenshots;
+  assets provenanced only (no unattended downloads, no game rips).
+- 2026-05-29 — front-end fixes (interactive): black-menu WidgetTree fix; whitebox Movable lights
+  (no more "LIGHTING NEEDS TO BE REBUILT"); dedicated `L_MainMenu` boot map (cycle 85).
 - 2026-05-29 **cycle 85** (GP-09, interactive) — dedicated front-end map: boot now loads
   `L_MainMenu` (own `AbyssMenuGameMode`, no whitebox); **一人モード** travels to `whitebox?solo`
   and the GameMode auto-starts the 1-player practice match. Verified headlessly (boot→L_MainMenu;
