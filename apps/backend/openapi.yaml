@@ -247,7 +247,7 @@ components:
   schemas:
     HealthResponse:
       type: object
-      required: [ok, service, version]
+      required: [ok, service, version, startedAt]
       properties:
         ok:
           type: boolean
@@ -255,6 +255,10 @@ components:
           type: string
         version:
           type: string
+        startedAt:
+          type: string
+          format: date-time
+          description: ISO-8601 timestamp when the backend process started.
     AcceptedResponse:
       type: object
       required: [accepted, id]

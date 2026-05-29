@@ -59,6 +59,10 @@ async fn healthz_returns_non_authoritative_service_status() {
     assert_eq!(headers["x-frostwake-authority"], "non-authoritative");
     assert_eq!(body["ok"], true);
     assert_eq!(body["service"], "frostwake-backend");
+    assert!(
+        body["startedAt"].as_str().is_some(),
+        "healthz must report startedAt as an ISO-8601 string per openapi.yaml HealthResponse"
+    );
 }
 
 #[tokio::test]

@@ -13,7 +13,7 @@ priority order below + `DISPATCH.md` §2.
 | **GP-03** Core Match | 🟡 YELLOW | Sabotage loss explainable (pillar 6 of the IP-safe **DH-parity target** `docs/mechanics-parity-target.md` + `docs/control-scheme.md`) | Audit `match_ended` `fatal_ship_state` payload → `docs/gp03-endstate-readability-audit.md` | Human P1-024/025 readability notes don't exist yet | 2026-05-29 |
 | **GP-04** Steam Online | 🟡 YELLOW | Lobby create/find/join + build/map-mismatch reject (P2-003/004) | Run `run_steam_lobby_validation.ps1` → `preflight_pass` on 5 steps | Runtime spike gated behind GP-02 (contracts already green) | 2026-05-29 |
 | **GP-05** Voice & Trust | 🟡 YELLOW | One voice provider chosen + 8p acceptance plan | Write `docs/voice-provider-decision.md` (VCI+EOS vs Vivox vs Steam Voice) | Runtime acceptance gated by server (decision itself unblocked) | 2026-05-29 |
-| **GP-06** Services & Tools | 🟢 GREEN | Backend ↔ `openapi.yaml` ↔ tests parity; `cargo test --workspace` green | Add `startedAt` to `HealthResponse` schema + test; `cargo test --workspace` | none | 2026-05-29 |
+| **GP-06** Services & Tools | 🟢 GREEN | Backend ↔ `openapi.yaml` ↔ tests parity; `cargo test --workspace` green | ✅ `startedAt` closed (cycle 82) → document undocumented 404/409 responses (join/leave/banlist) + tests | none | 2026-05-29 |
 | **GP-07** Evidence/QA/Perf | 🟡 YELLOW | Perf budgets + measurement method; gates reproducible | Draft `docs/performance-budget.md`; verify `quality-gate` | Server-side perf rows need server build (doc still writable) | 2026-05-29 |
 | **GP-08** Presentation/Rights | 🟡 YELLOW | POC screenshots + review + ≥1 provenance decision | ✅ rubric written (cycle 80) → now **Editor-gated**: capture screenshots per `docs/visual-poc-screenshot-review.md`; headless loop rotates to GP-06 | Screenshot capture needs interactive Editor | 2026-05-29 |
 | **GP-09** Comprehension/A11y | 🟡 YELLOW | First-match comprehension checklist + stable strings + glossary | Write `docs/gp09-comprehension-checklist.md`; verify `quality-gate` | No human comprehension data yet (checklist writable now) | 2026-05-29 |
@@ -43,6 +43,11 @@ Everything else advances now, headless, in parallel.
 
 ## Last loop iteration
 
+- 2026-05-29 **cycle 82** (GP-06) — closed the `/healthz` `startedAt` OpenAPI parity gap (schema
+  + test; 48 backend tests pass under quality-gate). Next GP-06: document 404/409 error responses.
+- 2026-05-29 **cycle 81** (baseline) — committed the pending working-tree baseline; quality-gate
+  green; Editor/Game UE build passed (gameplay C++ compiles). Loop switched to a self-contained
+  prompt (the `/frostwake-loop` slash command was unknown to the running session).
 - 2026-05-29 **cycle 80** (GP-08) — wrote `docs/visual-poc-screenshot-review.md` (capture +
   keep/replace/reject rubric for the three POC zones). GP-08's remaining step is Editor-gated;
   next headless step rotates to **GP-06** (add `startedAt` to the backend `HealthResponse`
