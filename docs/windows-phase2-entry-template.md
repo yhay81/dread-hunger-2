@@ -37,7 +37,7 @@ Full override shape:
 .\Tools\windows\run_phase2_entry_validation.ps1 `
   -UeRoot "D:\Epic Games\UE_5.7" `
   -SkipGenerate `
-  -ServerExe ".\Binaries\Win64\AbyssLockServer.exe" `
+  -ServerExe ".\Binaries\Win64\FrostwakeServer.exe" `
   -ServerConfig ".\Saved\Config\server_config.local.json" `
   -Port 7777 `
   -Clients 8 `

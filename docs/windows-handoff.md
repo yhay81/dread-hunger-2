@@ -6,7 +6,7 @@ Current as of 2026-05-25 JST, after cycle 52. Production implementation resumes 
 
 - Target development platform: Windows.
 - Target Unreal build platform: `Win64`.
-- Keep the existing internal module name `AbyssLock` for now.
+- Keep the existing internal module name `Frostwake` for now.
 - Keep `/Game/Maps/L_IcebreakerWhitebox` as the automation map until the Windows clone passes the same smoke gates.
 - Create visual experiments in `/Game/Maps/L_FrostwakeVisualPOC` only after the candidate asset ledger is reviewed.
 
@@ -56,12 +56,12 @@ Add `-UeRoot "D:\Epic Games\UE_5.7"` if Unreal is not installed in a default Epi
 Expected result:
 
 - `quality-gate` should pass.
-- `AbyssLockEditor` and `AbyssLock` should build.
-- `AbyssLockServer` should be attempted. If the Launcher UE distribution blocks Server targets, install or build a UE source distribution and rerun with `UE_ROOT` pointing to that source build.
+- `FrostwakeEditor` and `Frostwake` should build.
+- `FrostwakeServer` should be attempted. If the Launcher UE distribution blocks Server targets, install or build a UE source distribution and rerun with `UE_ROOT` pointing to that source build.
 
 Record the full first-run result using [Windows Validation Template](windows-validation-template.md).
 
-If `AbyssLockServer` builds, continue with [Windows Dedicated Server Runbook](windows-dedicated-server-runbook.md).
+If `FrostwakeServer` builds, continue with [Windows Dedicated Server Runbook](windows-dedicated-server-runbook.md).
 
 The first local dedicated-server boot probe is:
 
@@ -84,10 +84,10 @@ Record that result with [Windows Phase 2 Entry Template](windows-phase2-entry-te
 Generate Visual Studio files with either the Unreal shell integration or:
 
 ```powershell
-& "$env:UE_ROOT\Engine\Build\BatchFiles\GenerateProjectFiles.bat" -project="$PWD\AbyssLock.uproject" -game -engine
+& "$env:UE_ROOT\Engine\Build\BatchFiles\GenerateProjectFiles.bat" -project="$PWD\Frostwake.uproject" -game -engine
 ```
 
-Then open the generated solution or open `AbyssLock.uproject` in Unreal Editor and rebuild when prompted.
+Then open the generated solution or open `Frostwake.uproject` in Unreal Editor and rebuild when prompted.
 
 ## Smoke Tests
 

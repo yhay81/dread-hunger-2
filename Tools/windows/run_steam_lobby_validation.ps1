@@ -240,7 +240,7 @@ try {
     Invoke-Logged "lobby_join_map_mismatch" $LobbyMapMismatchCommand
 
     if ($Runtime) {
-        $Message = "Steam Lobby runtime validation is not implemented yet. Implement UAbyssLobbySubsystem from docs\steam-lobby-subsystem-design.md before using -Runtime."
+        $Message = "Steam Lobby runtime validation is not implemented yet. Implement UFrostwakeLobbySubsystem from docs\steam-lobby-subsystem-design.md before using -Runtime."
         $RuntimeLog = Join-Path $OutDir "runtime_not_implemented.log"
         $Message | Set-Content -Path $RuntimeLog -Encoding UTF8
         $StepResults.Add([ordered]@{
@@ -264,7 +264,7 @@ try {
         "JoinDecision: accepted metadata plus BuildMismatch and MapMismatch rejection probes passed.",
         "Output: $OutDir",
         "Manifest: $(Join-Path $OutDir "manifest.json")",
-        "Next: implement UAbyssLobbySubsystem and rerun this wrapper with -Runtime."
+        "Next: implement UFrostwakeLobbySubsystem and rerun this wrapper with -Runtime."
     ) | Set-Content -Path $SummaryPath -Encoding UTF8
 
     Write-Manifest -Decision "preflight_pass"

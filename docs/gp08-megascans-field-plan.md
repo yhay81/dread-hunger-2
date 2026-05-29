@@ -13,7 +13,7 @@ Parallel split: **owner downloads Megascans assets** (login-gated, can't be auto
   headless, so acquisition is an owner step; integration/placement is the loop's step.
 
 ## Step 1 — Owner: enable Fab + sign in (UE 5.7)
-1. Open the editor (it's already running): `UnrealEditor.exe AbyssLock.uproject`.
+1. Open the editor (it's already running): `UnrealEditor.exe Frostwake.uproject`.
 2. The **Fab** plugin ships enabled in UE 5.5+. Open the Fab window: editor toolbar **Fab** button,
    or **Window → Fab**. (If hidden: Edit → Plugins → search "Fab" → enable → restart.)
 3. **Sign in** with your Epic Games account in the Fab panel.

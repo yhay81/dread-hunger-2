@@ -84,9 +84,9 @@ try {
     Write-Check "rust cargo" $CargoOk $CargoDetail
     if (-not $CargoOk) { $RequiredFailures.Add("Rust cargo") }
 
-    $ProjectOk = Test-Path (Join-Path $RepoRoot "AbyssLock.uproject")
-    Write-Check "uproject" $ProjectOk (Join-Path $RepoRoot "AbyssLock.uproject")
-    if (-not $ProjectOk) { $RequiredFailures.Add("AbyssLock.uproject") }
+    $ProjectOk = Test-Path (Join-Path $RepoRoot "Frostwake.uproject")
+    Write-Check "uproject" $ProjectOk (Join-Path $RepoRoot "Frostwake.uproject")
+    if (-not $ProjectOk) { $RequiredFailures.Add("Frostwake.uproject") }
 
     $UeRoot = Find-UnrealRoot
     $UeRootOk = $UeRoot.Length -gt 0

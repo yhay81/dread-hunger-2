@@ -56,44 +56,44 @@ Rust CLI / Windows Wrappers / UE Editor Commandlets
 
 ## Unreal Runtime
 
-The runtime module is `Source/AbyssLock`. The internal module name is still `AbyssLock`; the public project direction is Frostwake.
+The runtime module is `Source/Frostwake`, renamed from `AbyssLock` on 2026-05-30 (see `docs/naming-unification.md`).
 
 ### Core Authority Classes
 
 | Class | Role |
 | --- | --- |
-| `AAbyssLockGameMode` | Server-only owner of login/logout handling, role assignment, ready-gated match start, practice start, match timer, dev smoke hooks, and match-end evaluation. |
-| `AAbyssLockGameState` | Replicated public match state: match phase, match ID, build number, match time remaining, winning team, end reason, ship system statuses, route progress, and flooding pressure. |
-| `AAbyssLockPlayerState` | Replicated per-player state: life state, revealed team, secret team for the owning player path, and ready state. |
-| `AAbyssLockPlayerController` | Owner-facing control boundary for player requests such as ready state and primary interaction. |
-| `AAbyssLockCharacter` | Player pawn behavior, input binding, interaction component, inventory component, replicated health, down/rescue/contain/release helpers, and item drop request path. |
+| `AFrostwakeGameMode` | Server-only owner of login/logout handling, role assignment, ready-gated match start, practice start, match timer, dev smoke hooks, and match-end evaluation. |
+| `AFrostwakeGameState` | Replicated public match state: match phase, match ID, build number, match time remaining, winning team, end reason, ship system statuses, route progress, and flooding pressure. |
+| `AFrostwakePlayerState` | Replicated per-player state: life state, revealed team, secret team for the owning player path, and ready state. |
+| `AFrostwakePlayerController` | Owner-facing control boundary for player requests such as ready state and primary interaction. |
+| `AFrostwakeCharacter` | Player pawn behavior, input binding, interaction component, inventory component, replicated health, down/rescue/contain/release helpers, and item drop request path. |
 
 ### Gameplay Actors And Components
 
 | Area | Current boundary |
 | --- | --- |
-| Interaction | `UAbyssInteractionComponent` sends player interaction attempts through server-validated actor logic. |
-| Inventory | `UAbyssInventoryComponent`, `AAbyssItemPickupActor`, and character drop/pickup paths keep item state server-owned and replicated only as needed. |
-| Generic interactables | `AAbyssInteractableActor` is the base surface for server-authoritative interaction targets. |
-| Ship tasks | `AAbyssShipTaskActor` applies repair or sabotage against `AAbyssLockGameState` ship systems and can advance route progress or trigger match-end evaluation. |
-| Doors and bulkheads | `AAbyssDoorActor` owns open/closed/locked state and validates sabotage lock and repair release interactions. |
-| Life actions | `AAbyssLifeActionActor` exposes rescue, containment, and release interactions through normal authority checks. |
-| PvE | `AAbyssPveEnemyActor` is a minimal replicated server-authoritative damage source for whitebox pressure tests. |
-| Telemetry | `UAbyssTelemetrySubsystem` writes structured event logs used by smoke tests and playtest summaries. |
-| Server config | `UAbyssServerConfigSubsystem` is the runtime boundary for dedicated-server configuration. |
-| Lobby | `UAbyssLobbySubsystem` is the intended GameInstance subsystem boundary for Steam Lobby work; it must remain a rendezvous layer only. |
+| Interaction | `UFrostwakeInteractionComponent` sends player interaction attempts through server-validated actor logic. |
+| Inventory | `UFrostwakeInventoryComponent`, `AFrostwakeItemPickupActor`, and character drop/pickup paths keep item state server-owned and replicated only as needed. |
+| Generic interactables | `AFrostwakeInteractableActor` is the base surface for server-authoritative interaction targets. |
+| Ship tasks | `AFrostwakeShipTaskActor` applies repair or sabotage against `AFrostwakeGameState` ship systems and can advance route progress or trigger match-end evaluation. |
+| Doors and bulkheads | `AFrostwakeDoorActor` owns open/closed/locked state and validates sabotage lock and repair release interactions. |
+| Life actions | `AFrostwakeLifeActionActor` exposes rescue, containment, and release interactions through normal authority checks. |
+| PvE | `AFrostwakePveEnemyActor` is a minimal replicated server-authoritative damage source for whitebox pressure tests. |
+| Telemetry | `UFrostwakeTelemetrySubsystem` writes structured event logs used by smoke tests and playtest summaries. |
+| Server config | `UFrostwakeServerConfigSubsystem` is the runtime boundary for dedicated-server configuration. |
+| Lobby | `UFrostwakeLobbySubsystem` is the intended GameInstance subsystem boundary for Steam Lobby work; it must remain a rendezvous layer only. |
 
 ### Match State Model
 
-The shared enum model is in `AbyssLockTypes.h`.
+The shared enum model is in `FrostwakeTypes.h`.
 
 | Enum | Values |
 | --- | --- |
-| `EAbyssMatchPhase` | `WaitingForPlayers`, `RoleAssignment`, `InProgress`, `FinalApproach`, `MatchEnded` |
-| `EAbyssTeam` | `Unassigned`, `Crew`, `Saboteur`, `Spectator` |
-| `EAbyssLifeState` | `Alive`, `Downed`, `Contained`, `Dead`, `Spectating` |
-| `EAbyssShipSystem` | `Hull`, `Fuel`, `Engine`, `Power`, `Radio`, `Route`, `Heat`, `Flooding` |
-| `EAbyssShipTaskMode` | `Repair`, `Sabotage` |
+| `EFrostwakeMatchPhase` | `WaitingForPlayers`, `RoleAssignment`, `InProgress`, `FinalApproach`, `MatchEnded` |
+| `EFrostwakeTeam` | `Unassigned`, `Crew`, `Saboteur`, `Spectator` |
+| `EFrostwakeLifeState` | `Alive`, `Downed`, `Contained`, `Dead`, `Spectating` |
+| `EFrostwakeShipSystem` | `Hull`, `Fuel`, `Engine`, `Power`, `Radio`, `Route`, `Heat`, `Flooding` |
+| `EFrostwakeShipTaskMode` | `Repair`, `Sabotage` |
 
 ### Server Authority Rules
 
@@ -114,9 +114,9 @@ The shared enum model is in `AbyssLockTypes.h`.
 Unreal process starts
   -> OnlineSubsystemNull or direct listen-server path
   -> clients connect
-  -> AAbyssLockGameMode::PostLogin records connection telemetry
-  -> players mark ready through AAbyssLockPlayerController
-  -> AAbyssLockGameMode starts once the required ready count is met
+  -> AFrostwakeGameMode::PostLogin records connection telemetry
+  -> players mark ready through AFrostwakePlayerController
+  -> AFrostwakeGameMode starts once the required ready count is met
   -> roles are assigned server-side
   -> GameState and PlayerState replicate public state
   -> interactions mutate ship, door, item, life, and PvE state on the server
@@ -128,7 +128,7 @@ Unreal process starts
 
 ```text
 UI requests create/search/join
-  -> UAbyssLobbySubsystem calls OnlineSubsystem/Steam behind config gates
+  -> UFrostwakeLobbySubsystem calls OnlineSubsystem/Steam behind config gates
   -> lobby metadata is validated before travel
   -> client resolves an opaque endpoint token
   -> client travels to listen or dedicated server
@@ -144,7 +144,7 @@ Server executable starts
   -> reads ServerConfig.json through the server config boundary
   -> opens the configured map/ruleset
   -> advertises through Steam server discovery when enabled
-  -> runs the same AAbyssLockGameMode authority path as local tests
+  -> runs the same AFrostwakeGameMode authority path as local tests
   -> writes JSONL telemetry and optional post-match summaries
   -> may upload or expose non-authoritative metadata to the Rust backend
 ```
@@ -215,11 +215,11 @@ PowerShell under `Tools/windows` is the Windows operator surface. It should call
 
 ## Unreal Editor Automation
 
-Editor-only automation lives in the `AbyssLockEditor` module, not in runtime gameplay code.
+Editor-only automation lives in the `FrostwakeEditor` module, not in runtime gameplay code.
 
 | Boundary | Responsibility |
 | --- | --- |
-| `AbyssLockEditor` module | Editor-only commandlets and validation utilities. |
+| `FrostwakeEditor` module | Editor-only commandlets and validation utilities. |
 | `CreateIcebreakerWhitebox` commandlet | Generates or refreshes the automation whitebox map. |
 | `ValidateIcebreakerWhitebox` commandlet | Validates whitebox layout, task placement, doors, and expected map structure. |
 | `CreateFrostwakeVisualPoc` commandlet | Generates a separate placeholder visual POC map with three review zones. |
@@ -258,9 +258,9 @@ Phase 1 uses conventional Unreal replication. Iris remains out of scope until pr
 
 Replication expectations:
 
-- Match phase, winner, timer, route progress, and ship system state replicate from `AAbyssLockGameState`.
-- Ready state, life state, and role-facing player state replicate from `AAbyssLockPlayerState`.
-- Character health replicates from `AAbyssLockCharacter`.
+- Match phase, winner, timer, route progress, and ship system state replicate from `AFrostwakeGameState`.
+- Ready state, life state, and role-facing player state replicate from `AFrostwakePlayerState`.
+- Character health replicates from `AFrostwakeCharacter`.
 - Interactions, item drops, repairs, sabotage, doors, life actions, and PvE damage are server-validated before state changes.
 - Inventory should replicate only the minimum needed for the owner and presentation.
 - Event logs are server-side evidence, not a gameplay synchronization channel.

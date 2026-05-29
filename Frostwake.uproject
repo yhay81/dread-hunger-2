@@ -1,0 +1,35 @@
+{
+  "FileVersion": 3,
+  "Category": "Games",
+  "Description": "Frostwake - cooperative betrayal survival aboard a fictional icebreaker.",
+  "Modules": [
+    {
+      "Name": "Frostwake",
+      "Type": "Runtime",
+      "LoadingPhase": "Default"
+    },
+    {
+      "Name": "FrostwakeEditor",
+      "Type": "Editor",
+      "LoadingPhase": "Default"
+    }
+  ],
+  "Plugins": [
+    {
+      "Name": "OnlineSubsystem",
+      "Enabled": true
+    },
+    {
+      "Name": "OnlineSubsystemUtils",
+      "Enabled": true
+    },
+    {
+      "Name": "OnlineSubsystemSteam",
+      "Enabled": false
+    },
+    {
+      "Name": "AndroidFileServer",
+      "Enabled": false
+    }
+  ]
+}

@@ -2,7 +2,7 @@
 
 Owner ask: 「白い箱がだめ。適切なマップを作りたい」. This is the buildable spec for replacing the
 scattered white cubes in `FrostwakeWhitebox::CreateWhitebox`
-(`Source/AbyssLockEditor/Private/AbyssWhiteboxCommandlets.cpp`) with a designed single-deck ship
+(`Source/FrostwakeEditor/Private/FrostwakeWhiteboxCommandlets.cpp`) with a designed single-deck ship
 interior. Produced by a read-only design agent against the current commandlet; coordinates are ready
 to translate into `SpawnCube`/`SpawnActor` calls. IP-safe: engine basic shapes + already-quarantined
 CC0 assets only; original layout (not copied from any other game).

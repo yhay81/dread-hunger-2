@@ -56,7 +56,7 @@ cargo run -p frostwake-tools -- run-smoke-suite --include-heavy --skip-build --n
 ## Server Target Finding
 
 ```text
-AbyssLockServer result:
+FrostwakeServer result:
 Launcher UE or source UE:
 Exact error if blocked/failed:
 Dedicated server validation wrapper:
@@ -71,7 +71,7 @@ Decision values:
 - `blocked`: Launcher UE cannot build server target; install/build UE source distribution.
 - `fail`: Server target is supported but the project fails to compile; fix project code first.
 
-If `AbyssLockServer` exists, run:
+If `FrostwakeServer` exists, run:
 
 ```powershell
 .\Tools\windows\run_dedicated_server_validation.ps1

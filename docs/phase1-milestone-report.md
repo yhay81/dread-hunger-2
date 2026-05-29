@@ -66,7 +66,7 @@ The suite passed all six key profiles:
 
 - Human playtest has not started. P1-024 through P1-028 remain open.
 - 8-player full match completion is not yet proven by a human or bot-driven terminal match. The current 8-player gate proves start, roles, and non-terminal system stability.
-- Dedicated server runtime validation is blocked until a source-built or otherwise server-capable UE distribution produces `AbyssLockServer.exe`.
+- Dedicated server runtime validation is blocked until a source-built or otherwise server-capable UE distribution produces `FrostwakeServer.exe`.
 - NavMesh or route-following bot movement is pending; current bot steps are deterministic automation paths.
 - Near-proximity voice, Steam lobby, Steam Server Browser, Steam Datagram Relay, moderation, and production server hosting are Phase 2 or later.
 
@@ -82,7 +82,7 @@ The suite passed all six key profiles:
 ## Next Three Cycles
 
 1. Point `UE_ROOT` at a source-built or otherwise server-capable UE distribution and rerun the Win64 server target gate.
-2. Run the dedicated boot, client-join, ready-lobby, and Phase 2 entry wrappers once `AbyssLockServer.exe` exists.
+2. Run the dedicated boot, client-join, ready-lobby, and Phase 2 entry wrappers once `FrostwakeServer.exe` exists.
 3. Run the first 6-8 player human test, or use a smaller rehearsal only if scheduling or Windows smoke readiness blocks the full run.
 
 ## Quality Bar

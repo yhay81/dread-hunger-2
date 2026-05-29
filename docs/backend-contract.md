@@ -55,7 +55,7 @@ Current local prototype:
 - Playtest summaries and moderation payload string fields reject obvious raw identity data patterns.
 - Moderation reports accept structured voice/trust evidence fields while rejecting unknown raw voice/transcript fields through the OpenAPI-backed allowlist.
 - The Steam identity endpoint is currently a deterministic local mock; it requires explicit backend mock config and never echoes raw ticket or SteamID material.
-- Unreal uses `UAbyssSteamIdentitySubsystem` as the current helper contract for the Steam identity endpoint. Its request and telemetry helpers redact ticket material and expose only purpose, endpoint, ticket byte count, proof/hash presence, HTTP status, and pass/fail metadata.
+- Unreal uses `UFrostwakeSteamIdentitySubsystem` as the current helper contract for the Steam identity endpoint. Its request and telemetry helpers redact ticket material and expose only purpose, endpoint, ticket byte count, proof/hash presence, HTTP status, and pass/fail metadata.
 - Matchmaking lobbies are fixed at 8 players, have a player-facing name, and split into `casual` and `standard`; `standard` requires 50 completed matches.
 
 Future stack options:

@@ -28,7 +28,7 @@ Fill this before launch:
 
 ```text
 RunId: P1-024-run-__
-Build: AbyssLock Win64 Development, UE 5.7
+Build: Frostwake Win64 Development, UE 5.7
 Commit or local snapshot:
 Host machine:
 Host LAN IP:
@@ -96,7 +96,7 @@ $env:UE_ROOT = "C:\Program Files\Epic Games\UE_5.7"
 .\Saved\Playtests\P1-024\run-01\host.ps1
 ```
 
-Use `-AbyssLobbyMinPlayers=8` for the target 8-player run if all players are ready before launch.
+Use `-FrostwakeLobbyMinPlayers=8` for the target 8-player run if all players are ready before launch.
 
 ## Client Launch
 

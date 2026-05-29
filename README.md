@@ -85,7 +85,7 @@ This repository is the research and prototype workspace. The immediate goal is n
 - [P1-024 Dry-Run Summary Example](docs/playtests/p1-024-dry-run-summary-example.md)
 - Current verdict: local listen-server automation milestone reached; human 6-8 player tests remain the next proof point.
 - Strongest evidence: `Saved/SmokeSuites/suite-20260525-050522/suite_summary.md` from `cargo run -p frostwake-tools -- run-smoke-suite --include-heavy --skip-build --null-rhi`.
-- Server target status: Launcher UE blocks `AbyssLockServer` on current validation machines; use a source-built or otherwise server-capable UE distribution before dedicated runtime probes can pass.
+- Server target status: Launcher UE blocks `FrostwakeServer` on current validation machines; use a source-built or otherwise server-capable UE distribution before dedicated runtime probes can pass.
 
 ## Repository Layout
 
@@ -112,20 +112,20 @@ Current consistency guardrails:
 
 Windows is now the active validation platform. Use [Windows Handoff](docs/windows-handoff.md), [Windows Validation Template](docs/windows-validation-template.md), and [Windows Dedicated Server Runbook](docs/windows-dedicated-server-runbook.md) for current operator steps.
 
-`AbyssLockServer` is still blocked on Launcher UE distributions with `Server targets are not currently supported from this engine distribution.` Dedicated boot, client-join, and 8-player ready-lobby wrappers now write early-blocker `summary.txt` and `manifest.json` evidence, but runtime assertions cannot pass until `UE_ROOT` points at a source-built or otherwise server-capable UE distribution.
+`FrostwakeServer` is still blocked on Launcher UE distributions with `Server targets are not currently supported from this engine distribution.` Dedicated boot, client-join, and 8-player ready-lobby wrappers now write early-blocker `summary.txt` and `manifest.json` evidence, but runtime assertions cannot pass until `UE_ROOT` points at a source-built or otherwise server-capable UE distribution.
 
 ## Current Prototype Status
 
-- The UE module is still named `AbyssLock` internally; public/player-facing naming is Frostwake.
+- The UE module and C++ classes are named `Frostwake` (renamed from `AbyssLock` on 2026-05-30, see `docs/naming-unification.md`); public/player-facing naming is Frostwake.
 - `/Game/Maps/L_IcebreakerWhitebox` remains the automation map and default map. Visual POC work must stay in `/Game/Maps/L_FrostwakeVisualPOC`.
 - Local listen-server smoke uses `cargo run -p frostwake-tools -- run-local-smoke`; common profiles include `qa-bot`, `qa-player-bot`, `qa-task-bot`, `match-timer`, `life-action`, `combined5`, `ready8`, and `combined8`.
 - Current smoke evidence covers 5-8 player ready flow, 8-player role assignment with 2 saboteurs, ship tasks, route win, fatal-system/timer saboteur wins, doors, bulkhead lock/release, item pickup/drop, down/rescue, containment/release, flooding pressure, PvE damage, and JSONL summaries.
 - P1-024 human playtest materials are ready: packet, observer sheet, survey, summary template, dry-run example, `playtest-run-scaffold`, `playtest-summary`, and `playtest-preflight`.
-- Steam Lobby metadata and join-decision contracts have a Null/LAN-safe C++ foundation in `UAbyssLobbySubsystem`; Steam create/find/join runtime integration remains gated.
+- Steam Lobby metadata and join-decision contracts have a Null/LAN-safe C++ foundation in `UFrostwakeLobbySubsystem`; Steam create/find/join runtime integration remains gated.
 
 ## Next Execution Target
 
 1. Point `UE_ROOT` at a source-built or otherwise server-capable UE 5.7 distribution.
 2. Run `cargo run -p frostwake-tools -- unreal-gate --skip-generate --platform Win64 --include-server`.
-3. After `AbyssLockServer.exe` exists, run `.\Tools\windows\run_phase2_entry_validation.ps1 -SkipGenerate` and record the child manifests.
+3. After `FrostwakeServer.exe` exists, run `.\Tools\windows\run_phase2_entry_validation.ps1 -SkipGenerate` and record the child manifests.
 4. Run the P1-024 human 6-8 player test from `cargo run -p frostwake-tools -- playtest-run-scaffold --run-number 1 --target-players 8` when Windows smoke readiness is confirmed.

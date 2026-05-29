@@ -16,7 +16,7 @@ grounded in the contract docs and Rust tools already in the repo.
 - `docs/windows-dedicated-server-runbook.md` — GP-02 unblock path (server build)
 - `Tools/ops/lobby_metadata.schema.json` — authoritative metadata schema
 - `Tools/ops/lobby_metadata.example.json` — passing example payload
-- `Source/AbyssLock/AbyssLobbySubsystem.h` + `.cpp` — Unreal C++ mirror (null-safe today)
+- `Source/Frostwake/FrostwakeLobbySubsystem.h` + `.cpp` — Unreal C++ mirror (null-safe today)
 - `Tools/windows/run_steam_lobby_validation.ps1` — preflight + runtime wrapper
 
 ---
@@ -24,16 +24,16 @@ grounded in the contract docs and Rust tools already in the repo.
 ## Safety Rules (read before every step)
 
 1. **Null/LAN must stay safe.** `Config/DefaultEngine.ini` keeps `DefaultPlatformService=Null`.
-   `AbyssLock.uproject` keeps `OnlineSubsystemSteam: Enabled: false`. Do not change either.
+   `Frostwake.uproject` keeps `OnlineSubsystemSteam: Enabled: false`. Do not change either.
 2. **Steam dev config is local only.** `Saved\Config\steam_dev.local.ini` is gitignored.
    Never commit it, never commit AppIDs, SteamIDs, Steam server query ports, or publisher keys.
 3. **Lobby metadata is rendezvous-only.** It must not contain role state, inventory, health,
    sabotage state, player identity, auth tickets, raw IP addresses, voice data, reports, or
-   match authority. Gameplay authority stays in `AAbyssLockGameMode`.
+   match authority. Gameplay authority stays in `AFrostwakeGameMode`.
 4. **No raw endpoint tokens in logs.** `lobbyIdHash` is a short non-reversible diagnostic
    token. Do not log raw Steam Lobby IDs, SteamIDs, auth tickets, or IP addresses.
 5. **Do not trust lobby state for gameplay.** `IsSteamLobbyRuntimeAvailable` returning `true`
-   does not grant `AAbyssLockGameMode` authority — that authority path is unchanged.
+   does not grant `AFrostwakeGameMode` authority — that authority path is unchanged.
 6. **Do not skip the preflight.** The `-Runtime` flag must not be used before all five
    preflight steps (Steps 1-5 below) are green.
 
@@ -57,7 +57,7 @@ Expected output line:
 ```
 
 This verifies `Config/DefaultEngine.ini` has `DefaultPlatformService=Null` and
-`AbyssLock.uproject` has `OnlineSubsystemSteam: Enabled: false`.
+`Frostwake.uproject` has `OnlineSubsystemSteam: Enabled: false`.
 
 ### Step 2 — Validate lobby metadata contract
 
@@ -169,7 +169,7 @@ These must all be true before Step 7 (runtime spike):
 | --- | --- |
 | Source-built or server-capable UE is installed | `cargo run -p frostwake-tools -- unreal-gate --skip-generate --platform Win64 --include-server` exits 0 |
 | `UE_ROOT` env var points at that install | Same command reads `UE_ROOT` |
-| `AbyssLockServer.exe` exists | `Test-Path ".\Binaries\Win64\AbyssLockServer.exe"` returns True |
+| `FrostwakeServer.exe` exists | `Test-Path ".\Binaries\Win64\FrostwakeServer.exe"` returns True |
 | Dedicated server boots and a client connects | `.\Tools\windows\run_dedicated_client_join_validation.ps1` exits 0 (see `docs/windows-dedicated-server-runbook.md`) |
 | 8-client ready-lobby match starts headlessly | `.\Tools\windows\run_dedicated_ready_validation.ps1` exits 0 with `role_assignment_complete` + `match_started` in JSONL |
 
@@ -181,12 +181,12 @@ Until these pass, stop at Part A. Do not enable `OnlineSubsystemSteam` in defaul
 
 Do not begin Part C until all Part B prerequisites are confirmed and `IsSteamLobbyRuntimeAvailable`
 has been updated to return `true` behind a new compile/runtime gate in
-`Source/AbyssLock/AbyssLobbySubsystem.cpp`.
+`Source/Frostwake/FrostwakeLobbySubsystem.cpp`.
 
 ### Step 7 — Implement the Online Subsystem Steam provider path
 
-Implement `UAbyssLobbySubsystem::CreateLobby`, `FindLobbies`, `JoinLobby`, and `LeaveLobby`
-in `Source/AbyssLock/AbyssLobbySubsystem.cpp` per the boundary spec in
+Implement `UFrostwakeLobbySubsystem::CreateLobby`, `FindLobbies`, `JoinLobby`, and `LeaveLobby`
+in `Source/Frostwake/FrostwakeLobbySubsystem.cpp` per the boundary spec in
 `docs/steam-lobby-subsystem-design.md` (C++ Boundary + Validation Flow sections).
 
 Requirements before marking implemented:
@@ -195,7 +195,7 @@ Requirements before marking implemented:
   loaded and a valid SteamID session is active.
 - `EvaluateJoinMetadata` is called on every join candidate before any server travel.
 - Telemetry events listed in `docs/steam-lobby-subsystem-design.md` (Telemetry Events
-  section) are emitted through `UAbyssTelemetrySubsystem::LogEvent` without personal
+  section) are emitted through `UFrostwakeTelemetrySubsystem::LogEvent` without personal
   identifiers or raw endpoint tokens.
 - `ToKeyValueMetadata` / `FromKeyValueMetadata` are used for all provider metadata handoff.
 - Blueprint can call `CreateLobby`, `FindLobbies`, `JoinLobby`, `LeaveLobby` and receive
@@ -253,7 +253,7 @@ once Step 7 is complete. Do not modify the wrapper to skip the runtime check.
 ### Step 11 — Verify JSONL telemetry events
 
 After the wrapper exits 0, confirm the JSONL event log (default path:
-`Saved\Logs\server.jsonl`, or the path set by `-AbyssEventLog` / server config `logPath`)
+`Saved\Logs\server.jsonl`, or the path set by `-FrostwakeEventLog` / server config `logPath`)
 contains all of the following events in order:
 
 | Event | What it proves |
@@ -301,7 +301,7 @@ After the runtime spike passes (manifest `decision=runtime_pass`):
 
 2. Confirm `Config/DefaultEngine.ini` still has `DefaultPlatformService=Null`.
 
-3. Confirm `AbyssLock.uproject` still has `OnlineSubsystemSteam: Enabled: false` (the
+3. Confirm `Frostwake.uproject` still has `OnlineSubsystemSteam: Enabled: false` (the
    runtime path uses the local ignored ini override, not the default config).
 
 4. Update `docs/orchestration/lanes/GP-04.state.md`: set milestone progress to
@@ -342,9 +342,9 @@ Per `docs/steam-lobby-subsystem-design.md` (Not In This Spike section) and
 These invariants must hold throughout the spike and must not be relaxed to make the spike
 pass:
 
-- `AAbyssLockGameMode` is the only owner of role assignment and match start.
-- `AAbyssLockGameState` is the replicated public match state owner.
-- `AAbyssLockPlayerState` is the player ready/role/life state owner.
+- `AFrostwakeGameMode` is the only owner of role assignment and match start.
+- `AFrostwakeGameState` is the replicated public match state owner.
+- `AFrostwakePlayerState` is the player ready/role/life state owner.
 - Steam Lobby is pre-match rendezvous only: it brings clients to the same server travel
   target. It does not assign roles, start matches, mutate inventory, or decide win
   conditions.

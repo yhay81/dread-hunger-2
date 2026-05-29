@@ -7,7 +7,7 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
-$ProjectPath = Join-Path $RepoRoot "AbyssLock.uproject"
+$ProjectPath = Join-Path $RepoRoot "Frostwake.uproject"
 $DefaultEnginePath = Join-Path $RepoRoot "Config\DefaultEngine.ini"
 
 function Resolve-RepoPath {
@@ -40,7 +40,7 @@ if ($null -eq $SteamPlugin) {
     Fail "OnlineSubsystemSteam plugin entry is missing. Keep it explicit and disabled until P2 opt-in work."
 }
 if ($SteamPlugin.Enabled -ne $false) {
-    Fail "OnlineSubsystemSteam must remain disabled in AbyssLock.uproject until Steam dev config is explicitly enabled on Windows."
+    Fail "OnlineSubsystemSteam must remain disabled in Frostwake.uproject until Steam dev config is explicitly enabled on Windows."
 }
 
 $DefaultEngine = Get-Content -Raw -Path $DefaultEnginePath

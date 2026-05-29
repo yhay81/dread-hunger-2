@@ -13,7 +13,7 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
-$Project = Join-Path $RepoRoot "AbyssLock.uproject"
+$Project = Join-Path $RepoRoot "Frostwake.uproject"
 $Stamp = Get-Date -Format "yyyyMMdd-HHmmss"
 $OutDir = Join-Path $RepoRoot "Saved\SinglePlayer\$Stamp"
 New-Item -ItemType Directory -Force -Path $OutDir | Out-Null
@@ -83,12 +83,12 @@ $Args = @(
     "-NoSplash",
     "-NoLiveCoding",
     "-nop4",
-    "-AbyssSinglePlayer",
-    "-AbyssEventLog=$EventLog",
-    "-AbyssRunId=$RunId",
-    "-AbyssBuildId=$BuildId",
-    "-AbyssMapId=$Map",
-    "-AbyssProfile=$Profile",
+    "-FrostwakeSinglePlayer",
+    "-FrostwakeEventLog=$EventLog",
+    "-FrostwakeRunId=$RunId",
+    "-FrostwakeBuildId=$BuildId",
+    "-FrostwakeMapId=$Map",
+    "-FrostwakeProfile=$Profile",
     "-port=$Port"
 )
 

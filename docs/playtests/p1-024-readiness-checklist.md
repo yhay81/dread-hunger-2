@@ -17,9 +17,9 @@ Each item must have a concrete value filled in before launch.
 | # | Item | How to verify | Status |
 | --: | --- | --- | --- |
 | 1.1 | **Build ID** recorded: commit hash or `cycle-NN-local` tag, noted in the run header. | Read the run header block in `docs/playtests/p1-024-human-test-1.md`; confirm `Local snapshot or commit:` is filled. | [ ] |
-| 1.2 | **Build target**: `AbyssLock Win64 Development`. Launcher UE_5.7 supports Editor/Game only; no Dedicated Server (blocked separately under GP-02). | Run `cargo run -p frostwake-tools -- unreal-gate --skip-generate --platform Win64` and confirm `Editor/Game pass` appears. | [ ] |
+| 1.2 | **Build target**: `Frostwake Win64 Development`. Launcher UE_5.7 supports Editor/Game only; no Dedicated Server (blocked separately under GP-02). | Run `cargo run -p frostwake-tools -- unreal-gate --skip-generate --platform Win64` and confirm `Editor/Game pass` appears. | [ ] |
 | 1.3 | **Map ID**: `/Game/Maps/L_IcebreakerWhitebox`. The run host script must set this map. | Check `Saved\Playtests\P1-024\run-01\host.ps1` for the map argument, or confirm it in the generated scaffold. | [ ] |
-| 1.4 | **Player count target**: exactly 8. Fewer than 8 does not count as P1-024 per `docs/playtests/p1-024-human-test-1.md`. | Confirm the `host.ps1` `-AbyssLobbyMinPlayers=8` flag is present. | [ ] |
+| 1.4 | **Player count target**: exactly 8. Fewer than 8 does not count as P1-024 per `docs/playtests/p1-024-human-test-1.md`. | Confirm the `host.ps1` `-FrostwakeLobbyMinPlayers=8` flag is present. | [ ] |
 | 1.5 | **Port**: 7777 (host default). All clients connect to the host LAN IP on this port. | Read `Saved\Playtests\P1-024\run-01\host.ps1` and confirm listen port. | [ ] |
 
 ---
@@ -124,7 +124,7 @@ Items in Section 7 are verified after the run, before committing.
 | After run | Sections 6–7 all checked, `playtest-preflight --mode human` passes | Commit the anonymized summary; advance GP-01-M1 |
 | After run | Any Section 6 row unresolved | Do not commit as a P1-024 pass; file as partial with identified gap |
 
-Dedicated Server (`AbyssLockServer.exe`) is NOT a listen-server run blocker.
+Dedicated Server (`FrostwakeServer.exe`) is NOT a listen-server run blocker.
 That blocker is tracked separately under GP-02 and does not affect this checklist.
 
 ---

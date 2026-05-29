@@ -10,7 +10,7 @@ Date: 2026-05-25
 - Active docs and README links were checked on 2026-05-25; no broken Markdown links were found outside immutable `docs/cycles` records.
 - `Tools/ops/README.md` no longer lists non-existent helper component files. Future server listing, admin, cleanup, logging, ruleset, and persistence work should land as Rust backend endpoints or `frostwake-tools` commands.
 - `cargo run -p frostwake-tools -- quality-gate` now rejects active script-language source files and retired tool path references so deleted migration targets do not reappear as project tooling.
-- Unreal asset generation and validation now lives in the `AbyssLockEditor` C++ commandlets. Rust CLI commands launch those commandlets instead of carrying editor automation logic.
+- Unreal asset generation and validation now lives in the `FrostwakeEditor` C++ commandlets. Rust CLI commands launch those commandlets instead of carrying editor automation logic.
 - `Tools/windows` remains PowerShell because it is the Windows operator surface. It should call Rust tools for validation and summarization instead of reimplementing logic.
 - `docs/cycles` is historical evidence. Old command names inside cycle records are not active instructions and should not be rewritten unless a record is factually wrong.
 

@@ -69,7 +69,7 @@ Current mock sentinel outcomes:
 
 ## Unreal Client Helper
 
-`UAbyssSteamIdentitySubsystem` is the Unreal-side contract stub for this endpoint. It can build the request JSON, submit it to a configured backend base URL, parse the response, and return `FAbyssSteamIdentityVerificationResult` to Blueprint or C++ callers.
+`UFrostwakeSteamIdentitySubsystem` is the Unreal-side contract stub for this endpoint. It can build the request JSON, submit it to a configured backend base URL, parse the response, and return `FFrostwakeSteamIdentityVerificationResult` to Blueprint or C++ callers.
 
 Current helper boundaries:
 

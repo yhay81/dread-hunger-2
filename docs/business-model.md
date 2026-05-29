@@ -53,14 +53,14 @@ ASSUMPTION（決定ではない）: コスト試算で使った「平均1,000時
 
 ## 2. マルチプレイ・ホスティング
 
-- 全マルチ試合は**公式 AWS dedicated server**上で動く。UEの権威パス（`AAbyssLockGameMode` 等）は一人/公式で共通・不変。
+- 全マルチ試合は**公式 AWS dedicated server**上で動く。UEの権威パス（`AFrostwakeGameMode` 等）は一人/公式で共通・不変。
 - **作成（ホスト）はプレミアム限定。無料は参加のみ。**
 - 作成した試合は **Friends（招待制）** か **Open（公開リスト掲載）**。
   - Open への参加: **クイックキュー**（空席のある任意のOpen試合へ自動配置）か **リスト閲覧→選択**。
   - Friends: Steam招待で私設参加。
 - **サーバ割当**: 「作成」操作が AWS の UE dedicated server 割当を起動（即時起動のための warm pool）。オーケストレーションは **Amazon GameLift**（game session/player session モデルが create/list/queue にそのまま対応）または同等の fleet manager（最終決定は[§未決](#未決open要オーナー判断)）。**非権威の lobby directory**（`GET/POST /v1/matchmaking/lobbies`）＋ Steam Lobby rendezvous は discovery/rendezvous 層として不変（`docs/technical-architecture.md`）。
 - **サーバOS = Linux（ヘッドレス）** を本番fleetの対象とする（コスト＋業界標準）。Windows dedicated server 作業はローカル開発/検証向けに残るが、**本番fleetターゲットはLinux**。（現GP-02ブロッカーは"いかなるserver targetもビルド不可"。本番は Linux target が必要。）
-- **コスト性質**: AWSの試合コストは**課金行為の下流に固定**される — プレミアムが立てなければ試合は存在せず、コストも発生しない。無料のクイックキュー勢は、プレミアムが払った試合の空席を**限界コストほぼゼロ**で埋める。実単価は `AbyssLockServer.exe`／Linux server 実機での**実測待ち**（GP-02 / `docs/performance-budget.md`）。
+- **コスト性質**: AWSの試合コストは**課金行為の下流に固定**される — プレミアムが立てなければ試合は存在せず、コストも発生しない。無料のクイックキュー勢は、プレミアムが払った試合の空席を**限界コストほぼゼロ**で埋める。実単価は `FrostwakeServer.exe`／Linux server 実機での**実測待ち**（GP-02 / `docs/performance-budget.md`）。
 
 ## 3. コミュニティサーバー — いったん廃止
 

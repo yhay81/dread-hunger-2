@@ -1,0 +1,181 @@
+#include "FrostwakeTelemetrySubsystem.h"
+#include "FrostwakeLog.h"
+#include "FrostwakeServerConfigSubsystem.h"
+#include "Dom/JsonObject.h"
+#include "HAL/FileManager.h"
+#include "HAL/PlatformTime.h"
+#include "Misc/CommandLine.h"
+#include "Misc/FileHelper.h"
+#include "Misc/Guid.h"
+#include "Misc/Paths.h"
+#include "Misc/Parse.h"
+#include "Serialization/JsonSerializer.h"
+#include "Serialization/JsonWriter.h"
+
+namespace
+{
+FString FrostwakeEscapeJsonString(const FString& Value)
+{
+    FString Result;
+    Result.Reserve(Value.Len());
+
+    for (int32 Index = 0; Index < Value.Len(); ++Index)
+    {
+        const TCHAR Character = Value[Index];
+        switch (Character)
+        {
+            case TCHAR('"'):
+                Result += TEXT("\\\"");
+                break;
+            case TCHAR('\\'):
+                Result += TEXT("\\\\");
+                break;
+            case TCHAR('\b'):
+                Result += TEXT("\\b");
+                break;
+            case TCHAR('\f'):
+                Result += TEXT("\\f");
+                break;
+            case TCHAR('\n'):
+                Result += TEXT("\\n");
+                break;
+            case TCHAR('\r'):
+                Result += TEXT("\\r");
+                break;
+            case TCHAR('\t'):
+                Result += TEXT("\\t");
+                break;
+            default:
+                if (Character < TCHAR(0x20))
+                {
+                    Result += FString::Printf(TEXT("\\u%04x"), static_cast<uint32>(Character));
+                }
+                else
+                {
+                    Result.AppendChar(Character);
+                }
+                break;
+        }
+    }
+
+    return Result;
+}
+
+FString ReadCommandLineValue(const TCHAR* Key, const FString& DefaultValue)
+{
+    FString Value;
+    if (FParse::Value(FCommandLine::Get(), Key, Value) && !Value.IsEmpty())
+    {
+        return Value;
+    }
+    return DefaultValue;
+}
+
+FString ResolveTelemetryLogPath(const FString& ConfiguredPath)
+{
+    if (ConfiguredPath.IsEmpty())
+    {
+        return FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("Logs"), TEXT("server.jsonl"));
+    }
+
+    if (FPaths::IsRelative(ConfiguredPath))
+    {
+        FString ResolvedPath = FPaths::ConvertRelativePathToFull(FPaths::Combine(FPaths::ProjectDir(), ConfiguredPath));
+        FPaths::NormalizeFilename(ResolvedPath);
+        return ResolvedPath;
+    }
+
+    FString NormalizedPath = ConfiguredPath;
+    FPaths::NormalizeFilename(NormalizedPath);
+    return NormalizedPath;
+}
+}
+
+void UFrostwakeTelemetrySubsystem::Initialize(FSubsystemCollectionBase& Collection)
+{
+    Super::Initialize(Collection);
+    Collection.InitializeDependency<UFrostwakeServerConfigSubsystem>();
+
+    SessionStartedUtc = FDateTime::UtcNow();
+    SessionStartedSeconds = FPlatformTime::Seconds();
+    EventSequence = 0;
+    SessionId = FGuid::NewGuid().ToString(EGuidFormats::DigitsWithHyphensLower);
+
+    FString OverrideEventLogPath;
+    if (FParse::Value(FCommandLine::Get(), TEXT("FrostwakeEventLog="), OverrideEventLogPath) && !OverrideEventLogPath.IsEmpty())
+    {
+        EventLogPath = ResolveTelemetryLogPath(OverrideEventLogPath);
+    }
+    else
+    {
+        FString ConfiguredLogPath;
+        if (const UGameInstance* GameInstance = GetGameInstance())
+        {
+            if (const UFrostwakeServerConfigSubsystem* ServerConfig = GameInstance->GetSubsystem<UFrostwakeServerConfigSubsystem>())
+            {
+                ConfiguredLogPath = ServerConfig->GetServerConfig().LogPath;
+            }
+        }
+        EventLogPath = ResolveTelemetryLogPath(ConfiguredLogPath);
+    }
+
+    RunId = ReadCommandLineValue(TEXT("FrostwakeRunId="), SessionStartedUtc.ToString(TEXT("%Y%m%dT%H%M%SZ")));
+    BuildId = ReadCommandLineValue(TEXT("FrostwakeBuildId="), TEXT("local-dev"));
+    MapId = ReadCommandLineValue(TEXT("FrostwakeMapId="), TEXT("unknown"));
+    Profile = ReadCommandLineValue(TEXT("FrostwakeProfile="), TEXT("custom"));
+
+    LogEvent(
+        TEXT("session_started"),
+        FString::Printf(
+            TEXT("{\"sessionId\":\"%s\",\"runId\":\"%s\",\"buildId\":\"%s\",\"mapId\":\"%s\",\"profile\":\"%s\",\"eventLog\":\"%s\"}"),
+            *FrostwakeEscapeJsonString(SessionId),
+            *FrostwakeEscapeJsonString(RunId),
+            *FrostwakeEscapeJsonString(BuildId),
+            *FrostwakeEscapeJsonString(MapId),
+            *FrostwakeEscapeJsonString(Profile),
+            *FrostwakeEscapeJsonString(EventLogPath)));
+}
+
+void UFrostwakeTelemetrySubsystem::LogEvent(const FString& EventName, const FString& Payload)
+{
+    UE_LOG(LogFrostwakeGameplay, Log, TEXT("telemetry_event name=%s payload=%s"), *EventName, *Payload);
+
+    TSharedRef<FJsonObject> EventObject = MakeShared<FJsonObject>();
+    EventObject->SetStringField(TEXT("timestamp_utc"), FDateTime::UtcNow().ToIso8601());
+    EventObject->SetNumberField(TEXT("sequence"), ++EventSequence);
+    EventObject->SetNumberField(TEXT("elapsed_seconds"), FMath::Max(0.0, FPlatformTime::Seconds() - SessionStartedSeconds));
+    EventObject->SetStringField(TEXT("session_id"), SessionId);
+    EventObject->SetStringField(TEXT("run_id"), RunId);
+    EventObject->SetStringField(TEXT("build_id"), BuildId);
+    EventObject->SetStringField(TEXT("map_id"), MapId);
+    EventObject->SetStringField(TEXT("profile"), Profile);
+    EventObject->SetStringField(TEXT("event"), EventName);
+
+    TSharedPtr<FJsonObject> PayloadObject;
+    const TSharedRef<TJsonReader<>> PayloadReader = TJsonReaderFactory<>::Create(Payload);
+    if (FJsonSerializer::Deserialize(PayloadReader, PayloadObject) && PayloadObject.IsValid())
+    {
+        EventObject->SetObjectField(TEXT("payload"), PayloadObject);
+    }
+    else
+    {
+        EventObject->SetStringField(TEXT("payload"), Payload);
+    }
+
+    FString SerializedEvent;
+    const TSharedRef<TJsonWriter<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>> Writer =
+        TJsonWriterFactory<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>::Create(&SerializedEvent);
+    if (!FJsonSerializer::Serialize(EventObject, Writer))
+    {
+        UE_LOG(LogFrostwakeGameplay, Warning, TEXT("Failed to serialize telemetry event name=%s"), *EventName);
+        return;
+    }
+
+    IFileManager::Get().MakeDirectory(*FPaths::GetPath(EventLogPath), true);
+    FFileHelper::SaveStringToFile(
+        SerializedEvent + LINE_TERMINATOR,
+        *EventLogPath,
+        FFileHelper::EEncodingOptions::AutoDetect,
+        &IFileManager::Get(),
+        FILEWRITE_Append);
+}

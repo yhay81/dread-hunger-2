@@ -75,7 +75,7 @@ Failures here are GP-09 comprehension bugs and GP-03 feel bugs — record them i
 
 ## Build/verify note
 
-Gameplay/controls live in `Source/AbyssLock/` (UE C++). The **Editor/Game** targets build on the
+Gameplay/controls live in `Source/Frostwake/` (UE C++). The **Editor/Game** targets build on the
 installed Launcher UE, so controls/combat/interaction work is implementable and smoke-testable
 locally now (`run-local-smoke`); only the **dedicated Server** target is blocked (GP-02). Keep
 new input/abilities server-authoritative per `docs/network-rules.md`.

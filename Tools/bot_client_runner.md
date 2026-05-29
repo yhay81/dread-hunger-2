@@ -27,7 +27,7 @@ cargo run -p frostwake-tools -- run-local-smoke \
 
 ```bash
 Tools/bot_client_runner.sh \
-  --client ./Binaries/Mac/AbyssLock \
+  --client ./Binaries/Mac/Frostwake \
   --map L_IcebreakerWhitebox \
   --clients 8 \
   --bots 8 \

@@ -80,7 +80,7 @@ then stop. A correct map is worth more than a rushed step.
    "what unblocks this" note if that evidence is stale (older than ~7 days) — then stop.
 
 The current blocking fact (verify it each run, do not assume): the only local engine is a
-**Launcher UE_5.7** that cannot build Server targets, so `AbyssLockServer.exe` does not
+**Launcher UE_5.7** that cannot build Server targets, so `FrostwakeServer.exe` does not
 exist. This hard-blocks the **implementation** steps of GP-02 and GP-04 (and the live
 human run of GP-01) until `UE_ROOT` points at a server-capable / source-built UE. Their
 **design, config-safety, and blocker-evidence** steps are NOT blocked.

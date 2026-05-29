@@ -36,11 +36,11 @@ To launch a visible one-player local session for manual testing:
 .\Tools\windows\run_single_player.ps1
 ```
 
-This opens `L_IcebreakerWhitebox` through `UnrealEditor.exe -game`, sets `-AbyssSinglePlayer`, auto-starts the match with one crew player and zero saboteurs, and writes ignored telemetry under `Saved\SinglePlayer\`.
+This opens `L_IcebreakerWhitebox` through `UnrealEditor.exe -game`, sets `-FrostwakeSinglePlayer`, auto-starts the match with one crew player and zero saboteurs, and writes ignored telemetry under `Saved\SinglePlayer\`.
 
 ## Dedicated Server
 
-After `AbyssLockServer.exe` exists, run the local server boot probe:
+After `FrostwakeServer.exe` exists, run the local server boot probe:
 
 ```powershell
 .\Tools\windows\run_dedicated_server_validation.ps1
@@ -74,7 +74,7 @@ Common override shape:
 .\Tools\windows\run_phase2_entry_validation.ps1 `
   -UeRoot "D:\Epic Games\UE_5.7" `
   -SkipGenerate `
-  -ServerExe ".\Binaries\Win64\AbyssLockServer.exe" `
+  -ServerExe ".\Binaries\Win64\FrostwakeServer.exe" `
   -ServerConfig ".\Saved\Config\server_config.local.json" `
   -Port 7777 `
   -Clients 8 `
@@ -113,7 +113,7 @@ Before running or extending the Steam Lobby runtime path, validate Steam dev con
   -ExpectedMapId L_IcebreakerWhitebox
 ```
 
-The wrapper writes ignored evidence under `Saved\SteamLobbyValidation\`. It validates the accepted join decision and expected `BuildMismatch` / `MapMismatch` rejection probes before any client travel. `UAbyssLobbySubsystem` currently provides the Null/LAN-safe metadata and join-decision foundation; `-Runtime` intentionally fails until the Steam create/find/join path is implemented.
+The wrapper writes ignored evidence under `Saved\SteamLobbyValidation\`. It validates the accepted join decision and expected `BuildMismatch` / `MapMismatch` rejection probes before any client travel. `UFrostwakeLobbySubsystem` currently provides the Null/LAN-safe metadata and join-decision foundation; `-Runtime` intentionally fails until the Steam create/find/join path is implemented.
 
 ## Output
 

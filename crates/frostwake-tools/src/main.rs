@@ -4757,7 +4757,7 @@ fn playtest_host_ps1(run_id: &str, slug: &str, options: PlaytestRunScaffoldOptio
     format!(
         r#"{prelude}
 & $UEEditor `
-  "$RepoRoot\AbyssLock.uproject" `
+  "$RepoRoot\Frostwake.uproject" `
   "{map_id}?listen" `
   -game `
   -windowed `
@@ -4766,13 +4766,13 @@ fn playtest_host_ps1(run_id: &str, slug: &str, options: PlaytestRunScaffoldOptio
   -NoLiveCoding `
   -nop4 `
   -port={port} `
-  "-AbyssEventLog=$RepoRoot\Saved\Playtests\P1-024\{slug}\events.jsonl" `
-  -AbyssRunId={run_id} `
-  "-AbyssBuildId={build_id}" `
-  "-AbyssMapId={map_id}" `
-  -AbyssProfile={profile} `
-  -AbyssAutoReady `
-  -AbyssLobbyMinPlayers={target_players}
+  "-FrostwakeEventLog=$RepoRoot\Saved\Playtests\P1-024\{slug}\events.jsonl" `
+  -FrostwakeRunId={run_id} `
+  "-FrostwakeBuildId={build_id}" `
+  "-FrostwakeMapId={map_id}" `
+  -FrostwakeProfile={profile} `
+  -FrostwakeAutoReady `
+  -FrostwakeLobbyMinPlayers={target_players}
 "#,
         prelude = playtest_powershell_prelude(options.ue_root),
         map_id = options.map_id,
@@ -4797,7 +4797,7 @@ fn playtest_client_local_ps1(
     format!(
         r#"{prelude}
 & $UEEditor `
-  "$RepoRoot\AbyssLock.uproject" `
+  "$RepoRoot\Frostwake.uproject" `
   "127.0.0.1:{port}" `
   -game `
   -windowed `
@@ -4820,7 +4820,7 @@ fn playtest_client_lan_ps1(port: i64, ue_root: &str, res_x: i64, res_y: i64) -> 
 
 {prelude}
 & $UEEditor `
-  "$RepoRoot\AbyssLock.uproject" `
+  "$RepoRoot\Frostwake.uproject" `
   "$($HostLanIp):{port}" `
   -game `
   -windowed `
@@ -4865,7 +4865,7 @@ fn playtest_host_sh(run_id: &str, slug: &str, options: PlaytestRunScaffoldOption
 UE_EDITOR="{ue_editor}"
 
 "$UE_EDITOR" \
-  "$REPO_ROOT/AbyssLock.uproject" \
+  "$REPO_ROOT/Frostwake.uproject" \
   "{map_id}?listen" \
   -game \
   -windowed \
@@ -4874,13 +4874,13 @@ UE_EDITOR="{ue_editor}"
   -NoLiveCoding \
   -nop4 \
   -port={port} \
-  -AbyssEventLog="$REPO_ROOT/Saved/Playtests/P1-024/{slug}/events.jsonl" \
-  -AbyssRunId={run_id} \
-  -AbyssBuildId="{build_id}" \
-  -AbyssMapId="{map_id}" \
-  -AbyssProfile={profile} \
-  -AbyssAutoReady \
-  -AbyssLobbyMinPlayers={target_players}
+  -FrostwakeEventLog="$REPO_ROOT/Saved/Playtests/P1-024/{slug}/events.jsonl" \
+  -FrostwakeRunId={run_id} \
+  -FrostwakeBuildId="{build_id}" \
+  -FrostwakeMapId="{map_id}" \
+  -FrostwakeProfile={profile} \
+  -FrostwakeAutoReady \
+  -FrostwakeLobbyMinPlayers={target_players}
 "#,
         prelude = playtest_shell_prelude(),
         ue_editor = options.ue_editor,
@@ -4908,7 +4908,7 @@ fn playtest_client_local_sh(
 UE_EDITOR="{ue_editor}"
 
 "$UE_EDITOR" \
-  "$REPO_ROOT/AbyssLock.uproject" \
+  "$REPO_ROOT/Frostwake.uproject" \
   "127.0.0.1:{port}" \
   -game \
   -windowed \
@@ -4934,7 +4934,7 @@ fi
 UE_EDITOR="{ue_editor}"
 
 "$UE_EDITOR" \
-  "$REPO_ROOT/AbyssLock.uproject" \
+  "$REPO_ROOT/Frostwake.uproject" \
   "$HOST_LAN_IP:{port}" \
   -game \
   -windowed \
@@ -4998,7 +4998,7 @@ Manual equivalent:
 ```powershell
 $UEEditor = Join-Path $env:UE_ROOT "Engine\Binaries\Win64\UnrealEditor.exe"
 & $UEEditor `
-  "$PWD\AbyssLock.uproject" `
+  "$PWD\Frostwake.uproject" `
   "{map_id}?listen" `
   -game `
   -windowed `
@@ -5007,13 +5007,13 @@ $UEEditor = Join-Path $env:UE_ROOT "Engine\Binaries\Win64\UnrealEditor.exe"
   -NoLiveCoding `
   -nop4 `
   -port={port} `
-  "-AbyssEventLog=$PWD\Saved\Playtests\P1-024\{slug}\events.jsonl" `
-  -AbyssRunId={run_id} `
-  "-AbyssBuildId={build_id}" `
-  "-AbyssMapId={map_id}" `
-  -AbyssProfile={profile} `
-  -AbyssAutoReady `
-  -AbyssLobbyMinPlayers={target_players}
+  "-FrostwakeEventLog=$PWD\Saved\Playtests\P1-024\{slug}\events.jsonl" `
+  -FrostwakeRunId={run_id} `
+  "-FrostwakeBuildId={build_id}" `
+  "-FrostwakeMapId={map_id}" `
+  -FrostwakeProfile={profile} `
+  -FrostwakeAutoReady `
+  -FrostwakeLobbyMinPlayers={target_players}
 ```
 
 ## Same-Machine Client
@@ -5027,7 +5027,7 @@ Manual equivalent:
 ```powershell
 $UEEditor = Join-Path $env:UE_ROOT "Engine\Binaries\Win64\UnrealEditor.exe"
 & $UEEditor `
-  "$PWD\AbyssLock.uproject" `
+  "$PWD\Frostwake.uproject" `
   "127.0.0.1:{port}" `
   -game `
   -windowed `
@@ -6064,7 +6064,7 @@ fn iter_quality_text_files(root: &Path, files: &mut Vec<PathBuf>) -> Result<(), 
             .extension()
             .and_then(|value| value.to_str())
             .map(|value| format!(".{value}"));
-        if name == "AbyssLock.uproject"
+        if name == "Frostwake.uproject"
             || suffix
                 .as_deref()
                 .is_some_and(|suffix| suffixes.contains(&suffix))
@@ -6121,13 +6121,13 @@ fn check_stale_terms(config: &Map<String, Value>) -> GateResult {
 
 fn check_unreal_metadata() -> GateResult {
     let mut errors = Vec::new();
-    let project = match load_json_value(Path::new("AbyssLock.uproject")) {
+    let project = match load_json_value(Path::new("Frostwake.uproject")) {
         Ok(Value::Object(project)) => project,
         Ok(_) => {
             return gate_result(
                 "unreal_metadata",
                 "fail",
-                "AbyssLock.uproject must be a JSON object",
+                "Frostwake.uproject must be a JSON object",
             );
         }
         Err(error) => return gate_result("unreal_metadata", "fail", error),
@@ -7002,7 +7002,7 @@ fn run_unreal_gate(
     skip_generate: bool,
     include_server: bool,
 ) -> Vec<GateResult> {
-    let project = repo_root().join("AbyssLock.uproject");
+    let project = repo_root().join("Frostwake.uproject");
     let build = unreal_build_script(ue_root, platform);
     let generate = generate_project_files_script(ue_root, platform);
     let mut results = vec![
@@ -7048,18 +7048,18 @@ fn run_unreal_gate(
     };
     results.push(run_process_blockable(
         "build_editor",
-        &build_base("AbyssLockEditor"),
+        &build_base("FrostwakeEditor"),
         None,
     ));
     results.push(run_process_blockable(
         "build_game",
-        &build_base("AbyssLock"),
+        &build_base("Frostwake"),
         None,
     ));
     if include_server {
         results.push(run_process_blockable(
             "build_server",
-            &build_base("AbyssLockServer"),
+            &build_base("FrostwakeServer"),
             Some("Server targets are not currently supported from this engine distribution"),
         ));
     }
@@ -7449,11 +7449,11 @@ fn describe_smoke_settings(options: &LocalSmokeOptions) -> Value {
 
 #[allow(dead_code)]
 fn build_editor_target(ue_root: &Path, platform: &str) -> Result<(), String> {
-    let project = repo_root().join("AbyssLock.uproject");
+    let project = repo_root().join("Frostwake.uproject");
     let build = unreal_build_script(ue_root, platform);
     let command = vec![
         build.to_string_lossy().to_string(),
-        "AbyssLockEditor".to_string(),
+        "FrostwakeEditor".to_string(),
         platform.to_string(),
         "Development".to_string(),
         format!("-Project={}", project.display()),
@@ -7596,7 +7596,7 @@ fn run_local_smoke(options: &LocalSmokeOptions) -> Result<(), String> {
     if options.clients < 0 {
         return Err("--clients must be >= 0".to_string());
     }
-    let project = repo_root().join("AbyssLock.uproject");
+    let project = repo_root().join("Frostwake.uproject");
     if !project.exists() {
         return Err(format!("Missing project: {}", project.display()));
     }
@@ -7639,55 +7639,58 @@ fn run_local_smoke(options: &LocalSmokeOptions) -> Result<(), String> {
     host_command.extend(common.clone());
     host_command.extend([
         format!("-port={}", options.port),
-        format!("-AbyssEventLog={}", events_log.display()),
-        format!("-AbyssRunId={run_id}"),
-        format!("-AbyssBuildId={}", options.build_id),
-        format!("-AbyssMapId={}", options.map),
-        format!("-AbyssProfile={profile}"),
+        format!("-FrostwakeEventLog={}", events_log.display()),
+        format!("-FrostwakeRunId={run_id}"),
+        format!("-FrostwakeBuildId={}", options.build_id),
+        format!("-FrostwakeMapId={}", options.map),
+        format!("-FrostwakeProfile={profile}"),
     ]);
     if !options.no_auto_start {
         host_command.extend([
-            "-AbyssAutoStart".to_string(),
-            format!("-AbyssAutoStartMinPlayers={auto_start_min_players}"),
-            "-AbyssDevSaboteurs=1".to_string(),
+            "-FrostwakeAutoStart".to_string(),
+            format!("-FrostwakeAutoStartMinPlayers={auto_start_min_players}"),
+            "-FrostwakeDevSaboteurs=1".to_string(),
         ]);
     }
     for (enabled, flag) in [
-        (options.smoke_interact, "-AbyssSmokeInteract"),
-        (options.smoke_down_rescue, "-AbyssSmokeDownRescue"),
-        (options.smoke_containment, "-AbyssSmokeContainment"),
-        (options.smoke_route_complete, "-AbyssSmokeRouteComplete"),
-        (options.smoke_fatal_sabotage, "-AbyssSmokeFatalSabotage"),
-        (options.smoke_bulkhead_lock, "-AbyssSmokeBulkheadLock"),
-        (options.smoke_pump_flooding, "-AbyssSmokePumpFlooding"),
-        (options.smoke_item_drop, "-AbyssSmokeItemDrop"),
-        (options.smoke_combined_systems, "-AbyssSmokeCombinedSystems"),
-        (options.smoke_qa_bot, "-AbyssSmokeQaBot"),
-        (options.smoke_qa_player_bot, "-AbyssSmokeQaPlayerBot"),
-        (options.smoke_qa_task_bot, "-AbyssSmokeQaTaskBot"),
-        (options.smoke_life_action, "-AbyssSmokeLifeAction"),
-        (options.auto_ready, "-AbyssAutoReady"),
-        (options.practice_mode, "-AbyssPracticeMode"),
-        (options.single_player_mode, "-AbyssSinglePlayer"),
+        (options.smoke_interact, "-FrostwakeSmokeInteract"),
+        (options.smoke_down_rescue, "-FrostwakeSmokeDownRescue"),
+        (options.smoke_containment, "-FrostwakeSmokeContainment"),
+        (options.smoke_route_complete, "-FrostwakeSmokeRouteComplete"),
+        (options.smoke_fatal_sabotage, "-FrostwakeSmokeFatalSabotage"),
+        (options.smoke_bulkhead_lock, "-FrostwakeSmokeBulkheadLock"),
+        (options.smoke_pump_flooding, "-FrostwakeSmokePumpFlooding"),
+        (options.smoke_item_drop, "-FrostwakeSmokeItemDrop"),
+        (
+            options.smoke_combined_systems,
+            "-FrostwakeSmokeCombinedSystems",
+        ),
+        (options.smoke_qa_bot, "-FrostwakeSmokeQaBot"),
+        (options.smoke_qa_player_bot, "-FrostwakeSmokeQaPlayerBot"),
+        (options.smoke_qa_task_bot, "-FrostwakeSmokeQaTaskBot"),
+        (options.smoke_life_action, "-FrostwakeSmokeLifeAction"),
+        (options.auto_ready, "-FrostwakeAutoReady"),
+        (options.practice_mode, "-FrostwakePracticeMode"),
+        (options.single_player_mode, "-FrostwakeSinglePlayer"),
     ] {
         if enabled {
             host_command.push(flag.to_string());
         }
     }
     if options.smoke_pve_enemy || options.smoke_pve_damage {
-        host_command.push("-AbyssSmokePveEnemy".to_string());
+        host_command.push("-FrostwakeSmokePveEnemy".to_string());
     }
     if options.smoke_pve_damage {
-        host_command.push("-AbyssSmokePvEDamage".to_string());
+        host_command.push("-FrostwakeSmokePvEDamage".to_string());
     }
     if options.smoke_match_timer {
-        host_command.push("-AbyssMatchDurationSeconds=1.0".to_string());
+        host_command.push("-FrostwakeMatchDurationSeconds=1.0".to_string());
     }
     if let Some(value) = options.lobby_min_players {
-        host_command.push(format!("-AbyssLobbyMinPlayers={value}"));
+        host_command.push(format!("-FrostwakeLobbyMinPlayers={value}"));
     }
     if let Some(value) = options.lobby_dev_saboteurs {
-        host_command.push(format!("-AbyssLobbyDevSaboteurs={value}"));
+        host_command.push(format!("-FrostwakeLobbyDevSaboteurs={value}"));
     }
 
     let mut processes = Vec::new();
@@ -8176,7 +8179,7 @@ fn unreal_commandlet_command(commandlet: &str, ue_root: &Path, platform: &str) -
             .to_string_lossy()
             .to_string(),
         repo_root()
-            .join("AbyssLock.uproject")
+            .join("Frostwake.uproject")
             .to_string_lossy()
             .to_string(),
         format!("-run={commandlet}"),
@@ -9195,16 +9198,14 @@ mod tests {
         let scaffold = fixture_scaffold();
         let host = scaffold_file(&scaffold, "host.ps1");
 
-        assert!(host.contains("-AbyssRunId=P1-024-run-01"));
-        assert!(host.contains("-AbyssBuildId=AbyssLock-Win64-Development-local"));
-        assert!(host.contains("-AbyssMapId=/Game/Maps/L_IcebreakerWhitebox"));
-        assert!(host.contains("-AbyssProfile=human-p1-024"));
-        assert!(
-            host.contains(
-                "-AbyssEventLog=$RepoRoot\\Saved\\Playtests\\P1-024\\run-01\\events.jsonl"
-            )
-        );
-        assert!(host.contains("-AbyssLobbyMinPlayers=8"));
+        assert!(host.contains("-FrostwakeRunId=P1-024-run-01"));
+        assert!(host.contains("-FrostwakeBuildId=AbyssLock-Win64-Development-local"));
+        assert!(host.contains("-FrostwakeMapId=/Game/Maps/L_IcebreakerWhitebox"));
+        assert!(host.contains("-FrostwakeProfile=human-p1-024"));
+        assert!(host.contains(
+            "-FrostwakeEventLog=$RepoRoot\\Saved\\Playtests\\P1-024\\run-01\\events.jsonl"
+        ));
+        assert!(host.contains("-FrostwakeLobbyMinPlayers=8"));
     }
 
     #[test]
@@ -9230,7 +9231,7 @@ mod tests {
         assert!(commands.contains("Host Preflight"));
         assert!(commands.contains("--platform Win64"));
         assert!(commands.contains(".\\Saved\\Playtests\\P1-024\\run-01\\host.ps1"));
-        assert!(commands.contains("-AbyssRunId=P1-024-run-01"));
+        assert!(commands.contains("-FrostwakeRunId=P1-024-run-01"));
         assert!(commands.contains("backend report payload dry-run"));
     }
 

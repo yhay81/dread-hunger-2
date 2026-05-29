@@ -6,7 +6,7 @@ This backlog is ordered for a 30-day greybox prototype. Convert each entry into 
 
 | ID | Task | Done When |
 | --- | --- | --- |
-| P1-001 | Open generated UE project and commit engine-generated project metadata intentionally | UE 5.7, Xcode 26.5, project files, `AbyssLockEditor`, and `AbyssLock` builds verified; Launcher UE blocks `AbyssLockServer` target |
+| P1-001 | Open generated UE project and commit engine-generated project metadata intentionally | UE 5.7, Xcode 26.5, project files, `FrostwakeEditor`, and `Frostwake` builds verified; Launcher UE blocks `FrostwakeServer` target |
 | P1-002 | Add replicated character movement baseline | C++ character and basic input mappings added; local 5-8 player listen-server smokes validate spawned player presence and automation movement paths; manual feel tuning pending |
 | P1-003 | Add `GameState` match id, phase, timer | C++ scaffold builds; match phase, start, end, timer expiry, and role events are covered by smoke logs; UI timer polish pending |
 | P1-004 | Add structured event logger | Per-run JSONL telemetry writes role assignment, match start, and ship task events in local smoke |
@@ -22,7 +22,7 @@ This backlog is ordered for a 30-day greybox prototype. Convert each entry into 
 | --- | --- | --- |
 | P1-010 | Add lobby flow | Replicated ready state, server ready RPC, and ready-lobby start condition build and pass 5-player, 6-player, and 8-player local smoke |
 | P1-011 | Add hidden role assignment | C++ owner-only `SecretTeam` and server role assignment scaffold starts from ready-lobby path; smoke validates 1 saboteur at 5-6 players and 2 saboteurs at 8 players; UI reveal/start polish pending |
-| P1-012 | Add repair task | `AAbyssShipTaskActor` repair path builds, is placed in the whitebox map, and logs `ship_task_applied` in a local host+client smoke |
+| P1-012 | Add repair task | `AFrostwakeShipTaskActor` repair path builds, is placed in the whitebox map, and logs `ship_task_applied` in a local host+client smoke |
 | P1-013 | Add ship system state | C++ replicated `ShipSystems` and route objective progress build and drive task smoke |
 | P1-014 | Add crew win condition | 5-player local smoke progresses route to FinalApproach and ends with crew win |
 | P1-015 | Add saboteur win condition | 5-player local smoke drives a critical ship system to zero through sabotage and ends with saboteur win; `match-timer` smoke validates timer expiry as a saboteur win |
@@ -32,11 +32,11 @@ This backlog is ordered for a 30-day greybox prototype. Convert each entry into 
 
 | ID | Task | Done When |
 | --- | --- | --- |
-| P1-017 | Add power outage sabotage | `AAbyssShipTaskActor` sabotage path builds, is placed in the whitebox map, and logs `ship_task_applied` in a local host+client smoke |
+| P1-017 | Add power outage sabotage | `AFrostwakeShipTaskActor` sabotage path builds, is placed in the whitebox map, and logs `ship_task_applied` in a local host+client smoke |
 | P1-018 | Add bulkhead lock sabotage | 5-player local smoke opens a bulkhead, applies saboteur lock, blocks normal interaction while locked, releases by repair action, and reopens |
 | P1-019 | Add pump sabotage | 5-player local smoke raises flooding pressure through sabotage, lowers it through pump repair, and leaves partial pressure after partial repair |
-| P1-020 | Add down/rescue loop | Server-authoritative damage/down/rescue scaffold logs `player_downed` and `player_rescued`; `life-action` smoke validates interactable rescue through `AAbyssLifeActionActor` |
-| P1-021 | Add containment loop | Server-authoritative contain/release scaffold logs `player_contained` and `player_released`; `life-action` smoke validates interactable contain and release through `AAbyssLifeActionActor` |
+| P1-020 | Add down/rescue loop | Server-authoritative damage/down/rescue scaffold logs `player_downed` and `player_rescued`; `life-action` smoke validates interactable rescue through `AFrostwakeLifeActionActor` |
+| P1-021 | Add containment loop | Server-authoritative contain/release scaffold logs `player_contained` and `player_released`; `life-action` smoke validates interactable contain and release through `AFrostwakeLifeActionActor` |
 | P1-022 | Add simple QA bot | Automation-only server pawn pickup smoke, PlayerState-backed assigned-pawn door interaction smoke, and PlayerState-backed repair/sabotage task smoke pass; NavMesh movement pending |
 | P1-023 | Add log summary script | `cargo run -p frostwake-tools -- log-summary` counts run/build/map/profile metadata, duration, match duration, match start/end, final approach, connection lifecycle, damage, deaths, down/rescue, contain/release, life-action interactions/smoke pass, disconnects, errors, events, role assignment, repair/sabotage task counts, last match winner/reason, bulkhead lock smoke counters, flooding pressure/pump smoke counters, PvE enemy/damage smoke counters, item pickup/drop smoke counters, combined systems smoke counters, QA bot smoke counters, QA player-bot smoke counters, and QA task-bot smoke counters; `cargo run -p frostwake-tools -- run-smoke-suite` aggregates profile summaries; `cargo run -p frostwake-tools -- export-smoke-suite-markdown` exports evidence tables; heavy suite and 8-player combined evidence exist |
 

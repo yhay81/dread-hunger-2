@@ -18,7 +18,7 @@ dependency graph that says which lanes can run in parallel right now and which a
 | Lane | North-star (1 line) | M1 milestone | M1 gate (done when) |
 | --- | --- | --- | --- |
 | **GP-01** Human Playability | 6-8 humans finish, understand, want another round | First real 6-8p human playtest run + committed anonymized summary | `playtest-preflight --mode human` passes on a real P1-024 summary |
-| **GP-02** Network/Hosting | 8p sessions stable, reproducible, hostable | `AbyssLockServer.exe` builds + boots + accepts 8 clients + ready-lobby match | `unreal-gate --include-server` pass **and** `run_phase2_entry_validation.ps1` pass |
+| **GP-02** Network/Hosting | 8p sessions stable, reproducible, hostable | `FrostwakeServer.exe` builds + boots + accepts 8 clients + ready-lobby match | `unreal-gate --include-server` pass **and** `run_phase2_entry_validation.ps1` pass |
 | **GP-03** Core Match Experience | Every round = readable cooperation/suspicion/resolution — **DH-class mechanics+controls, original expression** (`docs/mechanics-parity-target.md`, `docs/control-scheme.md`) | Sabotage loss is explainable from in-match signals (not the rulebook) | Human readability note + refreshed `fatal-sabotage` smoke explanation path |
 | **GP-04** Steam Online Access | Find/join/reject/host via Steam-safe paths | Lobby create/find/join spike with build/map mismatch rejection (P2-003/004) | `run_steam_lobby_validation.ps1` + `lobby-join-decision` prove join & reject |
 | **GP-05** Voice & Trust | Proximity voice playable, abuse manageable | One voice provider chosen + 8-player acceptance plan written | Decision section of `voice-provider-validation-template.md` filled + reviewed |
@@ -47,7 +47,7 @@ NOW, in parallel (no cross-lane blocker):
   GP-01  Human Playability ....... PREP only (dry-run, readiness) workable
   GP-04  Steam Online ............ DESIGN + config-safety + contracts workable
 
-GATED (need a server-capable / source-built UE 5.7 so AbyssLockServer.exe can build):
+GATED (need a server-capable / source-built UE 5.7 so FrostwakeServer.exe can build):
   GP-02  Network/Hosting ......... IMPLEMENTATION blocked → keep blocker evidence + unblock runbook
   GP-04  Steam Online ............ IMPLEMENTATION (lobby spike) blocked behind GP-02
   GP-01  Human Playability ....... LIVE RUN also needs real humans + Windows smoke readiness

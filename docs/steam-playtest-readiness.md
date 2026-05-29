@@ -15,7 +15,7 @@ status — do not read blanks as implied PASS.
 
 | Prerequisite | Owner | Required Artifact | Status | Upstream Blocker | Cancel Condition |
 | --- | --- | --- | --- | --- | --- |
-| Windows build validated | Engineering (Windows dev machine) | Completed `docs/windows-validation-template.md` with Win64 Editor/Game/Server outcome | NOT READY — template present but unfilled; Server Win64 row records `blocked` (Launcher UE cannot build server targets) | **GP-02**: `AbyssLockServer.exe` absent; Launcher UE_5.7 cannot build Server targets | Do not proceed to any wave if Editor or Game Win64 build fails; do not proceed past Phase 1 if Server build remains blocked |
+| Windows build validated | Engineering (Windows dev machine) | Completed `docs/windows-validation-template.md` with Win64 Editor/Game/Server outcome | NOT READY — template present but unfilled; Server Win64 row records `blocked` (Launcher UE cannot build server targets) | **GP-02**: `FrostwakeServer.exe` absent; Launcher UE_5.7 cannot build Server targets | Do not proceed to any wave if Editor or Game Win64 build fails; do not proceed past Phase 1 if Server build remains blocked |
 | Dedicated Server path understood | Engineering | `docs/windows-dedicated-server-runbook.md` tested or blocker recorded | PARTIAL — runbook is written and blocker is recorded (`blocked: Launcher UE`); no successful run evidence exists | **GP-02**: server-capable UE required | Cannot run a Playtest wave that depends on dedicated-server stability until this row is PASS |
 | Human proof started | Production | At least one P1-024 run summary with keep/cut/change notes in `docs/playtests/` | PARTIAL — scaffolding exists (`docs/playtests/p1-024-human-test-1.md`, observer sheet, survey, summary template); actual run has not been completed | **GP-01**: 8 real humans required | Cancel the human-proof step if the build cannot sustain a 6-8p match start/end cycle |
 | Store claims limited | Production | `docs/store-copy-drafts.md` contains no unimplemented feature claims | PASS — `docs/store-copy-drafts.md` has an explicit "Feature Claims Not Allowed Yet" list covering Dedicated Server, SDR, proximity voice, community hosting, report/mute/kick/ban, localization, multiple maps, live dates; short descriptions (EN/JA/ZH) do not claim any forbidden feature | none | Pause signup if a claimed feature disappears from the submitted build |
@@ -47,7 +47,7 @@ Before each wave starts, all five signals must be PASS.
 
 | Signal | Owner | Required Artifact | Status | Upstream Blocker | Cancel / Rollback Rule |
 | --- | --- | --- | --- | --- | --- |
-| Startup reproducibility | Engineering | Successful launch proof under the same config as the target wave | NOT READY — listen-server smoke passes headlessly (null-RHI, Editor/Game); no wave-config launch proof exists; Server target blocked | **GP-02**: `AbyssLockServer.exe` absent; cannot prove dedicated-server startup reproducibility | Cancel the wave if the build fails to launch on the intended platform or cannot reconnect after one crash/restart drill |
+| Startup reproducibility | Engineering | Successful launch proof under the same config as the target wave | NOT READY — listen-server smoke passes headlessly (null-RHI, Editor/Game); no wave-config launch proof exists; Server target blocked | **GP-02**: `FrostwakeServer.exe` absent; cannot prove dedicated-server startup reproducibility | Cancel the wave if the build fails to launch on the intended platform or cannot reconnect after one crash/restart drill |
 | Match stability | QA | Dedicated or listen-server evidence with match start/end and at least one clean 6-8 player cycle | NOT READY — headless smoke evidence covers match-timer and life-action events on listen-server (null-RHI); no human 6-8p cycle exists; dedicated-server evidence is fully blocked | **GP-02** (server); **GP-07** (perf budgets and stability evidence not committed); **GP-01** (human run pending) | Roll back wave growth if match completion rate is below 90% for two consecutive local replay runs |
 | Moderation response | yhay81 (project owner) | Incident triage owner and ban/report handling notes in `docs/playtest-data-and-moderation.md` | PARTIAL — policy is written; severity escalation table exists; incident-triage owner now named (yhay81, project owner) with ban/report handling notes added in the "Incident-triage ownership" section; ban/report **tooling** still pending | **GP-05**: voice provider and moderation tooling decisions pending (ownership gap is now closed; tooling remains) | Cancel new invites for 24 h if severe abuse cannot be acted on within one hour |
 | Support readiness | Production | Support contact method and escalation path linked in docs | NOT READY — `docs/playtest-data-and-moderation.md` defines severity/escalation rules; no public support contact method or link exists in the repository | none (docs-only task) | Escalate to holding status if two unresolved severity incidents are reported in one wave |
@@ -86,7 +86,7 @@ assigned" (Playtest App, Section 4) rows above.
 Why this had been highest-risk:
 
 1. **Independent of all upstream blockers.** Unlike Startup Reproducibility or Match Stability,
-   which cannot be resolved until GP-02 delivers `AbyssLockServer.exe`, the moderation-owner gap
+   which cannot be resolved until GP-02 delivers `FrostwakeServer.exe`, the moderation-owner gap
    required only a human decision and a doc edit — and has now been closed without any code or
    infrastructure change.
 
@@ -106,7 +106,7 @@ ban) is still gated on **GP-05**. Until it lands, enforcement is manual via host
 match restarts, so the "Moderation response" row is PARTIAL rather than PASS.
 
 **Next-highest unresolved items** are now the upstream-blocked Wave Gate rows — "Startup
-reproducibility" and "Match stability" — both pending **GP-02** (`AbyssLockServer.exe`).
+reproducibility" and "Match stability" — both pending **GP-02** (`FrostwakeServer.exe`).
 
 ---
 

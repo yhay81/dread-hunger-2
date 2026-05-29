@@ -1,7 +1,7 @@
 # Server-Capable UE 5.7 Unblock Runbook
 
 Use this runbook to obtain or point `UE_ROOT` at a server-capable Unreal Engine 5.7
-installation so that `AbyssLockServer.exe` can be built, removing the current GP-02 blocker.
+installation so that `FrostwakeServer.exe` can be built, removing the current GP-02 blocker.
 
 ---
 
@@ -119,7 +119,7 @@ cargo run -p frostwake-tools -- unreal-gate --skip-generate --platform Win64 --i
 ```
 
 Expected output: all checks green, specifically `build_server: pass` and
-`Binaries\Win64\AbyssLockServer.exe` present in the working tree.
+`Binaries\Win64\FrostwakeServer.exe` present in the working tree.
 
 If `build_server` still shows `blocked`, UBT output will include the engine-distribution
 rejection string. Confirm `UE_ROOT` resolves to the source build (not the Launcher path) and
@@ -129,7 +129,7 @@ that `Setup.bat` completed successfully.
 
 ## After the Build Gate Passes
 
-Once `AbyssLockServer.exe` exists, continue with the steps in
+Once `FrostwakeServer.exe` exists, continue with the steps in
 `docs/windows-dedicated-server-runbook.md`:
 
 1. Create the local server config:
@@ -184,6 +184,6 @@ JSONL event path, player count, pass/fail status.
   already correct for server-target builds; only the engine distribution needs to change.
 - The listen-server path (Editor/Game builds, `run-local-smoke`, `ready8`) continues to work
   with the Launcher UE and must remain covered while this blocker stands (charter boundary).
-- Do not start Steam server browser or SDR implementation before `AbyssLockServer.exe` is
+- Do not start Steam server browser or SDR implementation before `FrostwakeServer.exe` is
   verified (charter boundary from `docs/subprojects/sp-02-windows-dedicated-server-foundation.md`).
 - GP-04 (Steam lobby implementation) is also gated behind this lane's M1 unblock.

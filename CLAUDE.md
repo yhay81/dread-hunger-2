@@ -1,8 +1,8 @@
-# CLAUDE.md — Frostwake (codename AbyssLock)
+# CLAUDE.md — Frostwake (formerly codename AbyssLock)
 
 8-player cooperative betrayal survival game. UE 5.7 (C++ server-authoritative) + Rust tools
 & non-authoritative backend + Steam/dedicated-server target. Public name: **Frostwake**.
-The repo path/UE module may still say `dread-hunger-2` / `AbyssLock` internally.
+The repo path may still say `dread-hunger-2` internally (rename deferred); the UE module and C++ classes were renamed `AbyssLock`->`Frostwake` on 2026-05-30 — see `docs/naming-unification.md`.
 
 ## How this project is driven
 
@@ -47,7 +47,7 @@ Key verbs: `quality-gate [--require-ue]`, `unreal-gate [--include-server] [--pla
 ## Current hard blocker (verify, don't assume)
 
 Only a **Launcher UE_5.7** is installed locally (no `UE_ROOT`), which **cannot build Server
-targets**, so `Binaries/Win64/AbyssLockServer.exe` does not exist. This blocks the
+targets**, so `Binaries/Win64/FrostwakeServer.exe` does not exist. This blocks the
 *implementation* of GP-02 (dedicated server) and GP-04 (Steam lobby spike) and the live
 GP-01 human run. All other lanes (and the design/config/blocker-evidence parts of the gated
 ones) are workable now.

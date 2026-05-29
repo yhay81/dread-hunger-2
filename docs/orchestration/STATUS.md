@@ -19,7 +19,7 @@ priority order below + `DISPATCH.md` §2.
 | Lane | Status | M1 milestone (short) | Next Action (one-liner) | Top blocker | Updated |
 | --- | --- | --- | --- | --- | --- |
 | **GP-01** Human Playability | 🟡 YELLOW | First real 6-8p human run + anonymized summary (`playtest-preflight --mode human`) | Re-confirm Windows listen-server preflight is green (`playtest-run-scaffold`/`preflight`) | **8 real humans** (no code change removes it) | 2026-05-29 |
-| **GP-02** Network/Hosting | 🔴 BLOCKED | `AbyssLockServer.exe` builds+boots+8 clients+ready-lobby | Keep runbook + `UE_ROOT` instructions consistent; verify `quality-gate` | **Server-capable UE 5.7** (Launcher UE can't build Server targets) | 2026-05-29 |
+| **GP-02** Network/Hosting | 🔴 BLOCKED | `FrostwakeServer.exe` builds+boots+8 clients+ready-lobby | Keep runbook + `UE_ROOT` instructions consistent; verify `quality-gate` | **Server-capable UE 5.7** (Launcher UE can't build Server targets) | 2026-05-29 |
 | **GP-03** Core Match | 🟡 YELLOW | DH-parity feel + readable round (`docs/mechanics-parity-target.md`, `docs/control-scheme.md`) | 🔧 **owner course-correction (cycle 106)**: menu flow fixed (Solo→difficulty / Host→mode+difficulty) + voyage **redesign** (ship must NOT auto-advance → furnace load+ignite + helm steer; ice damage ≤20) `docs/solo-voyage-completion-spec.md` → **rebuild voyage (Stage A: furnace+helm)** | voyage mechanic rebuild (furnace+helm) | 2026-05-29 |
 | **GP-04** Steam Online | 🟡 YELLOW | Lobby create/find/join + build/map-mismatch reject (P2-003/004) | ✅ **lobby metadata now carries `mode`/`difficulty` (cycle 99)** → run `run_steam_lobby_validation.ps1` preflight; runtime spike still GP-02-gated | Runtime spike gated behind GP-02 (contracts already green) | 2026-05-29 |
 | **GP-05** Voice & Trust | 🟡 YELLOW | One voice provider chosen + 8p acceptance plan | Write `docs/voice-provider-decision.md` (VCI+EOS vs Vivox vs Steam Voice) | Runtime acceptance gated by server (decision itself unblocked) | 2026-05-29 |
@@ -44,7 +44,7 @@ Tie-break among eligible lanes: oldest `Updated:` wins (anti-starvation).
 ## Two external blockers gate the human-proof finish line
 
 1. **Server-capable UE 5.7** — only a Launcher UE is installed (no Server-target build), so
-   `AbyssLockServer.exe` cannot exist. Hard-blocks GP-02 impl, GP-04 runtime spike. Until then
+   `FrostwakeServer.exe` cannot exist. Hard-blocks GP-02 impl, GP-04 runtime spike. Until then
    those lanes only keep blocker evidence + unblock runbooks current.
 2. **8 real humans** — GP-01's live run (and the human readability/comprehension signals that
    feed GP-03 / GP-09 / GP-08 art timing) need a scheduled session. All prep is ready to fire.
@@ -64,18 +64,18 @@ Everything else advances now, headless, in parallel.
 - 2026-05-29 **cycle 105** (GP-03 + GP-09, interactive) — **host match-config UI (mode/difficulty
   selectors)**. The front-end lobby-choice screen now has Mode (Standard/Madman) + Difficulty
   (Easy/Normal/Hard) cycle selectors; the choice rides the travel URL (`?mode=`/`?difficulty=`, alongside
-  the existing `?solo`/`?listen`) and `AAbyssLockGameMode::InitGame` parses it into `ActiveMatchConfig`
+  the existing `?solo`/`?listen`) and `AFrostwakeGameMode::InitGame` parses it into `ActiveMatchConfig`
   (`UGameplayStatics::ParseOption`). Solo carries difficulty only (forces Standard); host carries both.
   Editor+Game build + `quality-gate` green. **This closes the host-setup feature's UI** — the host can now
   pick mode + difficulty in the menu. Remaining: populate advertised lobby metadata from the choice
   (GP-02-gated lobby path) + human-playtest tuning. (In-game menu flow is owner-playtested.)
 - 2026-05-29 **cycle 104** (GP-03 + GP-09, interactive) — **win/lose result screen + dynamic role HUD
-  (incl. Madman)**. Now that GP-09's localization (`AbyssUIText` String Table) landed, added without
+  (incl. Madman)**. Now that GP-09's localization (`FrostwakeUIText` String Table) landed, added without
   collision: (1) a centered **result panel** shown at `MatchEnded` — VICTORY/DEFEAT (computed for the
   viewer's alignment, so the Madman wins iff the Saboteurs win) + a localized reason
   (final approach / timer / incapacitated / fatal ship / crew threshold); (2) a **dynamic role line**
   updated each tick from the owner-only `GetSecretTeamForOwner()` — the Madman alone sees "Role: Madman",
-  everyone else reads as Crew. New `AbyssUIText` keys (EN source; JA/zh-Hans via the GP-09 pipeline).
+  everyone else reads as Crew. New `FrostwakeUIText` keys (EN source; JA/zh-Hans via the GP-09 pipeline).
   Editor+Game build + `quality-gate` green. **Solo completion Steps 1-4 all done** + the Madman feature's
   last UI piece. Remaining: host config UMG panel + human-playtest tuning.
 - 2026-05-29 **cycle 103** (GP-03, interactive) — **voyage difficulty wiring + headless proof**. Wired
@@ -87,7 +87,7 @@ Everything else advances now, headless, in parallel.
   (crew win resolves). Editor+Game build + `quality-gate` green. Steps 1-3 of solo completion done; Step 4
   (win/lose result screen) waits on the in-flight GP-09 HUD.
 - 2026-05-29 **cycle 102** (GP-03, interactive) — **solo is now a real ~30-min voyage**. Replaced the
-  ~10s instant-win (Route task ×3) with a fuel-gated time-based voyage: `AAbyssLockGameMode::TickVoyage`
+  ~10s instant-win (Route task ×3) with a fuel-gated time-based voyage: `AFrostwakeGameMode::TickVoyage`
   (each second) advances `RouteProgress` only while underway (Fuel system condition > 0), burning fuel;
   100% → Final Approach → crew win. Removed the manual route-advance from the ship task; converted
   `TASK_Repair_Route`→`TASK_Repair_Fuel` (refuel +0.5, fuel bay) and **regenerated the whitebox map**;
@@ -112,25 +112,25 @@ Everything else advances now, headless, in parallel.
 - 2026-05-29 **cycle 99** (GP-04, interactive) — **lobby metadata carries match mode + difficulty**.
   So a browser/joiner can see what kind of match a lobby runs: added optional `mode`
   (`standard`/`madman`) + `difficulty` (`easy`/`normal`/`hard`) enums to `lobby_metadata.schema.json`,
-  the `FAbyssLobbyMetadata` C++ mirror (+`To/FromKeyValueMetadata`), and the Rust validator summary;
+  the `FFrostwakeLobbyMetadata` C++ mirror (+`To/FromKeyValueMetadata`), and the Rust validator summary;
   3 new tests (accept madman/hard, reject unknown mode/difficulty). Informational only — **not** a
   join-gate (only build/map mismatch reject before travel). schemaVersion stays 1 (optional, absent ⇒
   standard/normal). `cargo test` + `quality-gate` green; Editor+Game build PASS. Runtime Steam path
   still GP-02-gated. Spec/contract: `docs/madman-mode-and-host-config-spec.md`, `docs/steam-lobby-metadata-contract.md`.
 - 2026-05-29 **cycle 98** (GP-03, interactive) — **difficulty knobs become live**. Consumed the two
-  `FAbyssMatchConfig` multipliers cycle 97 only resolved: `AAbyssLockCharacter::UpdateSurvival` now
+  `FFrostwakeMatchConfig` multipliers cycle 97 only resolved: `AFrostwakeCharacter::UpdateSurvival` now
   scales food/warmth decay by `SurvivalDecayMultiplier` (Hard 1.35× / Easy 0.75×) and
-  `AAbyssShipTaskActor::Interact` scales **sabotage** severity by `SabotageIntensityMultiplier`
+  `AFrostwakeShipTaskActor::Interact` scales **sabotage** severity by `SabotageIntensityMultiplier`
   (Hard 1.25×; repairs unaffected). Both read the server-authoritative `ActiveMatchConfig` via
   `GetAuthGameMode` (1.0 fallback). `quality-gate` green; Game target builds. HUD role text deferred
-  (parallel GP-09 agent is mid-edit on `AbyssHudWidget.cpp` + `AbyssUIText.*`).
+  (parallel GP-09 agent is mid-edit on `FrostwakeHudWidget.cpp` + `FrostwakeUIText.*`).
 - 2026-05-29 **cycle 97** (GP-03, interactive) — **Madman mode + host match-config (first C++ slice)**.
   Owner ask: a 狂人モード (8p = 5 Crew + 2 Saboteurs + **1 Madman** who looks like Crew to everyone
   else, has no Saboteur abilities, and wins iff Saboteurs win — 人狼狂人型) + a host-configurable
-  mode/difficulty system. Added `EAbyssMatchMode`/`EAbyssDifficulty`/`FAbyssMatchConfig`,
-  `EAbyssTeam::Madman` (appended; values stable), Madman-aware role assignment, `Set/Get/ResolveMatchConfig`,
-  dev `-AbyssMode=`/`-AbyssDifficulty=` hooks + `mode`/`madmen` telemetry. **Game** target builds
-  (UHT clean, `AbyssLock.exe` links → changed module compiles); **Editor** target blocked by a running
+  mode/difficulty system. Added `EFrostwakeMatchMode`/`EFrostwakeDifficulty`/`FFrostwakeMatchConfig`,
+  `EFrostwakeTeam::Madman` (appended; values stable), Madman-aware role assignment, `Set/Get/ResolveMatchConfig`,
+  dev `-FrostwakeMode=`/`-FrostwakeDifficulty=` hooks + `mode`/`madmen` telemetry. **Game** target builds
+  (UHT clean, `Frostwake.exe` links → changed module compiles); **Editor** target blocked by a running
   `UnrealEditor.exe` (DLL lock — environmental, not code); `quality-gate` green. Spec + lane-assigned
   follow-ups: `docs/madman-mode-and-host-config-spec.md` (GP-04 lobby meta, GP-09 host UI/JP, GP-07
   analytics, GP-03 difficulty consumption + result-screen Madman win attribution).
@@ -149,7 +149,7 @@ Everything else advances now, headless, in parallel.
   (Path B). View: `L_IcebreakerWhitebox?solo -game -windowed`.
 - 2026-05-29 **cycle 94** (GP-03 impl + GP-08/09 parallel design, interactive) — **survival restore
   loop + multi-agent specs**. Closed the cycle-93 gauges: **F** eats the selected ration (+40 Food,
-  consumes it) and a new `AAbyssHeatSourceActor` (**E**) restores Warmth (+50); server-authoritative,
+  consumes it) and a new `AFrostwakeHeatSourceActor` (**E**) restores Warmth (+50); server-authoritative,
   telemetry `player_ate`/`player_warmed`; Ration + 2 heat sources placed. Done with **3 read-only
   design agents in parallel** (race-free: they returned text, the loop integrated serially) — also
   producing `docs/gp08-ship-map-spec.md` (buildable ship layout) + `docs/gp09-jp-localization-font-plan.md`.
@@ -164,7 +164,7 @@ Everything else advances now, headless, in parallel.
   + HUD hotbar (SelectedSlot/CycleSelectedSlot; MaxSlots 4; pickups got a visible mesh; 4 placed in
   the map). Owner verdict: sky good, **white boxes bad → GP-08 PROPER MAP** is the next big visual
   effort. View: `L_IcebreakerWhitebox?solo -game -windowed` (E pick up, scroll select, Q drop).
-- 2026-05-29 **cycle 91** (GP-03, loop) — added a minimal **solo HUD** (`UAbyssHudWidget`:
+- 2026-05-29 **cycle 91** (GP-03, loop) — added a minimal **solo HUD** (`UFrostwakeHudWidget`:
   role/objective/`[E]` hint) shown in the solo path, so the round reads as a game; editor build +
   quality-gate green. Next: make the HUD dynamic + win/lose result. View: `L_IcebreakerWhitebox?solo`.
 - 2026-05-29 **cycle 90** (GP-08, loop) — atmosphere: imported HDRI as SkyLight source + height fog
@@ -194,7 +194,7 @@ Everything else advances now, headless, in parallel.
 - 2026-05-29 — front-end fixes (interactive): black-menu WidgetTree fix; whitebox Movable lights
   (no more "LIGHTING NEEDS TO BE REBUILT"); dedicated `L_MainMenu` boot map (cycle 85).
 - 2026-05-29 **cycle 85** (GP-09, interactive) — dedicated front-end map: boot now loads
-  `L_MainMenu` (own `AbyssMenuGameMode`, no whitebox); **一人モード** travels to `whitebox?solo`
+  `L_MainMenu` (own `FrostwakeMenuGameMode`, no whitebox); **一人モード** travels to `whitebox?solo`
   and the GameMode auto-starts the 1-player practice match. Verified headlessly (boot→L_MainMenu;
   solo→`match_started source=single_player`). Editor build + quality-gate green.
 - 2026-05-29 **cycle 84** (GP-09, interactive) — front-end: added a full-screen dark backdrop to

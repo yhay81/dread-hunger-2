@@ -1,11 +1,11 @@
 # Windows Dedicated Server Runbook
 
-Use this after `AbyssLockServer` builds on the Windows workstation. This runbook is for local/LAN and private-test server validation before Steamworks, Steam Datagram Relay, or SteamCMD distribution are integrated.
+Use this after `FrostwakeServer` builds on the Windows workstation. This runbook is for local/LAN and private-test server validation before Steamworks, Steam Datagram Relay, or SteamCMD distribution are integrated.
 
 ## Status
 
 - Target platform: Windows `Win64`.
-- Server executable: `AbyssLockServer` after a successful Win64 server build.
+- Server executable: `FrostwakeServer` after a successful Win64 server build.
 - Current map: `L_IcebreakerWhitebox`.
 - Current online layer: Phase 1 still uses `OnlineSubsystemNull` and LAN/listen-server style validation.
 - Current gameplay telemetry covers match timer expiry and interactable rescue, containment, and release in listen-server smokes; dedicated-server validation must confirm the same JSONL event path works when the server is headless.
@@ -20,7 +20,7 @@ cargo run -p frostwake-tools -- quality-gate --require-ue
 cargo run -p frostwake-tools -- unreal-gate --skip-generate --platform Win64 --include-server
 ```
 
-Interpret `AbyssLockServer` result:
+Interpret `FrostwakeServer` result:
 
 | Result | Meaning | Action |
 | --- | --- | --- |
@@ -79,7 +79,7 @@ The intended config flag is:
 Expected command shape after the server executable exists:
 
 ```powershell
-$ServerExe = ".\Binaries\Win64\AbyssLockServer.exe"
+$ServerExe = ".\Binaries\Win64\FrostwakeServer.exe"
 & $ServerExe `
   "/Game/Maps/L_IcebreakerWhitebox" `
   -log `
@@ -87,10 +87,10 @@ $ServerExe = ".\Binaries\Win64\AbyssLockServer.exe"
   -NoLiveCoding `
   -nop4 `
   "-ServerConfig=$PWD\Saved\Config\server_config.local.json" `
-  -AbyssRunId=windows-dedicated-local `
-  "-AbyssBuildId=AbyssLock-Win64-Development-local" `
-  "-AbyssMapId=/Game/Maps/L_IcebreakerWhitebox" `
-  -AbyssProfile=dedicated-private-test
+  -FrostwakeRunId=windows-dedicated-local `
+  "-FrostwakeBuildId=AbyssLock-Win64-Development-local" `
+  "-FrostwakeMapId=/Game/Maps/L_IcebreakerWhitebox" `
+  -FrostwakeProfile=dedicated-private-test
 ```
 
 If the executable path differs after packaging, record the actual path in the Windows validation result.
@@ -105,7 +105,7 @@ Useful overrides:
 
 ```powershell
 .\Tools\windows\run_dedicated_server_validation.ps1 `
-  -ServerExe ".\Binaries\Win64\AbyssLockServer.exe" `
+  -ServerExe ".\Binaries\Win64\FrostwakeServer.exe" `
   -ServerConfig ".\Saved\Config\server_config.local.json" `
   -DurationSeconds 30 `
   -Port 7777
@@ -123,7 +123,7 @@ Useful overrides:
 
 ```powershell
 .\Tools\windows\run_dedicated_client_join_validation.ps1 `
-  -ServerExe ".\Binaries\Win64\AbyssLockServer.exe" `
+  -ServerExe ".\Binaries\Win64\FrostwakeServer.exe" `
   -ServerConfig ".\Saved\Config\server_config.local.json" `
   -UeRoot "D:\Epic Games\UE_5.7" `
   -Port 7777
@@ -141,7 +141,7 @@ Useful overrides:
 
 ```powershell
 .\Tools\windows\run_dedicated_ready_validation.ps1 `
-  -ServerExe ".\Binaries\Win64\AbyssLockServer.exe" `
+  -ServerExe ".\Binaries\Win64\FrostwakeServer.exe" `
   -ServerConfig ".\Saved\Config\server_config.local.json" `
   -UeRoot "D:\Epic Games\UE_5.7" `
   -Clients 8 `
@@ -150,14 +150,14 @@ Useful overrides:
   -Port 7777
 ```
 
-This wrapper starts a headless dedicated server with `-AbyssAutoReady`, launches eight `UnrealEditor.exe -game` clients, and fails unless the server JSONL records `role_assignment_complete` with `players=8`, `saboteurs=2`, plus `match_started`. Early blockers also write `summary.txt` and `manifest.json` under `Saved\DedicatedReadyValidation\...`, including the expected player/saboteur counts and per-client log paths.
+This wrapper starts a headless dedicated server with `-FrostwakeAutoReady`, launches eight `UnrealEditor.exe -game` clients, and fails unless the server JSONL records `role_assignment_complete` with `players=8`, `saboteurs=2`, plus `match_started`. Early blockers also write `summary.txt` and `manifest.json` under `Saved\DedicatedReadyValidation\...`, including the expected player/saboteur counts and per-client log paths.
 
 When boot, client join, and ready-lobby behavior are understood, run the Phase 2 entry orchestration wrapper:
 
 ```powershell
 .\Tools\windows\run_phase2_entry_validation.ps1 `
   -SkipGenerate `
-  -ServerExe ".\Binaries\Win64\AbyssLockServer.exe" `
+  -ServerExe ".\Binaries\Win64\FrostwakeServer.exe" `
   -ServerConfig ".\Saved\Config\server_config.local.json" `
   -Port 7777 `
   -Clients 8 `
@@ -183,14 +183,14 @@ For local/LAN experiments only:
 Use structured logs for every validation run:
 
 - config log path: `Saved\Logs\server.jsonl`
-- command-line override: `-AbyssEventLog=C:\path\to\events.jsonl`
+- command-line override: `-FrostwakeEventLog=C:\path\to\events.jsonl`
 - smoke evidence: `Saved\SmokeTests\...`
 - suite evidence: `Saved\SmokeSuites\...`
 - crash notes: local `Saved\...` folders only
 
 Telemetry path precedence is:
 
-1. `-AbyssEventLog=...` command-line override, used by smoke and playtest scaffolds for isolated per-run logs.
+1. `-FrostwakeEventLog=...` command-line override, used by smoke and playtest scaffolds for isolated per-run logs.
 2. `logPath` from `-ServerConfig=...`, used by dedicated-server validation.
 3. Default `Saved\Logs\server.jsonl` if no override or config value is present.
 
@@ -235,7 +235,7 @@ Do not block Phase 1 Windows validation on these:
 
 ## First Dedicated Server Evidence To Capture
 
-Fill this after `AbyssLockServer` launches:
+Fill this after `FrostwakeServer` launches:
 
 ```text
 Commit:

@@ -19,7 +19,7 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
-$Project = Join-Path $RepoRoot "AbyssLock.uproject"
+$Project = Join-Path $RepoRoot "Frostwake.uproject"
 $Stamp = Get-Date -Format "yyyyMMdd-HHmmss"
 $OutDir = Join-Path $RepoRoot "Saved\DedicatedReadyValidation\$Stamp"
 New-Item -ItemType Directory -Force -Path $OutDir | Out-Null
@@ -123,7 +123,7 @@ function Write-Summary {
         "Commit: $Commit",
         "RunId: $RunId",
         "Platform: Win64",
-        "BuildTarget: AbyssLockServer",
+        "BuildTarget: FrostwakeServer",
         "BuildId: $BuildId",
         "Profile: $Profile",
         "ServerExe: $ResolvedServerExe",
@@ -165,7 +165,7 @@ function Write-Summary {
         commit = $Commit
         runId = $RunId
         platform = "Win64"
-        buildTarget = "AbyssLockServer"
+        buildTarget = "FrostwakeServer"
         buildId = $BuildId
         profile = $Profile
         serverExe = $ResolvedServerExe
@@ -206,7 +206,7 @@ try {
     }
 
     $ResolvedServerExe = if ([string]::IsNullOrWhiteSpace($ServerExe)) {
-        Join-Path $RepoRoot "Binaries\Win64\AbyssLockServer.exe"
+        Join-Path $RepoRoot "Binaries\Win64\FrostwakeServer.exe"
     } else {
         Resolve-RepoPath $ServerExe
     }
@@ -290,14 +290,14 @@ try {
         "-NoLiveCoding",
         "-nop4",
         "-ServerConfig=$ResolvedServerConfig",
-        "-AbyssEventLog=$EventLog",
-        "-AbyssRunId=$RunId",
-        "-AbyssBuildId=$BuildId",
-        "-AbyssMapId=$Map",
-        "-AbyssProfile=$Profile",
-        "-AbyssAutoReady",
-        "-AbyssLobbyMinPlayers=$ExpectedPlayers",
-        "-AbyssLobbyDevSaboteurs=$ExpectedSaboteurs",
+        "-FrostwakeEventLog=$EventLog",
+        "-FrostwakeRunId=$RunId",
+        "-FrostwakeBuildId=$BuildId",
+        "-FrostwakeMapId=$Map",
+        "-FrostwakeProfile=$Profile",
+        "-FrostwakeAutoReady",
+        "-FrostwakeLobbyMinPlayers=$ExpectedPlayers",
+        "-FrostwakeLobbyDevSaboteurs=$ExpectedSaboteurs",
         "-port=$Port"
     )
 

@@ -8,22 +8,22 @@ Create/find/join a Steam Lobby as a rendezvous layer, validate lobby metadata be
 
 ## C++ Boundary
 
-`UAbyssLobbySubsystem`
+`UFrostwakeLobbySubsystem`
 
 - Type: `UGameInstanceSubsystem`.
 - Owns lobby lifecycle calls.
 - Talks to Unreal Online Subsystem / Steam implementation behind compile/runtime gates.
-- Emits telemetry through `UAbyssTelemetrySubsystem`.
+- Emits telemetry through `UFrostwakeTelemetrySubsystem`.
 - Exposes Blueprint-callable functions for UI.
 - Does not assign roles, start matches, mutate inventory, or decide win conditions.
 
-`FAbyssLobbyMetadata`
+`FFrostwakeLobbyMetadata`
 
 - C++ mirror of `Tools/ops/lobby_metadata.schema.json`.
 - Fields: schema version, lobby name, lobby type, build id, map id, ruleset, max/current players, minimum completed matches, join state, connection mode, official flag, passworded flag, endpoint token, optional region, optional server name.
 - Converts to/from key-value metadata strings used by the Online Subsystem provider.
 
-`EAbyssLobbyRejectReason`
+`EFrostwakeLobbyRejectReason`
 
 - `None`
 - `SteamUnavailable`
@@ -38,11 +38,11 @@ Create/find/join a Steam Lobby as a rendezvous layer, validate lobby metadata be
 
 ## Current C++ Foundation
 
-`Source/AbyssLock/AbyssLobbySubsystem.*` now contains the Null/LAN-safe C++ mirror for the metadata and rejection contract:
+`Source/Frostwake/FrostwakeLobbySubsystem.*` now contains the Null/LAN-safe C++ mirror for the metadata and rejection contract:
 
-- `FAbyssLobbyMetadata` mirrors the schema fields.
-- `FAbyssLobbyJoinDecision` exposes `travelAllowed`, `rejectReason`, `rejectReasonCode`, message, and endpoint availability without logging endpoint tokens.
-- `UAbyssLobbySubsystem::EvaluateJoinMetadata` mirrors `cargo run -p frostwake-tools -- lobby-join-decision` for `InvalidMetadata`, `BuildMismatch`, `MapMismatch`, `LobbyFull`, `LobbyLocked`, `AlreadyInMatch`, and `EndpointUnavailable`.
+- `FFrostwakeLobbyMetadata` mirrors the schema fields.
+- `FFrostwakeLobbyJoinDecision` exposes `travelAllowed`, `rejectReason`, `rejectReasonCode`, message, and endpoint availability without logging endpoint tokens.
+- `UFrostwakeLobbySubsystem::EvaluateJoinMetadata` mirrors `cargo run -p frostwake-tools -- lobby-join-decision` for `InvalidMetadata`, `BuildMismatch`, `MapMismatch`, `LobbyFull`, `LobbyLocked`, `AlreadyInMatch`, and `EndpointUnavailable`.
 - `ToKeyValueMetadata` / `FromKeyValueMetadata` prepare the future Online Subsystem provider handoff.
 - `IsSteamLobbyRuntimeAvailable` intentionally returns false until the Steam runtime create/find/join path is implemented.
 
@@ -66,14 +66,14 @@ Blueprint must not:
 
 Steam Lobby is pre-match rendezvous only.
 
-- `AAbyssLockGameMode` remains the only owner of role assignment and match start.
-- `AAbyssLockGameState` remains the replicated public match state.
-- `AAbyssLockPlayerState` remains the player ready/role/life state owner.
+- `AFrostwakeGameMode` remains the only owner of role assignment and match start.
+- `AFrostwakeGameState` remains the replicated public match state.
+- `AFrostwakePlayerState` remains the player ready/role/life state owner.
 - Dedicated server ready-lobby validation remains the baseline for true match flow.
 
 ## Telemetry Events
 
-Use `UAbyssTelemetrySubsystem::LogEvent` with JSON payloads and no personal identifiers.
+Use `UFrostwakeTelemetrySubsystem::LogEvent` with JSON payloads and no personal identifiers.
 
 | Event | Required Payload |
 | --- | --- |
@@ -93,8 +93,8 @@ Use `UAbyssTelemetrySubsystem::LogEvent` with JSON payloads and no personal iden
 
 ## Validation Flow
 
-1. UI requests create/find/join through `UAbyssLobbySubsystem`.
-2. Subsystem builds or reads `FAbyssLobbyMetadata`.
+1. UI requests create/find/join through `UFrostwakeLobbySubsystem`.
+2. Subsystem builds or reads `FFrostwakeLobbyMetadata`.
 3. Subsystem validates metadata against the same rules as `cargo run -p frostwake-tools -- lobby-metadata-check`.
 4. Subsystem mirrors `cargo run -p frostwake-tools -- lobby-join-decision` reason codes before travel.
 5. Subsystem rejects mismatched build or map before travel.

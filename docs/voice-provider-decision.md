@@ -50,7 +50,7 @@ Sources consulted: `docs/best-practice-alignment.md` (official EOS Voice Chat pl
 | --- | --- | --- |
 | DIST | Achievable | VCI exposes volume/proximity attenuation callbacks; implementation maps to `voiceState=proximity` events |
 | WALL | Design decision, not provider-dependent | WALL attenuation is a Unreal audio geometry decision, not a voice-transport decision; can be explicit pass or defer for Phase 2 |
-| DOWN | Achievable | Channel switching on `EAbyssLifeState::Downed` is a server-authoritative state change exposed through VCI channel assignment |
+| DOWN | Achievable | Channel switching on `EFrostwakeLifeState::Downed` is a server-authoritative state change exposed through VCI channel assignment |
 | CONT | Achievable | Same channel-switch path as DOWN; contained players can be routed to a restricted channel |
 | DEAD | Achievable | Dead/spectator channel isolation is standard VCI channel management |
 | SAB | Achievable | A separate named EOS Voice channel for the saboteur team satisfies isolation; must be server-assigned, not client-selectable |
@@ -58,7 +58,7 @@ Sources consulted: `docs/best-practice-alignment.md` (official EOS Voice Chat pl
 | META | Achievable | VCI does not expose transcripts or recordings by design; `voiceState` metadata maps to existing backend report fields |
 | RECON | Achievable with care | EOS Voice supports rejoining a channel by name; reconnect behavior must be explicitly tested (see § 5 weakest signal) |
 | SETUP | Well-documented | Official EOS + Unreal integration docs exist; plugin enable path and config location are known |
-| SMOKE | Achievable | VCI implementations can be no-op-swapped or config-disabled for `AbyssLockServer` null-RHI smoke |
+| SMOKE | Achievable | VCI implementations can be no-op-swapped or config-disabled for `FrostwakeServer` null-RHI smoke |
 | NOCHAT | Satisfied by design | VCI + EOS Voice is entirely in-game; no external service hosts the match voice path |
 | COST | Manageable | EOS free tier covers early closed-test scale; per-DAU threshold applies at growth scale; no redistribution fee for Unreal plugin use |
 | VCI | Fully compatible | `EOSVoiceChat` module is the canonical VCI implementation from Epic |
@@ -150,7 +150,7 @@ No provider credentials, tokens, account IDs, or deployment IDs may be committed
 
 Required config keys (key names only; values stay ignored and local):
 - `DefaultEngine.ini` key group: `[OnlineSubsystem]` and `[EpicOnlineServices]` sections
-- Plugin enable: `EOSVoiceChat` in `DefaultGame.ini` or `AbyssLock.uproject` plugins array (added only when the Build.cs wiring cycle is opened)
+- Plugin enable: `EOSVoiceChat` in `DefaultGame.ini` or `Frostwake.uproject` plugins array (added only when the Build.cs wiring cycle is opened)
 
 ---
 
@@ -168,7 +168,7 @@ The Phase 2 decision for walls and exterior exposure is: **explicit pass (not de
 
 ### 6.3 Downed, Contained, and Dead Voice Rules
 
-These rules map to `EAbyssLifeState` values in `AbyssLockTypes.h`:
+These rules map to `EFrostwakeLifeState` values in `FrostwakeTypes.h`:
 
 | Life state | Speaking | Listening | Channel |
 | --- | --- | --- | --- |
@@ -177,7 +177,7 @@ These rules map to `EAbyssLifeState` values in `AbyssLockTypes.h`:
 | Contained (`Contained`) | Restricted (crew only, close range) | Restricted | Separate contained channel or suppressed proximity |
 | Dead / Spectating | No | Spectator channel only (if enabled) or silent | Dead channel, not proximity |
 
-Server authority: channel assignment must be triggered by a server-authoritative `EAbyssLifeState` change, not a client request. The VCI channel switch is a client action initiated on receiving the server-replicated life state update. Acceptance: observer logs confirm `voiceState=downed`, `voiceState=contained`, `voiceState=dead_spectator` events align with server-side life state transitions.
+Server authority: channel assignment must be triggered by a server-authoritative `EFrostwakeLifeState` change, not a client request. The VCI channel switch is a client action initiated on receiving the server-replicated life state update. Acceptance: observer logs confirm `voiceState=downed`, `voiceState=contained`, `voiceState=dead_spectator` events align with server-side life state transitions.
 
 ### 6.4 Saboteur Private Channel
 
@@ -185,7 +185,7 @@ The saboteur team uses a named EOS Voice channel separate from the proximity cha
 
 ### 6.5 Reconnect Behavior
 
-When a client disconnects and reconnects mid-match, the VCI channel rejoin must restore the player's correct voice state (proximity for alive, correct alternative for other life states). The current Phase 1 policy in `docs/technical-architecture.md` § Server Authority Rules explicitly states no-mid-match-reconnect until Phase 2 dedicated-server identity and rejoin behavior are designed. The reconnect voice path is therefore a Phase 2 acceptance item. Acceptance plan: on reconnect, the server re-sends the current `EAbyssLifeState` to the reconnected client; the client VCI layer re-joins the correct channel on receipt. A log event `voiceState=<channel>` on reconnect confirms restore.
+When a client disconnects and reconnects mid-match, the VCI channel rejoin must restore the player's correct voice state (proximity for alive, correct alternative for other life states). The current Phase 1 policy in `docs/technical-architecture.md` § Server Authority Rules explicitly states no-mid-match-reconnect until Phase 2 dedicated-server identity and rejoin behavior are designed. The reconnect voice path is therefore a Phase 2 acceptance item. Acceptance plan: on reconnect, the server re-sends the current `EFrostwakeLifeState` to the reconnected client; the client VCI layer re-joins the correct channel on receipt. A log event `voiceState=<channel>` on reconnect confirms restore.
 
 ### 6.6 Mute, Block, and Report
 
@@ -229,7 +229,7 @@ Remaining Provider Decision rows (Windows setup repeatable, automated smoke disa
 ## 9. Follow-Up Items
 
 - Reviewer (Steam/Ops, with Game Design) must review this memo and sign off before the Build.cs wiring cycle is opened.
-- Add `EOSVoiceChat` plugin to `AbyssLock.uproject` and `VoiceChat` / `EOSVoiceChat` modules to `Source/AbyssLock/AbyssLock.Build.cs` only in that wiring cycle, with a QA acceptance gate.
+- Add `EOSVoiceChat` plugin to `Frostwake.uproject` and `VoiceChat` / `EOSVoiceChat` modules to `Source/Frostwake/Frostwake.Build.cs` only in that wiring cycle, with a QA acceptance gate.
 - Write EOS Voice Windows setup notes (plugin enable, config key names, null-mode for smoke) as a separate `docs/eos-voice-setup.md` during the wiring cycle.
 - Runtime reconnect acceptance test is gated on GP-02 server-target resolution; record this as a P2-015 known gap.
 - Review EOS pricing against current docs before any Steam Playtest wave that mentions voice.

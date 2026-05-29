@@ -1,7 +1,7 @@
 #requires -Version 7.0
 <#
 .SYNOPSIS
-    Fill ja / zh-Hans translations into the gathered Frostwake (AbyssLock) localization archives.
+    Fill ja / zh-Hans translations into the gathered Frostwake localization archives.
 .DESCRIPTION
     Run after Game_Gather.ini and before Game_Compile.ini. Loads each culture's Game.archive, sets the
     Translation text by "Namespace|Key", and writes it back. JA is complete; zh-Hans is a glossary-backed
@@ -17,18 +17,18 @@ $Root = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
 $ArchiveDir = Join-Path $Root "Content\Localization\Game"
 
 $ja = @{
-    "AbyssShipTaskActor|AdvanceRouteProgressInteraction" = "航路を進める"
-    "AbyssShipTaskActor|ShipSystemEngine"                = "機関"
-    "AbyssShipTaskActor|ShipSystemFlooding"              = "浸水"
-    "AbyssShipTaskActor|ShipSystemFuel"                  = "燃料"
-    "AbyssShipTaskActor|ShipSystemHeat"                  = "暖房"
-    "AbyssShipTaskActor|ShipSystemHull"                  = "船体"
-    "AbyssShipTaskActor|ShipSystemPower"                 = "発電"
-    "AbyssShipTaskActor|ShipSystemRadio"                 = "無線"
-    "AbyssShipTaskActor|ShipSystemRouteProgress"         = "航路進行度"
-    "AbyssShipTaskActor|ShipSystemUnknown"               = "船の設備"
-    "AbyssShipTaskActor|RepairInteractionAction"         = "修理"
-    "AbyssShipTaskActor|SabotageInteractionAction"       = "妨害"
+    "FrostwakeShipTaskActor|AdvanceRouteProgressInteraction" = "航路を進める"
+    "FrostwakeShipTaskActor|ShipSystemEngine"                = "機関"
+    "FrostwakeShipTaskActor|ShipSystemFlooding"              = "浸水"
+    "FrostwakeShipTaskActor|ShipSystemFuel"                  = "燃料"
+    "FrostwakeShipTaskActor|ShipSystemHeat"                  = "暖房"
+    "FrostwakeShipTaskActor|ShipSystemHull"                  = "船体"
+    "FrostwakeShipTaskActor|ShipSystemPower"                 = "発電"
+    "FrostwakeShipTaskActor|ShipSystemRadio"                 = "無線"
+    "FrostwakeShipTaskActor|ShipSystemRouteProgress"         = "航路進行度"
+    "FrostwakeShipTaskActor|ShipSystemUnknown"               = "船の設備"
+    "FrostwakeShipTaskActor|RepairInteractionAction"         = "修理"
+    "FrostwakeShipTaskActor|SabotageInteractionAction"       = "妨害"
     "FrostwakeUI|Hud_RouteFinalApproachSuffix"           = "  - 最終接近！"
     "FrostwakeUI|Menu_FmtLobbyReady"                     = "{Required}人が揃いました。ホストが開始できます。"
     "FrostwakeUI|Hud_VitalFood"                          = "食料"
@@ -56,18 +56,18 @@ $ja = @{
 
 # zh-Hans: glossary-backed DRAFT, pending Localization review.
 $zh = @{
-    "AbyssShipTaskActor|AdvanceRouteProgressInteraction" = "推进航线进度"
-    "AbyssShipTaskActor|ShipSystemEngine"                = "引擎"
-    "AbyssShipTaskActor|ShipSystemFlooding"              = "进水"
-    "AbyssShipTaskActor|ShipSystemFuel"                  = "燃料"
-    "AbyssShipTaskActor|ShipSystemHeat"                  = "供暖"
-    "AbyssShipTaskActor|ShipSystemHull"                  = "船体"
-    "AbyssShipTaskActor|ShipSystemPower"                 = "电力"
-    "AbyssShipTaskActor|ShipSystemRadio"                 = "无线电"
-    "AbyssShipTaskActor|ShipSystemRouteProgress"         = "航线进度"
-    "AbyssShipTaskActor|ShipSystemUnknown"               = "船舶系统"
-    "AbyssShipTaskActor|RepairInteractionAction"         = "修复"
-    "AbyssShipTaskActor|SabotageInteractionAction"       = "破坏"
+    "FrostwakeShipTaskActor|AdvanceRouteProgressInteraction" = "推进航线进度"
+    "FrostwakeShipTaskActor|ShipSystemEngine"                = "引擎"
+    "FrostwakeShipTaskActor|ShipSystemFlooding"              = "进水"
+    "FrostwakeShipTaskActor|ShipSystemFuel"                  = "燃料"
+    "FrostwakeShipTaskActor|ShipSystemHeat"                  = "供暖"
+    "FrostwakeShipTaskActor|ShipSystemHull"                  = "船体"
+    "FrostwakeShipTaskActor|ShipSystemPower"                 = "电力"
+    "FrostwakeShipTaskActor|ShipSystemRadio"                 = "无线电"
+    "FrostwakeShipTaskActor|ShipSystemRouteProgress"         = "航线进度"
+    "FrostwakeShipTaskActor|ShipSystemUnknown"               = "船舶系统"
+    "FrostwakeShipTaskActor|RepairInteractionAction"         = "修复"
+    "FrostwakeShipTaskActor|SabotageInteractionAction"       = "破坏"
     "FrostwakeUI|Hud_RouteFinalApproachSuffix"           = "  - 最终接近！"
     "FrostwakeUI|Menu_FmtLobbyReady"                     = "{Required} 名玩家已就绪。房主可以开始。"
     "FrostwakeUI|Hud_VitalFood"                          = "食物"

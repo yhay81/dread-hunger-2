@@ -1,7 +1,7 @@
 {
   "required_files": [
     "README.md",
-    "AbyssLock.uproject",
+    "Frostwake.uproject",
     "docs/vision.md",
     "docs/game-design.md",
     "docs/production-plan.md",
@@ -59,10 +59,10 @@
     "apps/backend/tests/server.rs",
     "crates/frostwake-tools/Cargo.toml",
     "crates/frostwake-tools/src/main.rs",
-    "Source/AbyssLockEditor/AbyssLockEditor.Build.cs",
-    "Source/AbyssLockEditor/Private/AbyssLockEditor.cpp",
-    "Source/AbyssLockEditor/Public/AbyssWhiteboxCommandlets.h",
-    "Source/AbyssLockEditor/Private/AbyssWhiteboxCommandlets.cpp",
+    "Source/FrostwakeEditor/FrostwakeEditor.Build.cs",
+    "Source/FrostwakeEditor/Private/FrostwakeEditor.cpp",
+    "Source/FrostwakeEditor/Public/FrostwakeWhiteboxCommandlets.h",
+    "Source/FrostwakeEditor/Private/FrostwakeWhiteboxCommandlets.cpp",
     "docs/steam-native-implementation-backlog.md",
     "docs/steam-phase2-integration-plan.md",
     "docs/steam-dedicated-server-client-join.md",
@@ -111,7 +111,7 @@
     "Tools/install"
   ],
   "json_files": [
-    "AbyssLock.uproject",
+    "Frostwake.uproject",
     "references/external-paths.json",
     "Tools/ops/config.schema.json",
     "Tools/ops/server_config.schema.json",

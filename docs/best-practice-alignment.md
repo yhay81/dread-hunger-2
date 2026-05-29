@@ -56,7 +56,7 @@ The core approach is aligned:
 ## Phase Gates To Preserve
 
 1. Phase 1 stays on `OnlineSubsystemNull`, generic replication, local listen-server and Windows dedicated-server boot validation.
-2. Phase 2 starts only after Windows `AbyssLockServer` boot and client join evidence exists.
+2. Phase 2 starts only after Windows `FrostwakeServer` boot and client join evidence exists.
 3. Steam Lobby can be added before Steam Server Browser, but lobby metadata must remain lightweight and non-authoritative.
 4. Server Browser and Steam Game Servers API work must wait for build id compatibility checks, ownership/auth checks, and moderation basics.
 5. SDR work must be designed before any public IP/port-based hosting plan becomes product policy.

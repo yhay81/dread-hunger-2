@@ -40,7 +40,7 @@ cycle 102/103 で実装した「燃料がある間は時間で自動前進」は
 
 ## 1. 現状のギャップ（なぜ「未完成」か）
 
-1. **約10秒で勝てる**：航路タスクは1個・1操作で+0.35・無制限（`AbyssWhiteboxCommandlets.cpp` `TASK_Repair_Route` Delta=0.35）→ E×3で即勝利。25分タイマーが無意味。
+1. **約10秒で勝てる**：航路タスクは1個・1操作で+0.35・無制限（`FrostwakeWhiteboxCommandlets.cpp` `TASK_Repair_Route` Delta=0.35）→ E×3で即勝利。25分タイマーが無意味。
 2. **持続ループが無い**：燃料消費・維持などのゲートが無く、既存の燃料/熱/空腹/修理が勝敗にほぼ無関係。
 3. **勝敗リザルト画面が無い**：HUDに勝敗表示ゼロ（`WinningTeam`/`MatchEndReason` は複製済みなのに未表示）。
 4. **ソロで倒れても試合が終わらない**：HP0→`Downed`、クルー全滅負けは5人以上のみ判定 → ソロは放置される。
@@ -60,7 +60,7 @@ cycle 102/103 で実装した「燃料がある間は時間で自動前進」は
 こなすと航路100%。
 
 ### 実装の要（既存システムを再利用）
-- **燃料 = 既存の `EAbyssShipSystem::Fuel` のCondition(0..1)** を流用（新フィールド不要）。
+- **燃料 = 既存の `EFrostwakeShipSystem::Fuel` のCondition(0..1)** を流用（新フィールド不要）。
   「航行中」＝ Fuel Condition > 0。
 - **航海tick**：既存の1秒 `HandleMatchTimerTick` に乗せる。航行中なら毎秒、Fuelを `BurnPerSec` 減らし、
   `RouteProgress` を `ProgressPerSec` 増やす（`ProgressPerSec` は満タン維持で~28分到達に調整）。
@@ -89,7 +89,7 @@ cycle 102/103 で実装した「燃料がある間は時間で自動前進」は
   `voyage_progress{progress:0.001,fuel:0.997}`（tickが時間で進行＋燃料消費）＋
   `match_ended{winner:crew,reason:final_approach_complete}`（勝利解決）。Editor+Game build＋quality-gate green。
 - [x] **Step 4（リザルトUI）cycle 104**：勝敗リザルト画面を実装（`MatchEnded` で中央に VICTORY/DEFEAT ＋
-  理由を表示、視点プレイヤーの陣営で勝敗判定＝狂人は工作員勝利で勝ち）。文字列は `AbyssUIText` キー（JA/zh-Hans は
+  理由を表示、視点プレイヤーの陣営で勝敗判定＝狂人は工作員勝利で勝ち）。文字列は `FrostwakeUIText` キー（JA/zh-Hans は
   GP-09パイプラインで翻訳）。GP-09のローカライズ基盤が landed したため衝突なしで実装。Editor+Game build＋quality-gate green。
 
 ## 6. 検証

@@ -45,8 +45,8 @@
 
 ### 2.3 能力（人狼狂人型 = 妨害能力なし）
 
-- 狂人に **工作員の妨害能力は無い**。妨害は `== EAbyssTeam::Saboteur` でゲートされている
-  （`AbyssShipTaskActor.cpp` の sabotage 判定、`AbyssDoorActor.cpp` の工作員専用アクション）ため、
+- 狂人に **工作員の妨害能力は無い**。妨害は `== EFrostwakeTeam::Saboteur` でゲートされている
+  （`FrostwakeShipTaskActor.cpp` の sabotage 判定、`FrostwakeDoorActor.cpp` の工作員専用アクション）ため、
   狂人は自動的に妨害不可。
 - 一方、修理タスク・ドア等の「Unassigned/Spectator 以外なら可」の行動は **クルー同様に行える**。
   → 狂人は表向きクルーとして振る舞い、会話・誤誘導・リソース浪費で工作員を**間接支援**する純粋な撹乱役。
@@ -73,8 +73,8 @@
 
 ホストは以下を設定できる:
 
-1. **モード**: `Standard` / `Madman`（`EAbyssMatchMode`）
-2. **難易度プリセット**: `Easy` / `Normal` / `Hard`（`EAbyssDifficulty`）— 下の数値群を一括設定
+1. **モード**: `Standard` / `Madman`（`EFrostwakeMatchMode`）
+2. **難易度プリセット**: `Easy` / `Normal` / `Hard`（`EFrostwakeDifficulty`）— 下の数値群を一括設定
 3. **主要数値の個別調整**（任意・プリセットを上書き）:
    - 工作員人数（`SaboteurCount`、-1=人数から自動）
    - 狂人人数（`MadmanCount`）
@@ -84,15 +84,15 @@
 
 ### 3.2 データモデル（実装済み）
 
-`Source/AbyssLock/AbyssLockTypes.h`:
+`Source/Frostwake/FrostwakeTypes.h`:
 
 ```cpp
-enum class EAbyssMatchMode : uint8 { Standard, Madman };
-enum class EAbyssDifficulty : uint8 { Easy, Normal, Hard };
+enum class EFrostwakeMatchMode : uint8 { Standard, Madman };
+enum class EFrostwakeDifficulty : uint8 { Easy, Normal, Hard };
 
-struct FAbyssMatchConfig {
-    EAbyssMatchMode  Mode = Standard;
-    EAbyssDifficulty Difficulty = Normal;
+struct FFrostwakeMatchConfig {
+    EFrostwakeMatchMode  Mode = Standard;
+    EFrostwakeDifficulty Difficulty = Normal;
     int32  SaboteurCount = -1;                 // -1 = auto
     int32  MadmanCount = 0;                     // Madman mode = 1
     int32  RequiredCrewSurvivorsOverride = -1;  // -1 = auto
@@ -115,7 +115,7 @@ struct FAbyssMatchConfig {
 ### 3.4 設定の流れ（サーバ権威）
 
 ```
-ホストUI(BP/UMG) → SetActiveMatchConfig(FAbyssMatchConfig)  [BlueprintAuthorityOnly]
+ホストUI(BP/UMG) → SetActiveMatchConfig(FFrostwakeMatchConfig)  [BlueprintAuthorityOnly]
                  → GameMode が ActiveMatchConfig を保持
                  → 役職割り当て(AssignRolesForCurrentPlayersInternal)で Saboteur/Madman/Crew を構成
                  → 勝敗判定(GetRequiredCrewSurvivors)で生存クルー閾値に反映
@@ -125,10 +125,10 @@ struct FAbyssMatchConfig {
 
 ## 4. 実装済み（cycle 97 — 最初のスライス）
 
-`Source/AbyssLock/`:
+`Source/Frostwake/`:
 
-- **型**: `EAbyssMatchMode` / `EAbyssDifficulty` / `FAbyssMatchConfig` を追加。
-  `EAbyssTeam` に `Madman` を**末尾追加**（既存値は不変）。
+- **型**: `EFrostwakeMatchMode` / `EFrostwakeDifficulty` / `FFrostwakeMatchConfig` を追加。
+  `EFrostwakeTeam` に `Madman` を**末尾追加**（既存値は不変）。
 - **役職割り当て**: `AssignRolesForCurrentPlayersInternal(int32 Saboteur, int32 Madman=0)` に拡張。
   シャッフル後 `[0,Sab)=Saboteur` / `[Sab,Sab+Madman)=Madman` / 残り=Crew。
   狂人の `SecretTeam=Madman`、`RevealedTeam=Unassigned`（他者からはクルーと同一）。
@@ -137,30 +137,30 @@ struct FAbyssMatchConfig {
   `EvaluateMatchEnd` は狂人をクルーに数えない（敵陣営扱い）ことをコメントで明示。
 - **テレメトリ**: `role_assignment_complete` に `madmen` / `mode` を追加。
   `SetActiveMatchConfig` で `match_config_set` をログ。
-- **開発検証フック**: 開発オートスタートで `-AbyssMode=` / `-AbyssDifficulty=` を解釈。
+- **開発検証フック**: 開発オートスタートで `-FrostwakeMode=` / `-FrostwakeDifficulty=` を解釈。
 
 ### 検証コマンド（8人狂人モードの headless 確認例）
 
 ```
-... L_IcebreakerWhitebox -game -AbyssAutoStart -AbyssAutoStartMinPlayers=8 \
-    -AbyssMode=madman -AbyssDifficulty=hard -AbyssDevSaboteurs=2
+... L_IcebreakerWhitebox -game -FrostwakeAutoStart -FrostwakeAutoStartMinPlayers=8 \
+    -FrostwakeMode=madman -FrostwakeDifficulty=hard -FrostwakeDevSaboteurs=2
 → ログ: role_assignment_complete players=8 saboteurs=2 madmen=1 mode=madman
 ```
 
-> 注: 既定の開発オートスタートは工作員0なので、狂人モードの確認時は `-AbyssDevSaboteurs=2` を併用する。
+> 注: 既定の開発オートスタートは工作員0なので、狂人モードの確認時は `-FrostwakeDevSaboteurs=2` を併用する。
 
 ---
 
 ## 5. 未実装 / 明示的に「データはあるが未消費」
 
 - ~~`SurvivalDecayMultiplier` / `SabotageIntensityMultiplier` は resolve・保持・ログまで実装済みだが
-  まだ消費していない~~ → **cycle 98 で消費開始**。`AAbyssLockCharacter::UpdateSurvival` が空腹/寒さの
-  減少に `SurvivalDecayMultiplier` を、`AAbyssShipTaskActor::Interact` が**妨害時のみ**条件デルタに
+  まだ消費していない~~ → **cycle 98 で消費開始**。`AFrostwakeCharacter::UpdateSurvival` が空腹/寒さの
+  減少に `SurvivalDecayMultiplier` を、`AFrostwakeShipTaskActor::Interact` が**妨害時のみ**条件デルタに
   `SabotageIntensityMultiplier` を乗算（いずれもサーバ権威で GameMode の `ActiveMatchConfig` を参照、
   取得不可時は 1.0）。修理は難易度の影響を受けない。
 - ~~狂人本人のHUD役職表示（「あなたは狂人」）は未実装~~ → **cycle 104 で実装**。HUDの役職行が毎tick
   owner-only `GetSecretTeamForOwner()` から更新され、狂人本人だけ「Role: Madman」表示（他者からはクルー）。
-  勝敗リザルト画面も同cycleで実装（狂人は工作員勝利で VICTORY）。文字列は `AbyssUIText` キー（JA翻訳はGP-09）。
+  勝敗リザルト画面も同cycleで実装（狂人は工作員勝利で VICTORY）。文字列は `FrostwakeUIText` キー（JA翻訳はGP-09）。
 - ~~ホストUI（モード／難易度のUMGパネル）は未実装~~ → **cycle 105 で実装**。メニューの lobby-choice 画面に
   Mode（Standard/Madman）/ Difficulty（Easy/Normal/Hard）のサイクルボタンを追加。選択は travel URL
   （`?mode=`/`?difficulty=`）で運ばれ `InitGame` → `ResolveMatchConfig` → `ActiveMatchConfig` に反映。
@@ -177,9 +177,9 @@ struct FAbyssMatchConfig {
   - (b) `SurvivalDecayMultiplier` を 1s decay に、`SabotageIntensityMultiplier` を sabotage delta に適用。
   - (c) 結果画面で「狂人＝工作員勝利で勝ち」をプレイヤー個別に属性付け。
   - (d) 人間テスト後、`crew_threshold` 閾値を真クルー数ベースにするか判断（§2.4 注記）。
-- **GP-04**: ✅ **(cycle 99)** `FAbyssLobbyMetadata` / `lobby_metadata.schema.json` に `mode` / `difficulty`
+- **GP-04**: ✅ **(cycle 99)** `FFrostwakeLobbyMetadata` / `lobby_metadata.schema.json` に `mode` / `difficulty`
   を追加（任意・enum、欠落時は standard/normal、情報用で join 拒否理由ではない）。Rust 検証＋C++ KV変換＋
-  契約docも更新。**残り**: ホスト設定 / `FAbyssServerConfig.Ruleset` → ロビーの `mode`/`difficulty` を
+  契約docも更新。**残り**: ホスト設定 / `FFrostwakeServerConfig.Ruleset` → ロビーの `mode`/`difficulty` を
   実際に埋める配線（host UI と合わせて）。
 - **GP-09**: ホスト設定UMGパネル（モード／難易度／数値）＋全ラベルの LOCTEXT 日本語化
   （`docs/gp09-jp-localization-font-plan.md` に合流）。

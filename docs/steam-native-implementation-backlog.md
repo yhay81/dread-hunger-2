@@ -28,7 +28,7 @@ This backlog keeps the project aligned with the intended operational flow: launc
 
 ## Phase 2: Dedicated Server Target
 
-- Build and run `AbyssLockServer` locally.
+- Build and run `FrostwakeServer` locally.
 - Confirm the same `GameMode` works without a local player.
 - Run a client-join validation against the dedicated server before starting Steam server discovery work.
 - Load config from `-ServerConfig=/path/to/ServerConfig.json`.

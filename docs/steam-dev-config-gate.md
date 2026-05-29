@@ -4,7 +4,7 @@ P2-002 enables a safe path for Steam development without changing the default Ph
 
 ## Policy
 
-- `AbyssLock.uproject` keeps `OnlineSubsystemSteam` explicit and disabled until the Windows Steam spike begins.
+- `Frostwake.uproject` keeps `OnlineSubsystemSteam` explicit and disabled until the Windows Steam spike begins.
 - `Config/DefaultEngine.ini` keeps `DefaultPlatformService=Null`.
 - Steam AppID values, Steam server query ports, and Steam-only local settings stay in ignored local files under `Saved\Config\`.
 - Steam work starts only after P2-001 and P2-005 pass on Windows.

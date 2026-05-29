@@ -94,6 +94,6 @@ Target the first Steam Playtest only after the following are true:
 ## Current Blockers
 
 - Windows Unreal validation is still pending after the Mac handoff.
-- Mac Launcher UE blocks `AbyssLockServer`; Win64 server target must be retested on Windows.
+- Mac Launcher UE blocks `FrostwakeServer`; Win64 server target must be retested on Windows.
 - Steamworks partner/AppID setup has not been recorded in this repository.
 - Store assets and first gameplay screenshots are not ready.

@@ -1,8 +1,8 @@
 # GP-09 First-Match Comprehension Checklist
 
 Authored: 2026-05-29 · Source: `docs/game-design.md`, `docs/accessibility-baseline.md`,
-`docs/localization-glossary.md`, `Source/AbyssLock/AbyssShipTaskActor.cpp`,
-`Source/AbyssLock/AbyssMainMenuWidget.cpp`
+`docs/localization-glossary.md`, `Source/Frostwake/FrostwakeShipTaskActor.cpp`,
+`Source/Frostwake/FrostwakeMainMenuWidget.cpp`
 
 This checklist defines the three questions a first-time player should be able to answer
 after completing one match, with or without external coaching. Each item maps to the
@@ -34,7 +34,7 @@ approach completes.
 
 **Current in-game signal providing the answer:**
 - Ship task interaction prompts: `"Advance Route Progress"` (LOCTEXT key
-  `AdvanceRouteProgressInteraction` in `AbyssShipTaskActor.cpp`). This is the highest-
+  `AdvanceRouteProgressInteraction` in `FrostwakeShipTaskActor.cpp`). This is the highest-
   clarity signal for crew objective.
 - Repair prompts: `"Repair Hull"`, `"Repair Fuel"`, etc. (`ShipTaskInteractionFormat`).
 - No in-match HUD currently shows team assignment, route progress bar, or win-condition
@@ -68,10 +68,10 @@ stop, hatch freeze, radio frequency shift, or route marker spoof — per `docs/g
 - 白箱で削る基準: tasks must create conversation, not solo-grind.
 
 **Current in-game signal providing the answer:**
-- `AbyssShipTaskActor.cpp` interaction prompts: `"Repair Hull"`, `"Sabotage Fuel"`, etc.
+- `FrostwakeShipTaskActor.cpp` interaction prompts: `"Repair Hull"`, `"Sabotage Fuel"`, etc.
   These are LOCTEXT-wrapped and glossary-consistent.
 - No tutorial overlay, minimap, or role card directs players to the nearest relevant task.
-- `AbyssLifeActionActor.cpp` uses `"Assist"` (not `"Rescue"` or `"Contain"`) — this does
+- `FrostwakeLifeActionActor.cpp` uses `"Assist"` (not `"Rescue"` or `"Contain"`) — this does
   not communicate which life action is being offered, leaving the player uncertain of the
   consequence.
 
@@ -108,7 +108,7 @@ before the agents could trigger a fatal system failure or eliminate enough crew.
 **Current in-game signal providing the answer:**
 - No end-of-match result screen or loss-reason text exists in the current build. Players
   observe that the match ended and the widget closes (`EnterGameInputAndClose()` in
-  `AbyssMainMenuWidget.cpp`), but no message states why.
+  `FrostwakeMainMenuWidget.cpp`), but no message states why.
 - No post-match role reveal is currently implemented.
 
 **Gap:** This is a critical comprehension blocker for the Phase 1 bar. After one match,
@@ -128,9 +128,9 @@ survivors) without the observer explaining it.
 | --- | --- | --- | --- |
 | 1 (critical) | No end-of-match result / loss-reason display | No current file — new UI needed | Add a minimal result overlay (win condition met + reason) before P1-024 human run |
 | 2 (high) | No role card or team-goal display at match start | No current file — new UI needed | Add a 3-second role-reveal overlay showing `乗員` / `工作員` + one-sentence goal at match begin |
-| 3 (high) | `"Assist"` label does not distinguish rescue from containment | `AbyssLifeActionActor.cpp` line 14 | Change label to `"Rescue"` or `"Contain"` based on target player state (server-authoritative read) |
+| 3 (high) | `"Assist"` label does not distinguish rescue from containment | `FrostwakeLifeActionActor.cpp` line 14 | Change label to `"Rescue"` or `"Contain"` based on target player state (server-authoritative read) |
 | 4 (medium) | No route-progress indicator on HUD | No current HUD file | Add a numeric or bar display of route progress percentage |
-| 5 (medium) | `AbyssMainMenuWidget.cpp` strings are hardcoded Japanese with no LOCTEXT namespace | `AbyssMainMenuWidget.cpp` lines 118-126, 148, 162, 188, 206-214 | Wrap in `LOCTEXT_NAMESPACE "AbyssMainMenuWidget"` with glossary-consistent keys |
+| 5 (medium) | `FrostwakeMainMenuWidget.cpp` strings are hardcoded Japanese with no LOCTEXT namespace | `FrostwakeMainMenuWidget.cpp` lines 118-126, 148, 162, 188, 206-214 | Wrap in `LOCTEXT_NAMESPACE "FrostwakeMainMenuWidget"` with glossary-consistent keys |
 
 ---
 
@@ -138,14 +138,14 @@ survivors) without the observer explaining it.
 
 ### Problem
 
-`AbyssMainMenuWidget.cpp` renders all button labels and lobby status strings in Japanese
+`FrostwakeMainMenuWidget.cpp` renders all button labels and lobby status strings in Japanese
 (`"ゲーム開始"`, `"一人モード"`, `"ロビーを開く"`, `"ロビーに入る"`, `"開始"`,
 `"8人揃いました。ホストが開始できます。"`, etc.) using the default Slate font, which
 inherits the engine default (Roboto). Roboto does not include Japanese (CJK) glyphs, so
 these strings render as blank boxes or question marks in shipping builds and on machines
 without system JP fonts installed.
 
-This was confirmed by reading `AbyssMainMenuWidget.cpp` directly: `MakeText` calls
+This was confirmed by reading `FrostwakeMainMenuWidget.cpp` directly: `MakeText` calls
 `TextBlock->GetFont()` and sets only the size, leaving typeface as the engine default.
 
 ### Recommended Font: Noto Sans JP
@@ -192,12 +192,12 @@ composite Font. The composite Font is what `FSlateFontInfo` references at runtim
 
 #### Step 3 — Reference the font in Slate / UMG C++
 
-In `AbyssMainMenuWidget.cpp`, the `MakeText` helper sets `FSlateFontInfo` via
+In `FrostwakeMainMenuWidget.cpp`, the `MakeText` helper sets `FSlateFontInfo` via
 `TextBlock->GetFont()`. To apply Noto Sans JP, load the Font asset and assign its
 typeface:
 
 ```cpp
-// At the top of AbyssMainMenuWidget.cpp (or in a shared helper header):
+// At the top of FrostwakeMainMenuWidget.cpp (or in a shared helper header):
 static const FSlateFontInfo GetNotoSansJPFont(float InSize)
 {
     // Load the composite Font asset created in Step 2.
@@ -247,7 +247,7 @@ and (c) the Font Face asset inside the composite Font has the correct `.uasset` 
 #### Step 5 — LOCTEXT wrapping prerequisite
 
 The JP-font wiring makes the existing hardcoded strings render correctly. Wrapping those
-strings in `LOCTEXT_NAMESPACE "AbyssMainMenuWidget"` (backlog item in GP-09.state.md)
+strings in `LOCTEXT_NAMESPACE "FrostwakeMainMenuWidget"` (backlog item in GP-09.state.md)
 is a separate subsequent step — it does not affect font rendering but is required before
 localization batches can be sent to a translator.
 
