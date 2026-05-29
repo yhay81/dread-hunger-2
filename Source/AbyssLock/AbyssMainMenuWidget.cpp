@@ -1,6 +1,7 @@
 #include "AbyssMainMenuWidget.h"
 
 #include "AbyssLockGameState.h"
+#include "AbyssUIText.h"
 #include "AbyssLockPlayerController.h"
 #include "AbyssLockPlayerState.h"
 #include "Blueprint/WidgetTree.h"
@@ -25,9 +26,7 @@ UTextBlock* MakeText(UWidgetTree* WidgetTree, const FText& Text, float FontSize)
 {
     UTextBlock* TextBlock = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass());
     TextBlock->SetText(Text);
-    FSlateFontInfo Font = TextBlock->GetFont();
-    Font.Size = FontSize;
-    TextBlock->SetFont(Font);
+    TextBlock->SetFont(AbyssUIText::UiFont(FontSize));
     TextBlock->SetJustification(ETextJustify::Center);
     return TextBlock;
 }
@@ -115,15 +114,15 @@ void UAbyssMainMenuWidget::BuildWidgetTree()
     StatusText = MakeText(WidgetTree, FText::GetEmpty(), 18.0f);
     PlayerCountText = MakeText(WidgetTree, FText::GetEmpty(), 22.0f);
 
-    GameStartButton = MakeButton(WidgetTree, FText::FromString(TEXT("ゲーム開始")));
-    SoloModeButton = MakeButton(WidgetTree, FText::FromString(TEXT("一人モード")));
-    HostLobbyButton = MakeButton(WidgetTree, FText::FromString(TEXT("ロビーを開く")));
-    JoinLobbyButton = MakeButton(WidgetTree, FText::FromString(TEXT("ロビーに入る")));
-    HostStartButton = MakeButton(WidgetTree, FText::FromString(TEXT("開始")));
+    GameStartButton = MakeButton(WidgetTree, AbyssUIText::Text(TEXT("Menu_Play")));
+    SoloModeButton = MakeButton(WidgetTree, AbyssUIText::Text(TEXT("Menu_SoloPractice")));
+    HostLobbyButton = MakeButton(WidgetTree, AbyssUIText::Text(TEXT("Menu_HostLobby")));
+    JoinLobbyButton = MakeButton(WidgetTree, AbyssUIText::Text(TEXT("Menu_JoinLobby")));
+    HostStartButton = MakeButton(WidgetTree, AbyssUIText::Text(TEXT("Menu_StartMatch")));
 
     JoinAddressText = WidgetTree->ConstructWidget<UEditableTextBox>(UEditableTextBox::StaticClass());
     JoinAddressText->SetText(FText::FromString(TEXT("127.0.0.1")));
-    JoinAddressText->SetHintText(FText::FromString(TEXT("接続先アドレス")));
+    JoinAddressText->SetHintText(AbyssUIText::Text(TEXT("Menu_AddressHint")));
 
     GameStartButton->OnClicked.AddDynamic(this, &UAbyssMainMenuWidget::HandleGameStartClicked);
     SoloModeButton->OnClicked.AddDynamic(this, &UAbyssMainMenuWidget::HandleSoloModeClicked);
@@ -159,7 +158,7 @@ void UAbyssMainMenuWidget::ShowStartScreen()
 void UAbyssMainMenuWidget::ShowLobbyChoiceScreen()
 {
     CurrentScreen = EAbyssFrontEndScreen::LobbyChoice;
-    StatusText->SetText(FText::FromString(TEXT("ロビーを作成するか、既存のロビーに参加してください。")));
+    StatusText->SetText(AbyssUIText::Text(TEXT("Menu_LobbyChoicePrompt")));
     PlayerCountText->SetVisibility(ESlateVisibility::Collapsed);
     JoinAddressText->SetVisibility(ESlateVisibility::Visible);
     GameStartButton->SetVisibility(ESlateVisibility::Collapsed);
@@ -185,7 +184,12 @@ void UAbyssMainMenuWidget::ShowLobbyScreen()
 void UAbyssMainMenuWidget::RefreshLobbyState()
 {
     const int32 PlayerCount = GetConnectedPlayerCount();
-    PlayerCountText->SetText(FText::FromString(FString::Printf(TEXT("%d / %d"), PlayerCount, AbyssLobbyRequiredPlayers)));
+    {
+        FFormatNamedArguments Args;
+        Args.Add(TEXT("Current"), PlayerCount);
+        Args.Add(TEXT("Required"), AbyssLobbyRequiredPlayers);
+        PlayerCountText->SetText(FText::Format(AbyssUIText::Text(TEXT("Menu_FmtPlayerCount")), Args));
+    }
 
     if (const AAbyssLockGameState* AbyssGameState = GetWorld() ? GetWorld()->GetGameState<AAbyssLockGameState>() : nullptr)
     {
@@ -203,15 +207,19 @@ void UAbyssMainMenuWidget::RefreshLobbyState()
 
     if (bReadyToStart)
     {
-        StatusText->SetText(FText::FromString(TEXT("8人揃いました。ホストが開始できます。")));
+        FFormatNamedArguments Args;
+        Args.Add(TEXT("Required"), AbyssLobbyRequiredPlayers);
+        StatusText->SetText(FText::Format(AbyssUIText::Text(TEXT("Menu_FmtLobbyReady")), Args));
     }
     else if (bHost)
     {
-        StatusText->SetText(FText::FromString(TEXT("8人揃うまで待機中です。")));
+        FFormatNamedArguments Args;
+        Args.Add(TEXT("Required"), AbyssLobbyRequiredPlayers);
+        StatusText->SetText(FText::Format(AbyssUIText::Text(TEXT("Menu_FmtLobbyWaiting")), Args));
     }
     else
     {
-        StatusText->SetText(FText::FromString(TEXT("ホストの開始を待っています。")));
+        StatusText->SetText(AbyssUIText::Text(TEXT("Menu_WaitingForHost")));
     }
 }
 

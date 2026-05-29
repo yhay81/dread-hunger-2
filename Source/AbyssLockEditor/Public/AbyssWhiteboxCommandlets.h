@@ -91,3 +91,14 @@ public:
 
     virtual int32 Main(const FString& Params) override;
 };
+
+UCLASS()
+class ABYSSLOCKEDITOR_API UImportNotoCjkFontAssetsCommandlet : public UCommandlet
+{
+    GENERATED_BODY()
+
+public:
+    UImportNotoCjkFontAssetsCommandlet();
+
+    virtual int32 Main(const FString& Params) override;
+};

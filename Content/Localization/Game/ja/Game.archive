@@ -1,0 +1,358 @@
+{
+  "FormatVersion": 2,
+  "Namespace": "",
+  "Subnamespaces": [
+    {
+      "Namespace": "AbyssShipTaskActor",
+      "Children": [
+        {
+          "Source": {
+            "Text": "Advance Route Progress"
+          },
+          "Translation": {
+            "Text": "航路を進める"
+          },
+          "Key": "AdvanceRouteProgressInteraction"
+        },
+        {
+          "Source": {
+            "Text": "Engine"
+          },
+          "Translation": {
+            "Text": "機関"
+          },
+          "Key": "ShipSystemEngine"
+        },
+        {
+          "Source": {
+            "Text": "Flooding"
+          },
+          "Translation": {
+            "Text": "浸水"
+          },
+          "Key": "ShipSystemFlooding"
+        },
+        {
+          "Source": {
+            "Text": "Fuel"
+          },
+          "Translation": {
+            "Text": "燃料"
+          },
+          "Key": "ShipSystemFuel"
+        },
+        {
+          "Source": {
+            "Text": "Heat"
+          },
+          "Translation": {
+            "Text": "暖房"
+          },
+          "Key": "ShipSystemHeat"
+        },
+        {
+          "Source": {
+            "Text": "Hull"
+          },
+          "Translation": {
+            "Text": "船体"
+          },
+          "Key": "ShipSystemHull"
+        },
+        {
+          "Source": {
+            "Text": "Power"
+          },
+          "Translation": {
+            "Text": "発電"
+          },
+          "Key": "ShipSystemPower"
+        },
+        {
+          "Source": {
+            "Text": "Radio"
+          },
+          "Translation": {
+            "Text": "無線"
+          },
+          "Key": "ShipSystemRadio"
+        },
+        {
+          "Source": {
+            "Text": "Repair"
+          },
+          "Translation": {
+            "Text": "修理"
+          },
+          "Key": "RepairInteractionAction"
+        },
+        {
+          "Source": {
+            "Text": "Route Progress"
+          },
+          "Translation": {
+            "Text": "航路進行度"
+          },
+          "Key": "ShipSystemRouteProgress"
+        },
+        {
+          "Source": {
+            "Text": "Sabotage"
+          },
+          "Translation": {
+            "Text": "妨害"
+          },
+          "Key": "SabotageInteractionAction"
+        },
+        {
+          "Source": {
+            "Text": "Ship System"
+          },
+          "Translation": {
+            "Text": "船の設備"
+          },
+          "Key": "ShipSystemUnknown"
+        },
+        {
+          "Source": {
+            "Text": "{0} {1}"
+          },
+          "Translation": {
+            "Text": ""
+          },
+          "Key": "ShipTaskInteractionFormat"
+        }
+      ]
+    },
+    {
+      "Namespace": "FrostwakeUI",
+      "Children": [
+        {
+          "Source": {
+            "Text": "  - Final Approach!"
+          },
+          "Translation": {
+            "Text": "  - 最終接近！"
+          },
+          "Key": "Hud_RouteFinalApproachSuffix"
+        },
+        {
+          "Source": {
+            "Text": "All {Required} players are ready. The host can start."
+          },
+          "Translation": {
+            "Text": "{Required}人が揃いました。ホストが開始できます。"
+          },
+          "Key": "Menu_FmtLobbyReady"
+        },
+        {
+          "Source": {
+            "Text": "Food"
+          },
+          "Translation": {
+            "Text": "食料"
+          },
+          "Key": "Hud_VitalFood"
+        },
+        {
+          "Source": {
+            "Text": "Frostwake - Practice"
+          },
+          "Translation": {
+            "Text": "Frostwake - 練習"
+          },
+          "Key": "Hud_TitlePractice"
+        },
+        {
+          "Source": {
+            "Text": "Health"
+          },
+          "Translation": {
+            "Text": "体力"
+          },
+          "Key": "Hud_VitalHealth"
+        },
+        {
+          "Source": {
+            "Text": "Host Lobby"
+          },
+          "Translation": {
+            "Text": "ロビーを開く"
+          },
+          "Key": "Menu_HostLobby"
+        },
+        {
+          "Source": {
+            "Text": "Host a lobby or join an existing one."
+          },
+          "Translation": {
+            "Text": "ロビーを作成するか、既存のロビーに参加してください。"
+          },
+          "Key": "Menu_LobbyChoicePrompt"
+        },
+        {
+          "Source": {
+            "Text": "Items: (empty)"
+          },
+          "Translation": {
+            "Text": "所持品：（空）"
+          },
+          "Key": "Hud_ItemsEmpty"
+        },
+        {
+          "Source": {
+            "Text": "Items: (none)"
+          },
+          "Translation": {
+            "Text": "所持品：（なし）"
+          },
+          "Key": "Hud_ItemsNone"
+        },
+        {
+          "Source": {
+            "Text": "Items:{Items}"
+          },
+          "Translation": {
+            "Text": "所持品：{Items}"
+          },
+          "Key": "Hud_FmtItems"
+        },
+        {
+          "Source": {
+            "Text": "Join Lobby"
+          },
+          "Translation": {
+            "Text": "ロビーに入る"
+          },
+          "Key": "Menu_JoinLobby"
+        },
+        {
+          "Source": {
+            "Text": "Objective: advance the route, keep ship systems online"
+          },
+          "Translation": {
+            "Text": "目標：航路を進め、船の設備を稼働させ続ける"
+          },
+          "Key": "Hud_Objective"
+        },
+        {
+          "Source": {
+            "Text": "Play"
+          },
+          "Translation": {
+            "Text": "ゲーム開始"
+          },
+          "Key": "Menu_Play"
+        },
+        {
+          "Source": {
+            "Text": "Role: Crew"
+          },
+          "Translation": {
+            "Text": "役割：乗員"
+          },
+          "Key": "Hud_RoleCrew"
+        },
+        {
+          "Source": {
+            "Text": "Route to Goal  {Percent}%{Suffix}"
+          },
+          "Translation": {
+            "Text": "ゴールまでの航路  {Percent}%{Suffix}"
+          },
+          "Key": "Hud_FmtRouteToGoal"
+        },
+        {
+          "Source": {
+            "Text": "Server address"
+          },
+          "Translation": {
+            "Text": "接続先アドレス"
+          },
+          "Key": "Menu_AddressHint"
+        },
+        {
+          "Source": {
+            "Text": "Solo Practice"
+          },
+          "Translation": {
+            "Text": "一人モード"
+          },
+          "Key": "Menu_SoloPractice"
+        },
+        {
+          "Source": {
+            "Text": "Start Match"
+          },
+          "Translation": {
+            "Text": "開始"
+          },
+          "Key": "Menu_StartMatch"
+        },
+        {
+          "Source": {
+            "Text": "Vitals"
+          },
+          "Translation": {
+            "Text": "状態"
+          },
+          "Key": "Hud_Vitals"
+        },
+        {
+          "Source": {
+            "Text": "Waiting for the host to start."
+          },
+          "Translation": {
+            "Text": "ホストの開始を待っています。"
+          },
+          "Key": "Menu_WaitingForHost"
+        },
+        {
+          "Source": {
+            "Text": "Waiting for {Required} players..."
+          },
+          "Translation": {
+            "Text": "{Required}人が揃うまで待機中です。"
+          },
+          "Key": "Menu_FmtLobbyWaiting"
+        },
+        {
+          "Source": {
+            "Text": "Warmth"
+          },
+          "Translation": {
+            "Text": "暖かさ"
+          },
+          "Key": "Hud_VitalWarmth"
+        },
+        {
+          "Source": {
+            "Text": "[E] Interact   [Scroll] Select item   [Q] Drop"
+          },
+          "Translation": {
+            "Text": "[E] 調べる   [スクロール] アイテム選択   [Q] 捨てる"
+          },
+          "Key": "Hud_Controls"
+        },
+        {
+          "Source": {
+            "Text": "{Current} / {Required}"
+          },
+          "Translation": {
+            "Text": ""
+          },
+          "Key": "Menu_FmtPlayerCount"
+        },
+        {
+          "Source": {
+            "Text": "{Label}  {Percent}%"
+          },
+          "Translation": {
+            "Text": ""
+          },
+          "Key": "Hud_FmtGauge"
+        }
+      ]
+    }
+  ]
+}

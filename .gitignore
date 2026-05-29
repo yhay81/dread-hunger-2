@@ -59,6 +59,12 @@ Script/
 Tools/install/
 target/
 
+# Quarantined raw font binaries (OFL, large, IP-pending). Keep the fetch script, the provenance
+# JSON, and the asset-ledger row tracked; re-fetch binaries via Tools/assets/fetch_noto_cjk_ofl.ps1.
+Content/ThirdParty/Quarantine/fonts/**/*.ttf
+Content/ThirdParty/Quarantine/fonts/**/*.otf
+Content/ThirdParty/Quarantine/fonts/**/*.uasset
+
 # Local-only external references. Do not commit third-party game files.
 references/raw/
 references/private/

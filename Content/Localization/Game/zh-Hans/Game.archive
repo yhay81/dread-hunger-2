@@ -1,0 +1,358 @@
+{
+  "FormatVersion": 2,
+  "Namespace": "",
+  "Subnamespaces": [
+    {
+      "Namespace": "AbyssShipTaskActor",
+      "Children": [
+        {
+          "Source": {
+            "Text": "Advance Route Progress"
+          },
+          "Translation": {
+            "Text": "推进航线进度"
+          },
+          "Key": "AdvanceRouteProgressInteraction"
+        },
+        {
+          "Source": {
+            "Text": "Engine"
+          },
+          "Translation": {
+            "Text": "引擎"
+          },
+          "Key": "ShipSystemEngine"
+        },
+        {
+          "Source": {
+            "Text": "Flooding"
+          },
+          "Translation": {
+            "Text": "进水"
+          },
+          "Key": "ShipSystemFlooding"
+        },
+        {
+          "Source": {
+            "Text": "Fuel"
+          },
+          "Translation": {
+            "Text": "燃料"
+          },
+          "Key": "ShipSystemFuel"
+        },
+        {
+          "Source": {
+            "Text": "Heat"
+          },
+          "Translation": {
+            "Text": "供暖"
+          },
+          "Key": "ShipSystemHeat"
+        },
+        {
+          "Source": {
+            "Text": "Hull"
+          },
+          "Translation": {
+            "Text": "船体"
+          },
+          "Key": "ShipSystemHull"
+        },
+        {
+          "Source": {
+            "Text": "Power"
+          },
+          "Translation": {
+            "Text": "电力"
+          },
+          "Key": "ShipSystemPower"
+        },
+        {
+          "Source": {
+            "Text": "Radio"
+          },
+          "Translation": {
+            "Text": "无线电"
+          },
+          "Key": "ShipSystemRadio"
+        },
+        {
+          "Source": {
+            "Text": "Repair"
+          },
+          "Translation": {
+            "Text": "修复"
+          },
+          "Key": "RepairInteractionAction"
+        },
+        {
+          "Source": {
+            "Text": "Route Progress"
+          },
+          "Translation": {
+            "Text": "航线进度"
+          },
+          "Key": "ShipSystemRouteProgress"
+        },
+        {
+          "Source": {
+            "Text": "Sabotage"
+          },
+          "Translation": {
+            "Text": "破坏"
+          },
+          "Key": "SabotageInteractionAction"
+        },
+        {
+          "Source": {
+            "Text": "Ship System"
+          },
+          "Translation": {
+            "Text": "船舶系统"
+          },
+          "Key": "ShipSystemUnknown"
+        },
+        {
+          "Source": {
+            "Text": "{0} {1}"
+          },
+          "Translation": {
+            "Text": ""
+          },
+          "Key": "ShipTaskInteractionFormat"
+        }
+      ]
+    },
+    {
+      "Namespace": "FrostwakeUI",
+      "Children": [
+        {
+          "Source": {
+            "Text": "  - Final Approach!"
+          },
+          "Translation": {
+            "Text": "  - 最终接近！"
+          },
+          "Key": "Hud_RouteFinalApproachSuffix"
+        },
+        {
+          "Source": {
+            "Text": "All {Required} players are ready. The host can start."
+          },
+          "Translation": {
+            "Text": "{Required} 名玩家已就绪。房主可以开始。"
+          },
+          "Key": "Menu_FmtLobbyReady"
+        },
+        {
+          "Source": {
+            "Text": "Food"
+          },
+          "Translation": {
+            "Text": "食物"
+          },
+          "Key": "Hud_VitalFood"
+        },
+        {
+          "Source": {
+            "Text": "Frostwake - Practice"
+          },
+          "Translation": {
+            "Text": "Frostwake - 练习"
+          },
+          "Key": "Hud_TitlePractice"
+        },
+        {
+          "Source": {
+            "Text": "Health"
+          },
+          "Translation": {
+            "Text": "生命值"
+          },
+          "Key": "Hud_VitalHealth"
+        },
+        {
+          "Source": {
+            "Text": "Host Lobby"
+          },
+          "Translation": {
+            "Text": "创建房间"
+          },
+          "Key": "Menu_HostLobby"
+        },
+        {
+          "Source": {
+            "Text": "Host a lobby or join an existing one."
+          },
+          "Translation": {
+            "Text": "创建房间或加入已有房间。"
+          },
+          "Key": "Menu_LobbyChoicePrompt"
+        },
+        {
+          "Source": {
+            "Text": "Items: (empty)"
+          },
+          "Translation": {
+            "Text": "物品：（空）"
+          },
+          "Key": "Hud_ItemsEmpty"
+        },
+        {
+          "Source": {
+            "Text": "Items: (none)"
+          },
+          "Translation": {
+            "Text": "物品：（无）"
+          },
+          "Key": "Hud_ItemsNone"
+        },
+        {
+          "Source": {
+            "Text": "Items:{Items}"
+          },
+          "Translation": {
+            "Text": "物品：{Items}"
+          },
+          "Key": "Hud_FmtItems"
+        },
+        {
+          "Source": {
+            "Text": "Join Lobby"
+          },
+          "Translation": {
+            "Text": "加入房间"
+          },
+          "Key": "Menu_JoinLobby"
+        },
+        {
+          "Source": {
+            "Text": "Objective: advance the route, keep ship systems online"
+          },
+          "Translation": {
+            "Text": "目标：推进航线，保持船舶系统运转"
+          },
+          "Key": "Hud_Objective"
+        },
+        {
+          "Source": {
+            "Text": "Play"
+          },
+          "Translation": {
+            "Text": "开始游戏"
+          },
+          "Key": "Menu_Play"
+        },
+        {
+          "Source": {
+            "Text": "Role: Crew"
+          },
+          "Translation": {
+            "Text": "角色：船员"
+          },
+          "Key": "Hud_RoleCrew"
+        },
+        {
+          "Source": {
+            "Text": "Route to Goal  {Percent}%{Suffix}"
+          },
+          "Translation": {
+            "Text": "目标航线  {Percent}%{Suffix}"
+          },
+          "Key": "Hud_FmtRouteToGoal"
+        },
+        {
+          "Source": {
+            "Text": "Server address"
+          },
+          "Translation": {
+            "Text": "服务器地址"
+          },
+          "Key": "Menu_AddressHint"
+        },
+        {
+          "Source": {
+            "Text": "Solo Practice"
+          },
+          "Translation": {
+            "Text": "单人模式"
+          },
+          "Key": "Menu_SoloPractice"
+        },
+        {
+          "Source": {
+            "Text": "Start Match"
+          },
+          "Translation": {
+            "Text": "开始"
+          },
+          "Key": "Menu_StartMatch"
+        },
+        {
+          "Source": {
+            "Text": "Vitals"
+          },
+          "Translation": {
+            "Text": "状态"
+          },
+          "Key": "Hud_Vitals"
+        },
+        {
+          "Source": {
+            "Text": "Waiting for the host to start."
+          },
+          "Translation": {
+            "Text": "正在等待房主开始。"
+          },
+          "Key": "Menu_WaitingForHost"
+        },
+        {
+          "Source": {
+            "Text": "Waiting for {Required} players..."
+          },
+          "Translation": {
+            "Text": "正在等待 {Required} 名玩家……"
+          },
+          "Key": "Menu_FmtLobbyWaiting"
+        },
+        {
+          "Source": {
+            "Text": "Warmth"
+          },
+          "Translation": {
+            "Text": "体温"
+          },
+          "Key": "Hud_VitalWarmth"
+        },
+        {
+          "Source": {
+            "Text": "[E] Interact   [Scroll] Select item   [Q] Drop"
+          },
+          "Translation": {
+            "Text": "[E] 互动   [滚轮] 选择物品   [Q] 丢弃"
+          },
+          "Key": "Hud_Controls"
+        },
+        {
+          "Source": {
+            "Text": "{Current} / {Required}"
+          },
+          "Translation": {
+            "Text": ""
+          },
+          "Key": "Menu_FmtPlayerCount"
+        },
+        {
+          "Source": {
+            "Text": "{Label}  {Percent}%"
+          },
+          "Translation": {
+            "Text": ""
+          },
+          "Key": "Hud_FmtGauge"
+        }
+      ]
+    }
+  ]
+}

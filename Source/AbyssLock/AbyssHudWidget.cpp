@@ -4,6 +4,7 @@
 #include "AbyssLockCharacter.h"
 #include "AbyssLockGameState.h"
 #include "AbyssLockTypes.h"
+#include "AbyssUIText.h"
 #include "Blueprint/WidgetTree.h"
 #include "Engine/World.h"
 #include "GameFramework/Pawn.h"
@@ -24,9 +25,7 @@ UTextBlock* MakeLine(UWidgetTree* WidgetTree, const FText& Text, float FontSize)
 {
     UTextBlock* TextBlock = WidgetTree->ConstructWidget<UTextBlock>(UTextBlock::StaticClass());
     TextBlock->SetText(Text);
-    FSlateFontInfo Font = TextBlock->GetFont();
-    Font.Size = FontSize;
-    TextBlock->SetFont(Font);
+    TextBlock->SetFont(AbyssUIText::UiFont(FontSize));
     return TextBlock;
 }
 
@@ -61,7 +60,7 @@ UHorizontalBox* MakeGauge(UWidgetTree* WidgetTree, const FText& LabelText, const
     return Row;
 }
 
-void UpdateGauge(UProgressBar* Bar, UTextBlock* Label, const TCHAR* Name, float Value, float MaxValue)
+void UpdateGauge(UProgressBar* Bar, UTextBlock* Label, const FText& Name, float Value, float MaxValue)
 {
     if (!Bar || !Label)
     {
@@ -69,8 +68,10 @@ void UpdateGauge(UProgressBar* Bar, UTextBlock* Label, const TCHAR* Name, float 
     }
     const float Percent = (MaxValue > 0.0f) ? FMath::Clamp(Value / MaxValue, 0.0f, 1.0f) : 0.0f;
     Bar->SetPercent(Percent);
-    Label->SetText(FText::FromString(
-        FString::Printf(TEXT("%s  %d%%"), Name, FMath::RoundToInt(Percent * 100.0f))));
+    FFormatNamedArguments Args;
+    Args.Add(TEXT("Label"), Name);
+    Args.Add(TEXT("Percent"), FMath::RoundToInt(Percent * 100.0f));
+    Label->SetText(FText::Format(AbyssUIText::Text(TEXT("Hud_FmtGauge")), Args));
 }
 }
 
@@ -107,26 +108,29 @@ void UAbyssHudWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
         const UAbyssInventoryComponent* Inventory = Character ? Character->GetInventoryComponent() : nullptr;
         if (!Inventory)
         {
-            HotbarText->SetText(FText::FromString(TEXT("Items: (none)")));
+            HotbarText->SetText(AbyssUIText::Text(TEXT("Hud_ItemsNone")));
         }
         else
         {
             const TArray<FName> Items = Inventory->GetItems();
             if (Items.Num() == 0)
             {
-                HotbarText->SetText(FText::FromString(TEXT("Items: (empty)")));
+                HotbarText->SetText(AbyssUIText::Text(TEXT("Hud_ItemsEmpty")));
             }
             else
             {
                 const int32 Selected = Inventory->GetSelectedSlot();
-                FString Line = TEXT("Items:");
+                // Item names are gameplay IDs (not yet localized); only the "Items:" label is.
+                FString Tokens;
                 for (int32 Index = 0; Index < Items.Num(); ++Index)
                 {
-                    Line += (Index == Selected)
+                    Tokens += (Index == Selected)
                         ? FString::Printf(TEXT("  [%s]"), *Items[Index].ToString())
                         : FString::Printf(TEXT("   %s "), *Items[Index].ToString());
                 }
-                HotbarText->SetText(FText::FromString(Line));
+                FFormatNamedArguments Args;
+                Args.Add(TEXT("Items"), FText::FromString(Tokens));
+                HotbarText->SetText(FText::Format(AbyssUIText::Text(TEXT("Hud_FmtItems")), Args));
             }
         }
     }
@@ -134,9 +138,9 @@ void UAbyssHudWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
     // Vitals gauges from the local character.
     if (Character)
     {
-        UpdateGauge(HealthBar, HealthLabel, TEXT("Health"), Character->GetHealth(), Character->GetMaxHealth());
-        UpdateGauge(FoodBar, FoodLabel, TEXT("Food"), Character->GetSatiation(), Character->GetMaxSatiation());
-        UpdateGauge(WarmthBar, WarmthLabel, TEXT("Warmth"), Character->GetWarmth(), Character->GetMaxWarmth());
+        UpdateGauge(HealthBar, HealthLabel, AbyssUIText::Text(TEXT("Hud_VitalHealth")), Character->GetHealth(), Character->GetMaxHealth());
+        UpdateGauge(FoodBar, FoodLabel, AbyssUIText::Text(TEXT("Hud_VitalFood")), Character->GetSatiation(), Character->GetMaxSatiation());
+        UpdateGauge(WarmthBar, WarmthLabel, AbyssUIText::Text(TEXT("Hud_VitalWarmth")), Character->GetWarmth(), Character->GetMaxWarmth());
     }
 
     // Route-to-goal bar from the game state (RouteProgress is 0..1; >=1 flips to Final Approach).
@@ -147,10 +151,10 @@ void UAbyssHudWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
         RouteBar->SetPercent(FMath::Clamp(RouteProgress, 0.0f, 1.0f));
         const bool bFinalApproach =
             AbyssGameState && AbyssGameState->GetMatchPhase() == EAbyssMatchPhase::FinalApproach;
-        RouteLabel->SetText(FText::FromString(FString::Printf(
-            TEXT("Route to Goal  %d%%%s"),
-            FMath::RoundToInt(FMath::Clamp(RouteProgress, 0.0f, 1.0f) * 100.0f),
-            bFinalApproach ? TEXT("  - Final Approach!") : TEXT(""))));
+        FFormatNamedArguments Args;
+        Args.Add(TEXT("Percent"), FMath::RoundToInt(FMath::Clamp(RouteProgress, 0.0f, 1.0f) * 100.0f));
+        Args.Add(TEXT("Suffix"), bFinalApproach ? AbyssUIText::Text(TEXT("Hud_RouteFinalApproachSuffix")) : FText::GetEmpty());
+        RouteLabel->SetText(FText::Format(AbyssUIText::Text(TEXT("Hud_FmtRouteToGoal")), Args));
     }
 }
 
@@ -172,13 +176,14 @@ void UAbyssHudWidget::BuildHud()
         HudSlot->SetPadding(FMargin(32.0f, 28.0f, 0.0f, 0.0f));
     }
 
-    // English placeholder copy for the debug slice; JP localization + font is GP-09.
-    RootBox->AddChildToVerticalBox(MakeLine(WidgetTree, FText::FromString(TEXT("Frostwake - Practice")), 22.0f));
-    RootBox->AddChildToVerticalBox(MakeLine(WidgetTree, FText::FromString(TEXT("Role: Crew")), 18.0f));
-    RootBox->AddChildToVerticalBox(MakeLine(WidgetTree, FText::FromString(TEXT("Objective: advance the route, keep ship systems online")), 18.0f));
-    RootBox->AddChildToVerticalBox(MakeLine(WidgetTree, FText::FromString(TEXT("[E] Interact   [Scroll] Select item   [Q] Drop")), 16.0f));
+    // UI strings come from the shared Frostwake UI string table (English source); JA / zh-Hans are
+    // translations against the same keys. Legible CJK glyphs still need the GP-09 font step.
+    RootBox->AddChildToVerticalBox(MakeLine(WidgetTree, AbyssUIText::Text(TEXT("Hud_TitlePractice")), 22.0f));
+    RootBox->AddChildToVerticalBox(MakeLine(WidgetTree, AbyssUIText::Text(TEXT("Hud_RoleCrew")), 18.0f));
+    RootBox->AddChildToVerticalBox(MakeLine(WidgetTree, AbyssUIText::Text(TEXT("Hud_Objective")), 18.0f));
+    RootBox->AddChildToVerticalBox(MakeLine(WidgetTree, AbyssUIText::Text(TEXT("Hud_Controls")), 16.0f));
 
-    HotbarText = MakeLine(WidgetTree, FText::FromString(TEXT("Items: (empty)")), 18.0f);
+    HotbarText = MakeLine(WidgetTree, AbyssUIText::Text(TEXT("Hud_ItemsEmpty")), 18.0f);
     RootBox->AddChildToVerticalBox(HotbarText);
 
     // --- Vitals panel (bottom-left): health / food / warmth gauges. Original styling. ---
@@ -189,13 +194,13 @@ void UAbyssHudWidget::BuildHud()
         VitalsSlot->SetVerticalAlignment(VAlign_Bottom);
         VitalsSlot->SetPadding(FMargin(32.0f, 0.0f, 0.0f, 32.0f));
     }
-    VitalsBox->AddChildToVerticalBox(MakeLine(WidgetTree, FText::FromString(TEXT("Vitals")), 16.0f));
+    VitalsBox->AddChildToVerticalBox(MakeLine(WidgetTree, AbyssUIText::Text(TEXT("Hud_Vitals")), 16.0f));
     VitalsBox->AddChildToVerticalBox(
-        MakeGauge(WidgetTree, FText::FromString(TEXT("Health")), FLinearColor(0.86f, 0.24f, 0.24f), HealthLabel, HealthBar));
+        MakeGauge(WidgetTree, AbyssUIText::Text(TEXT("Hud_VitalHealth")), FLinearColor(0.86f, 0.24f, 0.24f), HealthLabel, HealthBar));
     VitalsBox->AddChildToVerticalBox(
-        MakeGauge(WidgetTree, FText::FromString(TEXT("Food")), FLinearColor(0.92f, 0.64f, 0.20f), FoodLabel, FoodBar));
+        MakeGauge(WidgetTree, AbyssUIText::Text(TEXT("Hud_VitalFood")), FLinearColor(0.92f, 0.64f, 0.20f), FoodLabel, FoodBar));
     VitalsBox->AddChildToVerticalBox(
-        MakeGauge(WidgetTree, FText::FromString(TEXT("Warmth")), FLinearColor(0.36f, 0.74f, 0.92f), WarmthLabel, WarmthBar));
+        MakeGauge(WidgetTree, AbyssUIText::Text(TEXT("Hud_VitalWarmth")), FLinearColor(0.36f, 0.74f, 0.92f), WarmthLabel, WarmthBar));
 
     // --- Route-to-goal bar (top-center): how far the ship is toward its destination. ---
     UVerticalBox* RouteBox = WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass());
@@ -205,7 +210,10 @@ void UAbyssHudWidget::BuildHud()
         RouteSlot->SetVerticalAlignment(VAlign_Top);
         RouteSlot->SetPadding(FMargin(0.0f, 24.0f, 0.0f, 0.0f));
     }
-    RouteLabel = MakeLine(WidgetTree, FText::FromString(TEXT("Route to Goal  0%")), 16.0f);
+    FFormatNamedArguments RouteArgs;
+    RouteArgs.Add(TEXT("Percent"), 0);
+    RouteArgs.Add(TEXT("Suffix"), FText::GetEmpty());
+    RouteLabel = MakeLine(WidgetTree, FText::Format(AbyssUIText::Text(TEXT("Hud_FmtRouteToGoal")), RouteArgs), 16.0f);
     if (UVerticalBoxSlot* RouteLabelSlot = RouteBox->AddChildToVerticalBox(RouteLabel))
     {
         RouteLabelSlot->SetHorizontalAlignment(HAlign_Center);

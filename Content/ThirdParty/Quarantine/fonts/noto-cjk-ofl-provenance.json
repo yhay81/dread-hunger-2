@@ -1,0 +1,30 @@
+{
+  "source": "google/fonts (https://github.com/google/fonts)",
+  "ref": "main",
+  "license": "SIL Open Font License 1.1 (OFL-1.1)",
+  "licenseNote": "OFL.txt must ship alongside the font; Reserved Font Name 'Noto' — do not ship a modified font under that name; no in-UI attribution required.",
+  "fetchedAt": "2026-05-29T11:20:48Z",
+  "purpose": "CJK glyph coverage for JA + Simplified Chinese UI (Latin/Cyrillic already covered by engine default font)",
+  "fonts": [
+    {
+      "culture": "ja",
+      "family": "Noto Sans JP",
+      "fontFile": "NotoSansJP-VF.ttf",
+      "fontBytes": 9589900,
+      "licenseFile": "OFL.txt",
+      "licenseBytes": 4388,
+      "fontUrl": "https://raw.githubusercontent.com/google/fonts/main/ofl/notosansjp/NotoSansJP%5Bwght%5D.ttf",
+      "licenseUrl": "https://raw.githubusercontent.com/google/fonts/main/ofl/notosansjp/OFL.txt"
+    },
+    {
+      "culture": "zh-Hans",
+      "family": "Noto Sans SC",
+      "fontFile": "NotoSansSC-VF.ttf",
+      "fontBytes": 17772300,
+      "licenseFile": "OFL.txt",
+      "licenseBytes": 4388,
+      "fontUrl": "https://raw.githubusercontent.com/google/fonts/main/ofl/notosanssc/NotoSansSC%5Bwght%5D.ttf",
+      "licenseUrl": "https://raw.githubusercontent.com/google/fonts/main/ofl/notosanssc/OFL.txt"
+    }
+  ]
+}

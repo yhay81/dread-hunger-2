@@ -91,3 +91,24 @@ FSlateFontInfo AbyssUIText::JpFont(float Size) {
 Font swap and LOCTEXT/String-Table wrap are separate commits. The font fix alone makes the
 already-JP menu legible; the HUD needs both JP strings AND the font. Keep everything in quarantine
 until IP Review.
+
+## Localization pipeline (gather → .locres), 3 locales — added 2026-05-29
+
+State: HUD + menu source strings are now owned in `ST_FrostwakeUI` (English source, via `AbyssUIText`,
+`LOCTABLE_*` in `AbyssUIText.cpp`); ship-task `LOCTEXT` is already gathered. OFL CJK fonts (Noto Sans JP +
+SC) are in quarantine with provenance + ledger rows. The remaining steps are **editor-gated** (need
+`UnrealEditor-Cmd`; the editor was open during this work, which blocks editor-target builds and risks
+commandlet/asset conflicts — run these when the editor is closed).
+
+- **Loc target:** native culture `en`; cultures `en`, `ja`, `zh-Hans`. Create via the editor Localization
+  Dashboard (writes `Config/Localization/<Target>.ini`) or hand-author the gather/compile config.
+- **Gather:** `UnrealEditor-Cmd <project> -run=GatherText -config=Config/Localization/<Target>_Gather.ini`
+  — GatherTextFromSource picks up the `LOCTEXT` / `LOCTABLE_*` in `Source/AbyssLock` (incl. `AbyssUIText.cpp`).
+- **Translate:** fill the `ja` archive from the existing JP strings (the menu JP just replaced + the HUD JP
+  mapping in §1 above); fill `zh-Hans` from `docs/localization-glossary.md`. EN needs no translation (source).
+- **Compile:** `... -run=GatherText -config=..._Compile.ini` → `.locres` under `Content/Localization/<Target>/<culture>/`.
+- **Default runtime culture:** recommend follow OS/Steam language with `en` fallback (UE default) — no forced
+  culture, so a JP machine shows `ja`. Set in Project Settings ▸ Internationalization if a forced default is wanted.
+- **Fonts:** import the quarantined TTFs + build a composite UFont (default engine font for Latin/Cyrillic;
+  `ja` subface = Noto Sans JP; `zh-Hans` subface = Noto Sans SC); apply via `FSlateFontInfo` in the
+  `MakeText`/`MakeLine` helpers. Only after IP Review confirms OFL.txt ships alongside.
