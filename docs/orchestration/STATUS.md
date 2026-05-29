@@ -20,7 +20,7 @@ priority order below + `DISPATCH.md` §2.
 | --- | --- | --- | --- | --- | --- |
 | **GP-01** Human Playability | 🟡 YELLOW | First real 6-8p human run + anonymized summary (`playtest-preflight --mode human`) | Re-confirm Windows listen-server preflight is green (`playtest-run-scaffold`/`preflight`) | **8 real humans** (no code change removes it) | 2026-05-29 |
 | **GP-02** Network/Hosting | 🔴 BLOCKED | `AbyssLockServer.exe` builds+boots+8 clients+ready-lobby | Keep runbook + `UE_ROOT` instructions consistent; verify `quality-gate` | **Server-capable UE 5.7** (Launcher UE can't build Server targets) | 2026-05-29 |
-| **GP-03** Core Match | 🟡 YELLOW | DH-parity feel + readable round (`docs/mechanics-parity-target.md`, `docs/control-scheme.md`) | ✅ **solo complete: real ~30-min voyage with win/lose result screen** (`docs/solo-voyage-completion-spec.md`) — loss-on-incap (101) + fuel-gated route (102) + difficulty+proof (103) + **result screen & dynamic role/Madman HUD (104)** → host config UMG panel + human tuning | none blocking (host UI panel is next) | 2026-05-29 |
+| **GP-03** Core Match | 🟡 YELLOW | DH-parity feel + readable round (`docs/mechanics-parity-target.md`, `docs/control-scheme.md`) | ✅ **solo complete + host config UI** (`docs/solo-voyage-completion-spec.md`, `docs/madman-mode-and-host-config-spec.md`) — voyage+loss (101-103) + result/role-Madman HUD (104) + **host mode/difficulty selectors → travel URL → ActiveMatchConfig (105)** → human-playtest tuning | none blocking (owner playtest next) | 2026-05-29 |
 | **GP-04** Steam Online | 🟡 YELLOW | Lobby create/find/join + build/map-mismatch reject (P2-003/004) | ✅ **lobby metadata now carries `mode`/`difficulty` (cycle 99)** → run `run_steam_lobby_validation.ps1` preflight; runtime spike still GP-02-gated | Runtime spike gated behind GP-02 (contracts already green) | 2026-05-29 |
 | **GP-05** Voice & Trust | 🟡 YELLOW | One voice provider chosen + 8p acceptance plan | Write `docs/voice-provider-decision.md` (VCI+EOS vs Vivox vs Steam Voice) | Runtime acceptance gated by server (decision itself unblocked) | 2026-05-29 |
 | **GP-06** Services & Tools | 🟢 GREEN | Backend ↔ `openapi.yaml` ↔ tests parity; `cargo test --workspace` green | ✅ 404s documented + tested (cycle 83) → add the 409 `lobby_full` test | none | 2026-05-29 |
@@ -53,6 +53,14 @@ Everything else advances now, headless, in parallel.
 
 ## Last loop iteration
 
+- 2026-05-29 **cycle 105** (GP-03 + GP-09, interactive) — **host match-config UI (mode/difficulty
+  selectors)**. The front-end lobby-choice screen now has Mode (Standard/Madman) + Difficulty
+  (Easy/Normal/Hard) cycle selectors; the choice rides the travel URL (`?mode=`/`?difficulty=`, alongside
+  the existing `?solo`/`?listen`) and `AAbyssLockGameMode::InitGame` parses it into `ActiveMatchConfig`
+  (`UGameplayStatics::ParseOption`). Solo carries difficulty only (forces Standard); host carries both.
+  Editor+Game build + `quality-gate` green. **This closes the host-setup feature's UI** — the host can now
+  pick mode + difficulty in the menu. Remaining: populate advertised lobby metadata from the choice
+  (GP-02-gated lobby path) + human-playtest tuning. (In-game menu flow is owner-playtested.)
 - 2026-05-29 **cycle 104** (GP-03 + GP-09, interactive) — **win/lose result screen + dynamic role HUD
   (incl. Madman)**. Now that GP-09's localization (`AbyssUIText` String Table) landed, added without
   collision: (1) a centered **result panel** shown at `MatchEnded` — VICTORY/DEFEAT (computed for the

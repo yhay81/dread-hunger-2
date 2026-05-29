@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "AbyssLockTypes.h"
 #include "AbyssMainMenuWidget.generated.h"
 
 class UButton;
@@ -46,6 +47,12 @@ protected:
     UFUNCTION()
     void HandleHostStartClicked();
 
+    UFUNCTION()
+    void HandleModeCycleClicked();
+
+    UFUNCTION()
+    void HandleDifficultyCycleClicked();
+
 private:
     UPROPERTY()
     UVerticalBox* RootBox = nullptr;
@@ -77,7 +84,21 @@ private:
     UPROPERTY()
     UButton* HostStartButton = nullptr;
 
+    // Host match-config selectors (cycle buttons) shown on the lobby-choice screen.
+    UPROPERTY()
+    UButton* ModeButton = nullptr;
+    UPROPERTY()
+    UTextBlock* ModeButtonLabel = nullptr;
+    UPROPERTY()
+    UButton* DifficultyButton = nullptr;
+    UPROPERTY()
+    UTextBlock* DifficultyButtonLabel = nullptr;
+
     EAbyssFrontEndScreen CurrentScreen = EAbyssFrontEndScreen::Start;
+
+    // Host's chosen match configuration, carried into the travel URL (?mode=.. ?difficulty=..).
+    EAbyssMatchMode SelectedMode = EAbyssMatchMode::Standard;
+    EAbyssDifficulty SelectedDifficulty = EAbyssDifficulty::Normal;
 
     void BuildWidgetTree();
     void ShowStartScreen();
@@ -86,4 +107,6 @@ private:
     bool IsLocalPlayerHost() const;
     int32 GetConnectedPlayerCount() const;
     void EnterGameInputAndClose();
+    void UpdateConfigButtonLabels();
+    FString BuildConfigUrlOptions(bool bIncludeMode) const;
 };

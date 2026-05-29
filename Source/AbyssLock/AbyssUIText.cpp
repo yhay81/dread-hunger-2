@@ -77,6 +77,15 @@ void EnsureRegistered()
     LOCTABLE_SETSTRING("ST_FrostwakeUI", "Menu_WaitingForHost", "Waiting for the host to start.");
     LOCTABLE_SETSTRING("ST_FrostwakeUI", "Menu_FmtPlayerCount", "{Current} / {Required}");
     LOCTABLE_SETSTRING("ST_FrostwakeUI", "Menu_AddressHint", "Server address");
+
+    // --- Front-end: host match-config selectors (mode + difficulty; {Value} is the chosen option) ---
+    LOCTABLE_SETSTRING("ST_FrostwakeUI", "Menu_FmtMode", "Mode: {Value}");
+    LOCTABLE_SETSTRING("ST_FrostwakeUI", "Menu_FmtDifficulty", "Difficulty: {Value}");
+    LOCTABLE_SETSTRING("ST_FrostwakeUI", "Mode_Standard", "Standard");
+    LOCTABLE_SETSTRING("ST_FrostwakeUI", "Mode_Madman", "Madman");
+    LOCTABLE_SETSTRING("ST_FrostwakeUI", "Difficulty_Easy", "Easy");
+    LOCTABLE_SETSTRING("ST_FrostwakeUI", "Difficulty_Normal", "Normal");
+    LOCTABLE_SETSTRING("ST_FrostwakeUI", "Difficulty_Hard", "Hard");
 }
 }
 

@@ -161,7 +161,10 @@ struct FAbyssMatchConfig {
 - ~~狂人本人のHUD役職表示（「あなたは狂人」）は未実装~~ → **cycle 104 で実装**。HUDの役職行が毎tick
   owner-only `GetSecretTeamForOwner()` から更新され、狂人本人だけ「Role: Madman」表示（他者からはクルー）。
   勝敗リザルト画面も同cycleで実装（狂人は工作員勝利で VICTORY）。文字列は `AbyssUIText` キー（JA翻訳はGP-09）。
-- ホストUI（モード／難易度／数値のUMGパネル）は未実装（GP-09）。
+- ~~ホストUI（モード／難易度のUMGパネル）は未実装~~ → **cycle 105 で実装**。メニューの lobby-choice 画面に
+  Mode（Standard/Madman）/ Difficulty（Easy/Normal/Hard）のサイクルボタンを追加。選択は travel URL
+  （`?mode=`/`?difficulty=`）で運ばれ `InitGame` → `ResolveMatchConfig` → `ActiveMatchConfig` に反映。
+  （数値の個別調整UIは将来。lobby メタデータへの反映は GP-02 ゲートのロビー広告パスで配線。）
 - ロビーメタデータへの mode/difficulty 反映＋検証は未実装（GP-04）。
 - 死亡時の役職公開（reveal）は未実装。実装時は §2.2 の「狂人はクルーとして公開」を守る。
 

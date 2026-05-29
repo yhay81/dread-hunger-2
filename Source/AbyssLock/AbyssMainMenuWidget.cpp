@@ -39,6 +39,15 @@ UButton* MakeButton(UWidgetTree* WidgetTree, const FText& Text)
     return Button;
 }
 
+// A button whose label is kept (OutLabel) so it can be re-set as the value cycles.
+UButton* MakeCycleButton(UWidgetTree* WidgetTree, UTextBlock*& OutLabel)
+{
+    UButton* Button = WidgetTree->ConstructWidget<UButton>(UButton::StaticClass());
+    OutLabel = MakeText(WidgetTree, FText::GetEmpty(), 20.0f);
+    Button->AddChild(OutLabel);
+    return Button;
+}
+
 void AddBoxChild(UVerticalBox* Box, UWidget* Child, float TopPadding = 12.0f)
 {
     if (UVerticalBoxSlot* Slot = Box->AddChildToVerticalBox(Child))
@@ -119,6 +128,8 @@ void UAbyssMainMenuWidget::BuildWidgetTree()
     HostLobbyButton = MakeButton(WidgetTree, AbyssUIText::Text(TEXT("Menu_HostLobby")));
     JoinLobbyButton = MakeButton(WidgetTree, AbyssUIText::Text(TEXT("Menu_JoinLobby")));
     HostStartButton = MakeButton(WidgetTree, AbyssUIText::Text(TEXT("Menu_StartMatch")));
+    ModeButton = MakeCycleButton(WidgetTree, ModeButtonLabel);
+    DifficultyButton = MakeCycleButton(WidgetTree, DifficultyButtonLabel);
 
     JoinAddressText = WidgetTree->ConstructWidget<UEditableTextBox>(UEditableTextBox::StaticClass());
     JoinAddressText->SetText(FText::FromString(TEXT("127.0.0.1")));
@@ -129,16 +140,23 @@ void UAbyssMainMenuWidget::BuildWidgetTree()
     HostLobbyButton->OnClicked.AddDynamic(this, &UAbyssMainMenuWidget::HandleHostLobbyClicked);
     JoinLobbyButton->OnClicked.AddDynamic(this, &UAbyssMainMenuWidget::HandleJoinLobbyClicked);
     HostStartButton->OnClicked.AddDynamic(this, &UAbyssMainMenuWidget::HandleHostStartClicked);
+    ModeButton->OnClicked.AddDynamic(this, &UAbyssMainMenuWidget::HandleModeCycleClicked);
+    DifficultyButton->OnClicked.AddDynamic(this, &UAbyssMainMenuWidget::HandleDifficultyCycleClicked);
 
     AddBoxChild(RootBox, TitleText, 160.0f);
     AddBoxChild(RootBox, StatusText, 24.0f);
     AddBoxChild(RootBox, PlayerCountText);
     AddBoxChild(RootBox, JoinAddressText);
+    // Match-config selectors sit above the Solo/Host actions so the host picks mode + difficulty first.
+    AddBoxChild(RootBox, ModeButton);
+    AddBoxChild(RootBox, DifficultyButton);
     AddBoxChild(RootBox, GameStartButton);
     AddBoxChild(RootBox, SoloModeButton);
     AddBoxChild(RootBox, HostLobbyButton);
     AddBoxChild(RootBox, JoinLobbyButton);
     AddBoxChild(RootBox, HostStartButton);
+
+    UpdateConfigButtonLabels();
 }
 
 void UAbyssMainMenuWidget::ShowStartScreen()
@@ -153,6 +171,8 @@ void UAbyssMainMenuWidget::ShowStartScreen()
     HostLobbyButton->SetVisibility(ESlateVisibility::Collapsed);
     JoinLobbyButton->SetVisibility(ESlateVisibility::Collapsed);
     HostStartButton->SetVisibility(ESlateVisibility::Collapsed);
+    ModeButton->SetVisibility(ESlateVisibility::Collapsed);
+    DifficultyButton->SetVisibility(ESlateVisibility::Collapsed);
 }
 
 void UAbyssMainMenuWidget::ShowLobbyChoiceScreen()
@@ -166,6 +186,9 @@ void UAbyssMainMenuWidget::ShowLobbyChoiceScreen()
     HostLobbyButton->SetVisibility(ESlateVisibility::Visible);
     JoinLobbyButton->SetVisibility(ESlateVisibility::Visible);
     HostStartButton->SetVisibility(ESlateVisibility::Collapsed);
+    // Host picks mode + difficulty here, before clicking Solo Practice or Host Lobby (carried in the travel URL).
+    ModeButton->SetVisibility(ESlateVisibility::Visible);
+    DifficultyButton->SetVisibility(ESlateVisibility::Visible);
 }
 
 void UAbyssMainMenuWidget::ShowLobbyScreen()
@@ -178,6 +201,8 @@ void UAbyssMainMenuWidget::ShowLobbyScreen()
     HostLobbyButton->SetVisibility(ESlateVisibility::Collapsed);
     JoinLobbyButton->SetVisibility(ESlateVisibility::Collapsed);
     HostStartButton->SetVisibility(IsLocalPlayerHost() ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
+    ModeButton->SetVisibility(ESlateVisibility::Collapsed);
+    DifficultyButton->SetVisibility(ESlateVisibility::Collapsed);
     RefreshLobbyState();
 }
 
@@ -232,7 +257,8 @@ void UAbyssMainMenuWidget::HandleHostLobbyClicked()
 {
     if (APlayerController* PlayerController = GetOwningPlayer())
     {
-        PlayerController->ConsoleCommand(TEXT("open /Game/Maps/L_IcebreakerWhitebox?listen"));
+        // Carry the host's chosen mode + difficulty into the match GameMode via InitGame URL options.
+        PlayerController->ConsoleCommand(FString::Printf(TEXT("open /Game/Maps/L_IcebreakerWhitebox?listen%s"), *BuildConfigUrlOptions(true)));
     }
     ShowLobbyScreen();
 }
@@ -243,7 +269,8 @@ void UAbyssMainMenuWidget::HandleSoloModeClicked()
     {
         // Travel to the gameplay map in standalone (no ?listen). The gameplay GameMode reads the
         // "solo" option in InitGame and auto-starts a 1-player, 0-saboteur practice match.
-        PlayerController->ConsoleCommand(TEXT("open /Game/Maps/L_IcebreakerWhitebox?solo"));
+        // Solo forces Standard (no Madman), so only the difficulty selection is carried.
+        PlayerController->ConsoleCommand(FString::Printf(TEXT("open /Game/Maps/L_IcebreakerWhitebox?solo%s"), *BuildConfigUrlOptions(false)));
     }
     EnterGameInputAndClose();
 }
@@ -292,4 +319,72 @@ void UAbyssMainMenuWidget::EnterGameInputAndClose()
     }
 
     RemoveFromParent();
+}
+
+void UAbyssMainMenuWidget::HandleModeCycleClicked()
+{
+    SelectedMode = (SelectedMode == EAbyssMatchMode::Standard) ? EAbyssMatchMode::Madman : EAbyssMatchMode::Standard;
+    UpdateConfigButtonLabels();
+}
+
+void UAbyssMainMenuWidget::HandleDifficultyCycleClicked()
+{
+    switch (SelectedDifficulty)
+    {
+    case EAbyssDifficulty::Easy:
+        SelectedDifficulty = EAbyssDifficulty::Normal;
+        break;
+    case EAbyssDifficulty::Normal:
+        SelectedDifficulty = EAbyssDifficulty::Hard;
+        break;
+    default:
+        SelectedDifficulty = EAbyssDifficulty::Easy;
+        break;
+    }
+    UpdateConfigButtonLabels();
+}
+
+void UAbyssMainMenuWidget::UpdateConfigButtonLabels()
+{
+    if (ModeButtonLabel)
+    {
+        const TCHAR* ModeKey = (SelectedMode == EAbyssMatchMode::Madman) ? TEXT("Mode_Madman") : TEXT("Mode_Standard");
+        FFormatNamedArguments Args;
+        Args.Add(TEXT("Value"), AbyssUIText::Text(ModeKey));
+        ModeButtonLabel->SetText(FText::Format(AbyssUIText::Text(TEXT("Menu_FmtMode")), Args));
+    }
+    if (DifficultyButtonLabel)
+    {
+        const TCHAR* DifficultyKey = TEXT("Difficulty_Normal");
+        if (SelectedDifficulty == EAbyssDifficulty::Easy)
+        {
+            DifficultyKey = TEXT("Difficulty_Easy");
+        }
+        else if (SelectedDifficulty == EAbyssDifficulty::Hard)
+        {
+            DifficultyKey = TEXT("Difficulty_Hard");
+        }
+        FFormatNamedArguments Args;
+        Args.Add(TEXT("Value"), AbyssUIText::Text(DifficultyKey));
+        DifficultyButtonLabel->SetText(FText::Format(AbyssUIText::Text(TEXT("Menu_FmtDifficulty")), Args));
+    }
+}
+
+FString UAbyssMainMenuWidget::BuildConfigUrlOptions(bool bIncludeMode) const
+{
+    const TCHAR* Difficulty = TEXT("normal");
+    if (SelectedDifficulty == EAbyssDifficulty::Easy)
+    {
+        Difficulty = TEXT("easy");
+    }
+    else if (SelectedDifficulty == EAbyssDifficulty::Hard)
+    {
+        Difficulty = TEXT("hard");
+    }
+    FString Options = FString::Printf(TEXT("?difficulty=%s"), Difficulty);
+    if (bIncludeMode)
+    {
+        Options += FString::Printf(TEXT("?mode=%s"), (SelectedMode == EAbyssMatchMode::Madman) ? TEXT("madman") : TEXT("standard"));
+    }
+    return Options;
 }

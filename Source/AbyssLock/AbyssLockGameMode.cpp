@@ -15,6 +15,7 @@
 #include "Engine/Engine.h"
 #include "EngineUtils.h"
 #include "Engine/GameInstance.h"
+#include "Kismet/GameplayStatics.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/PlayerState.h"
@@ -209,6 +210,22 @@ void AAbyssLockGameMode::InitGame(const FString& MapName, const FString& Options
     if (bSoloUrlRequested)
     {
         UE_LOG(LogAbyssSession, Log, TEXT("solo_url_requested map=%s"), *MapName);
+    }
+
+    // Host match-config travel options (?mode=standard|madman ?difficulty=easy|normal|hard) from the
+    // front-end host selectors -> ActiveMatchConfig. The dev auto-start CLI (-AbyssMode/-AbyssDifficulty)
+    // still overrides this later if present.
+    const FString ModeOption = UGameplayStatics::ParseOption(Options, TEXT("mode"));
+    const FString DifficultyOption = UGameplayStatics::ParseOption(Options, TEXT("difficulty"));
+    if (!ModeOption.IsEmpty() || !DifficultyOption.IsEmpty())
+    {
+        EAbyssMatchMode UrlMode = ActiveMatchConfig.Mode;
+        EAbyssDifficulty UrlDifficulty = ActiveMatchConfig.Difficulty;
+        AbyssParseMatchMode(ModeOption, UrlMode);
+        AbyssParseDifficulty(DifficultyOption, UrlDifficulty);
+        ActiveMatchConfig = ResolveMatchConfig(UrlMode, UrlDifficulty);
+        UE_LOG(LogAbyssSession, Log, TEXT("match_config_from_url mode=%s difficulty=%s"),
+            *AbyssMatchModeToString(ActiveMatchConfig.Mode), *AbyssDifficultyToString(ActiveMatchConfig.Difficulty));
     }
 }
 
