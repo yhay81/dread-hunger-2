@@ -1,5 +1,10 @@
 # Game Design
 
+> 目標の具体化: 本作は Dread Hunger に近い **ゲーム性・操作性（機能面）** を目標とし、
+> **表現（名称・アート・音・テーマ・UI・マップ等）は完全オリジナル** とする。機能（ルール/
+> システム/操作）は著作権の保護対象外なので踏襲可、表現は踏襲不可。詳細は
+> [Mechanics Parity Target](mechanics-parity-target.md) と [Control Scheme](control-scheme.md)。
+
 ## 基本仕様
 
 | 項目 | 初期実装 |
