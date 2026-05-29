@@ -610,6 +610,13 @@ void AAbyssLockGameMode::HandleMatchTimerTick()
         return;
     }
 
+    // Resolve win/lose every second so crew death/incapacitation (e.g. a solo player who starved or
+    // froze) ends the match promptly, even with no ship-task interaction this tick.
+    if (EvaluateMatchEnd())
+    {
+        return;
+    }
+
     const float RemainingSeconds = FMath::Max(0.0f, static_cast<float>(MatchEndWorldSeconds - GetWorld()->GetTimeSeconds()));
     AbyssGameState->SetMatchTimeRemaining(RemainingSeconds);
     if (RemainingSeconds > KINDA_SMALL_NUMBER)
@@ -2026,6 +2033,7 @@ bool AAbyssLockGameMode::EvaluateMatchEnd()
     }
 
     int32 TotalAssignedPlayers = 0;
+    int32 TotalCrew = 0;
     int32 LivingCrew = 0;
     int32 ActiveCrew = 0;
 
@@ -2051,6 +2059,7 @@ bool AAbyssLockGameMode::EvaluateMatchEnd()
             continue;
         }
 
+        ++TotalCrew;
         const EAbyssLifeState LifeState = AbyssPlayerState->GetLifeState();
         if (LifeState == EAbyssLifeState::Alive || LifeState == EAbyssLifeState::Downed || LifeState == EAbyssLifeState::Contained)
         {
@@ -2091,6 +2100,25 @@ bool AAbyssLockGameMode::EvaluateMatchEnd()
                 TelemetrySubsystem->LogEvent(
                     TEXT("match_ended"),
                     AppendMatchConfigTelemetry(FString::Printf(TEXT("{\"winner\":\"saboteur\",\"reason\":\"crew_threshold\",\"livingCrew\":%d}"), LivingCrew)));
+            }
+        }
+        return true;
+    }
+
+    // No crew left able to act (downed/dead/contained with nobody to revive — e.g. a solo player who
+    // starved or froze). The voyage cannot be completed, so the crew loses immediately.
+    if (TotalCrew >= 1 && ActiveCrew == 0)
+    {
+        AbyssGameState->SetMatchResult(EAbyssTeam::Saboteur, TEXT("crew_incapacitated"));
+        StopMatchTimer();
+        UE_LOG(LogAbyssGameplay, Log, TEXT("match_end winner=saboteur reason=crew_incapacitated livingCrew=%d totalCrew=%d"), LivingCrew, TotalCrew);
+        if (UGameInstance* GameInstance = GetGameInstance())
+        {
+            if (UAbyssTelemetrySubsystem* TelemetrySubsystem = GameInstance->GetSubsystem<UAbyssTelemetrySubsystem>())
+            {
+                TelemetrySubsystem->LogEvent(
+                    TEXT("match_ended"),
+                    AppendMatchConfigTelemetry(FString::Printf(TEXT("{\"winner\":\"saboteur\",\"reason\":\"crew_incapacitated\",\"livingCrew\":%d}"), LivingCrew)));
             }
         }
         return true;

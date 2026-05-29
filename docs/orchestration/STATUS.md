@@ -20,7 +20,7 @@ priority order below + `DISPATCH.md` §2.
 | --- | --- | --- | --- | --- | --- |
 | **GP-01** Human Playability | 🟡 YELLOW | First real 6-8p human run + anonymized summary (`playtest-preflight --mode human`) | Re-confirm Windows listen-server preflight is green (`playtest-run-scaffold`/`preflight`) | **8 real humans** (no code change removes it) | 2026-05-29 |
 | **GP-02** Network/Hosting | 🔴 BLOCKED | `AbyssLockServer.exe` builds+boots+8 clients+ready-lobby | Keep runbook + `UE_ROOT` instructions consistent; verify `quality-gate` | **Server-capable UE 5.7** (Launcher UE can't build Server targets) | 2026-05-29 |
-| **GP-03** Core Match | 🟡 YELLOW | DH-parity feel + readable round (`docs/mechanics-parity-target.md`, `docs/control-scheme.md`) | ✅ Madman mode + host config (cycle 97) + **difficulty knobs now live: survival decay ×mult, sabotage severity ×mult (cycle 98)** `docs/madman-mode-and-host-config-spec.md` → show role (incl. 狂人) on HUD + win/lose result (after GP-09 HUD lands) | Human P1-024/025 notes for tuning | 2026-05-29 |
+| **GP-03** Core Match | 🟡 YELLOW | DH-parity feel + readable round (`docs/mechanics-parity-target.md`, `docs/control-scheme.md`) | 🎯 **completing solo as a real ~30-min voyage** (`docs/solo-voyage-completion-spec.md`): ✅ crew-incapacitated loss (cycle 101) → **Step 2: fuel-gated time-based route + remove instant-win** (needs owner confirm of pacing model A) | instant-win loop (E×3 wins in ~10s); pacing model A/B/C confirm | 2026-05-29 |
 | **GP-04** Steam Online | 🟡 YELLOW | Lobby create/find/join + build/map-mismatch reject (P2-003/004) | ✅ **lobby metadata now carries `mode`/`difficulty` (cycle 99)** → run `run_steam_lobby_validation.ps1` preflight; runtime spike still GP-02-gated | Runtime spike gated behind GP-02 (contracts already green) | 2026-05-29 |
 | **GP-05** Voice & Trust | 🟡 YELLOW | One voice provider chosen + 8p acceptance plan | Write `docs/voice-provider-decision.md` (VCI+EOS vs Vivox vs Steam Voice) | Runtime acceptance gated by server (decision itself unblocked) | 2026-05-29 |
 | **GP-06** Services & Tools | 🟢 GREEN | Backend ↔ `openapi.yaml` ↔ tests parity; `cargo test --workspace` green | ✅ 404s documented + tested (cycle 83) → add the 409 `lobby_full` test | none | 2026-05-29 |
@@ -53,6 +53,14 @@ Everything else advances now, headless, in parallel.
 
 ## Last loop iteration
 
+- 2026-05-29 **cycle 101** (GP-03, interactive) — **start completing solo as a real ~30-min voyage**.
+  Assessment: the shared objective (advance Route→100%→Final Approach→crew win) exists, but solo wins in
+  ~10s (Route task +0.35×3, no cooldown), has no pacing, no result screen, and a downed solo player never
+  ends the match. Wrote `docs/solo-voyage-completion-spec.md` (Option A "voyage" model + plan). Landed the
+  model-agnostic fix: `EvaluateMatchEnd` now ends the match as a loss when no crew can act
+  (`crew_incapacitated`), and `HandleMatchTimerTick` evaluates win/lose every second so a solo
+  death/incapacitation resolves promptly. Editor+Game build + `quality-gate` green. **Next (needs owner
+  confirm of pacing model A): Step 2 — fuel-gated time-based route advance + remove the instant-win.**
 - 2026-05-29 **cycle 100** (GP-07, interactive) — **match telemetry carries mode + difficulty**. Added a
   `AppendMatchConfigTelemetry` GameMode helper and wrapped all 4 `match_started` + 4 `match_ended`
   events so each carries `mode`/`difficulty` from the server-authoritative `ActiveMatchConfig` — per-mode
