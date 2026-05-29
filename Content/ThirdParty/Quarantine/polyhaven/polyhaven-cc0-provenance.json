@@ -1,0 +1,39 @@
+{
+  "source": "Poly Haven (https://polyhaven.com)",
+  "license": "CC0 1.0 (public domain, no attribution required)",
+  "fetchedAt": "2026-05-29T07:54:24Z",
+  "resolution": "1k",
+  "assets": [
+    {
+      "type": "hdri",
+      "slug": "blaubeuren_outskirts",
+      "url": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/blaubeuren_outskirts_1k.hdr",
+      "bytes": 1887528
+    },
+    {
+      "type": "model",
+      "slug": "Barrel_01",
+      "bytes": 4024268
+    },
+    {
+      "type": "model",
+      "slug": "Barrel_02",
+      "bytes": 1399456
+    },
+    {
+      "type": "model",
+      "slug": "cardboard_box_01",
+      "bytes": 3587718
+    },
+    {
+      "type": "model",
+      "slug": "can_rusted",
+      "bytes": 3970148
+    },
+    {
+      "type": "model",
+      "slug": "Lantern_01",
+      "bytes": 14221925
+    }
+  ]
+}

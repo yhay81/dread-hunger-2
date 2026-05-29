@@ -21,7 +21,7 @@ priority order below + `DISPATCH.md` §2.
 | **GP-05** Voice & Trust | 🟡 YELLOW | One voice provider chosen + 8p acceptance plan | Write `docs/voice-provider-decision.md` (VCI+EOS vs Vivox vs Steam Voice) | Runtime acceptance gated by server (decision itself unblocked) | 2026-05-29 |
 | **GP-06** Services & Tools | 🟢 GREEN | Backend ↔ `openapi.yaml` ↔ tests parity; `cargo test --workspace` green | ✅ 404s documented + tested (cycle 83) → add the 409 `lobby_full` test | none | 2026-05-29 |
 | **GP-07** Evidence/QA/Perf | 🟡 YELLOW | Perf budgets + measurement method; gates reproducible | Draft `docs/performance-budget.md`; verify `quality-gate` | Server-side perf rows need server build (doc still writable) | 2026-05-29 |
-| **GP-08** Presentation/Rights | 🟢 GREEN | **TOP**: dress the *playable* scene with IP-safe CC0 assets + atmosphere (looks like a real game) | Build CC0 material instances + apply to playable map + fog/post-process; screenshot for owner review | New meshes/props need owner to acquire CC0 packs | 2026-05-29 |
+| **GP-08** Presentation/Rights | 🟢 GREEN | **TOP**: dress the *playable* scene with IP-safe CC0 assets + atmosphere | ✅ acquired CC0 HDRI + 5 props (cycle 86) → import HDRI(sky/IBL)+props(meshes)+materials+fog; screenshot for owner | none | 2026-05-29 |
 | **GP-09** Comprehension/A11y | 🟡 YELLOW | First-match comprehension checklist + stable strings + glossary · dedicated **L_MainMenu** boot + start→lobby→**solo** debug (cycle 85) | Write `docs/gp09-comprehension-checklist.md`; verify `quality-gate` | No human comprehension data yet | 2026-05-29 |
 | **GP-10** Release/Community | 🟡 YELLOW | Steam Playtest readiness snapshot (owner/artifact/status/blocker/cancel) | Create `docs/steam-playtest-readiness.md`; verify `quality-gate` | No moderation-triage owner assigned anywhere | 2026-05-29 |
 
@@ -49,6 +49,9 @@ Everything else advances now, headless, in parallel.
 
 ## Last loop iteration
 
+- 2026-05-29 **cycle 86** (GP-08, interactive) — acquired staple **CC0** assets (Poly Haven
+  overcast HDRI + 5 industrial props) into quarantine with provenance + ledger rows; reproducible
+  `Tools/assets/fetch_polyhaven_cc0.ps1`. Next: import (sky/IBL + meshes) + place + screenshot.
 - 2026-05-29 — **Loop RESUMED (owner refocus).** Top priority = player-facing build: GP-08 IP-safe
   CC0 visual dressing of the playable scene + GP-03 solo HUD/feel + GP-09 menu/UI polish (JP font).
   Front-end works (menu → 一人モード → lit whitebox). Aesthetics owner-judged via screenshots;
