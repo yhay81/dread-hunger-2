@@ -122,6 +122,11 @@ kept local-only; only aggregate structure is recorded here.
 
 ## Open questions runtime observation can't answer (need our own design)
 
+- **Fine replication/RPC structure is not legitimately observable on the shipped build:** verbose
+  logging is compiled out of their Shipping server (`-LogCmds … Verbose` yields nothing) and game
+  traffic uses an AES-GCM PacketHandler (encrypted on the wire), so per-actor replication detail
+  would need either their (absent) verbose logs or decrypting traffic (circumvention — not done).
+  We instrument our own server instead.
 - Replication relevancy/priority tuning for 8 players → our own profiling.
 - Anti-cheat / EOS rationale → our own decision (GP-04).
 - Reconnection / seamless-travel behavior → observe later in a populated session, or design fresh.
