@@ -21,6 +21,7 @@ public class AbyssLockEditor : ModuleRules
         {
             "AssetTools",
             "LevelEditor",
+            "MaterialEditor",
             "Slate",
             "StandaloneRenderer",
             "UnrealEd"

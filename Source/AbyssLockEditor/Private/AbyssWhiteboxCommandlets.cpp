@@ -17,6 +17,13 @@
 #include "Components/SkyLightComponent.h"
 #include "Components/PointLightComponent.h"
 #include "Components/ExponentialHeightFogComponent.h"
+#include "Engine/Texture.h"
+#include "Materials/Material.h"
+#include "Materials/MaterialExpressionConstant.h"
+#include "Materials/MaterialExpressionTextureCoordinate.h"
+#include "Materials/MaterialExpressionTextureSample.h"
+#include "MaterialEditingLibrary.h"
+#include "Factories/MaterialFactoryNew.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/StaticMeshActor.h"
 #include "Engine/TargetPoint.h"
@@ -193,6 +200,84 @@ AActor* SpawnActor(UClass* ActorClass, const TCHAR* Label, const FVector& Locati
     Actor->SetActorLabel(Label);
     Actor->Tags.AddUnique(WhiteboxTag);
     return Actor;
+}
+
+// Build a simple PBR material from an already-imported CC0 ambientCG texture set (BaseColor +
+// tiling + constant roughness/metallic) and save it as a reusable asset. No-op if it already exists;
+// logs + returns gracefully if the source texture is missing (surface then keeps the engine default).
+void GetOrCreateAmbientCgMaterial(const TCHAR* MaterialName, const TCHAR* AssetId, float Tiling, float Roughness, float Metallic)
+{
+    const FString PackagePath = FString::Printf(TEXT("/Game/ThirdParty/Quarantine/ambientCG/Materials/%s"), MaterialName);
+    if (LoadObject<UMaterialInterface>(nullptr, *PackagePath))
+    {
+        return; // created in a prior run
+    }
+
+    const FString ColorTexPath = FString::Printf(TEXT("/Game/ThirdParty/Quarantine/ambientCG/%s/%s_1K-JPG_Color"), AssetId, AssetId);
+    UTexture* ColorTex = LoadObject<UTexture>(nullptr, *ColorTexPath);
+    if (!ColorTex)
+    {
+        UE_LOG(LogAbyssWhiteboxCommandlet, Warning, TEXT("CC0 material %s: color texture missing (%s); keeping engine default."), MaterialName, *ColorTexPath);
+        return;
+    }
+
+    UPackage* Package = CreatePackage(*PackagePath);
+    UMaterialFactoryNew* Factory = NewObject<UMaterialFactoryNew>();
+    UMaterial* Material = Cast<UMaterial>(Factory->FactoryCreateNew(UMaterial::StaticClass(), Package, FName(MaterialName), RF_Public | RF_Standalone, nullptr, GWarn));
+    if (!Material)
+    {
+        UE_LOG(LogAbyssWhiteboxCommandlet, Warning, TEXT("CC0 material %s: creation failed."), MaterialName);
+        return;
+    }
+
+    UMaterialExpressionTextureCoordinate* TexCoord = Cast<UMaterialExpressionTextureCoordinate>(
+        UMaterialEditingLibrary::CreateMaterialExpression(Material, UMaterialExpressionTextureCoordinate::StaticClass(), -500, 0));
+    if (TexCoord)
+    {
+        TexCoord->UTiling = Tiling;
+        TexCoord->VTiling = Tiling;
+    }
+
+    UMaterialExpressionTextureSample* ColorSample = Cast<UMaterialExpressionTextureSample>(
+        UMaterialEditingLibrary::CreateMaterialExpression(Material, UMaterialExpressionTextureSample::StaticClass(), -250, 0));
+    if (ColorSample)
+    {
+        ColorSample->Texture = ColorTex;
+        ColorSample->SamplerType = SAMPLERTYPE_Color;
+        if (TexCoord)
+        {
+            UMaterialEditingLibrary::ConnectMaterialExpressions(TexCoord, FString(), ColorSample, TEXT("UVs"));
+        }
+        UMaterialEditingLibrary::ConnectMaterialProperty(ColorSample, FString(), MP_BaseColor);
+    }
+
+    UMaterialExpressionConstant* RoughExpr = Cast<UMaterialExpressionConstant>(
+        UMaterialEditingLibrary::CreateMaterialExpression(Material, UMaterialExpressionConstant::StaticClass(), -250, 250));
+    if (RoughExpr)
+    {
+        RoughExpr->R = Roughness;
+        UMaterialEditingLibrary::ConnectMaterialProperty(RoughExpr, FString(), MP_Roughness);
+    }
+
+    if (Metallic > 0.0f)
+    {
+        UMaterialExpressionConstant* MetalExpr = Cast<UMaterialExpressionConstant>(
+            UMaterialEditingLibrary::CreateMaterialExpression(Material, UMaterialExpressionConstant::StaticClass(), -250, 400));
+        if (MetalExpr)
+        {
+            MetalExpr->R = Metallic;
+            UMaterialEditingLibrary::ConnectMaterialProperty(MetalExpr, FString(), MP_Metallic);
+        }
+    }
+
+    UMaterialEditingLibrary::RecompileMaterial(Material);
+
+    Package->MarkPackageDirty();
+    const FString Filename = FPackageName::LongPackageNameToFilename(PackagePath, FPackageName::GetAssetPackageExtension());
+    FSavePackageArgs SaveArgs;
+    SaveArgs.TopLevelFlags = RF_Public | RF_Standalone;
+    UPackage::SavePackage(Package, Material, *Filename, SaveArgs);
+    UE_LOG(LogAbyssWhiteboxCommandlet, Display, TEXT("Created CC0 material %s from %s (tiling %.0f)."), MaterialName, AssetId, Tiling);
 }
 
 bool SpawnCube(const FCubeSpec& Spec, UStaticMesh* CubeMesh, FString& Error)
@@ -386,6 +471,65 @@ bool CreateWhitebox(FString& Error)
         {
             return false;
         }
+    }
+
+    // --- CC0 surface materials (ambientCG, already imported; no download needed) ---
+    // Build the reusable materials (once), then assign them to the right surfaces by label so the
+    // greybox reads as a real snow field + metal ship. Tiling is baked per-purpose (world size).
+    GetOrCreateAmbientCgMaterial(TEXT("M_Field_Snow"), TEXT("Snow015"), 140.0f, 0.90f, 0.0f);
+    GetOrCreateAmbientCgMaterial(TEXT("M_Deck_Snow"), TEXT("Snow015"), 12.0f, 0.90f, 0.0f);
+    GetOrCreateAmbientCgMaterial(TEXT("M_Deck_Metal"), TEXT("DiamondPlate009"), 24.0f, 0.45f, 0.85f);
+    GetOrCreateAmbientCgMaterial(TEXT("M_Wall_Metal"), TEXT("PaintedMetal004"), 10.0f, 0.50f, 0.60f);
+    GetOrCreateAmbientCgMaterial(TEXT("M_Ice"), TEXT("Ice003"), 5.0f, 0.20f, 0.0f);
+
+    TMap<FString, AStaticMeshActor*> CubeByLabel;
+    for (TActorIterator<AStaticMeshActor> It(World); It; ++It)
+    {
+        CubeByLabel.Add(It->GetActorLabel(), *It);
+    }
+    auto ApplyMaterial = [&CubeByLabel](const TCHAR* Label, const TCHAR* MaterialName)
+    {
+        AStaticMeshActor** Found = CubeByLabel.Find(Label);
+        if (!Found || !*Found)
+        {
+            return;
+        }
+        UMaterialInterface* Mat = LoadObject<UMaterialInterface>(nullptr, *FString::Printf(TEXT("/Game/ThirdParty/Quarantine/ambientCG/Materials/%s"), MaterialName));
+        if (!Mat)
+        {
+            return; // material absent (e.g. texture missing) → keep engine default
+        }
+        if (UStaticMeshComponent* MeshComponent = (*Found)->GetStaticMeshComponent())
+        {
+            MeshComponent->SetMaterial(0, Mat);
+        }
+    };
+
+    ApplyMaterial(TEXT("WB_Field_FrozenSea"), TEXT("M_Field_Snow"));
+    ApplyMaterial(TEXT("WB_Ice_DeckPlate"), TEXT("M_Deck_Snow"));
+    ApplyMaterial(TEXT("WB_Hull_MainDeck"), TEXT("M_Deck_Metal"));
+    ApplyMaterial(TEXT("WB_Ceiling_Interior"), TEXT("M_Wall_Metal"));
+    ApplyMaterial(TEXT("WB_IcePressureGate"), TEXT("M_Ice"));
+
+    const TCHAR* WallLabels[] = {
+        TEXT("WB_Hull_PortWall"), TEXT("WB_Hull_StarboardWall"), TEXT("WB_Hull_SternWall"), TEXT("WB_Hull_BowRail"),
+        TEXT("WB_Corridor_PortWall_Fwd"), TEXT("WB_Corridor_PortWall_Aft"), TEXT("WB_Corridor_StbdWall_Fwd"), TEXT("WB_Corridor_StbdWall_Aft"),
+        TEXT("WB_Bridge"), TEXT("WB_Bridge_FwdWall"), TEXT("WB_RadioRoom"), TEXT("WB_Radio_FwdWall"),
+        TEXT("WB_QuartermasterStore"), TEXT("WB_Infirmary"), TEXT("WB_EngineRoom"), TEXT("WB_BatteryRoom"),
+        TEXT("WB_FuelBay"), TEXT("WB_Fuel_FwdWall_Stbd"),
+    };
+    for (const TCHAR* WallLabel : WallLabels)
+    {
+        ApplyMaterial(WallLabel, TEXT("M_Wall_Metal"));
+    }
+
+    const TCHAR* MetalDetailLabels[] = {
+        TEXT("WB_Bridge_Console"), TEXT("WB_Radio_Rack"), TEXT("WB_Engine_Block"),
+        TEXT("WB_Battery_RackA"), TEXT("WB_Fuel_DrumCluster"), TEXT("WB_Ice_Winch"),
+    };
+    for (const TCHAR* DetailLabel : MetalDetailLabels)
+    {
+        ApplyMaterial(DetailLabel, TEXT("M_Deck_Metal"));
     }
 
     // Spawn cluster in the open central gap (between the fwd/aft corridor wall segments), on the deck.
