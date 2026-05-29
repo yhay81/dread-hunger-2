@@ -27,6 +27,62 @@ namespace
 constexpr int32 AbyssFixedMatchPlayers = 8;
 constexpr int32 AbyssPracticePlayers = 1;
 
+FString AbyssMatchModeToString(EAbyssMatchMode Mode)
+{
+    return Mode == EAbyssMatchMode::Madman ? TEXT("madman") : TEXT("standard");
+}
+
+FString AbyssDifficultyToString(EAbyssDifficulty Difficulty)
+{
+    switch (Difficulty)
+    {
+    case EAbyssDifficulty::Easy:
+        return TEXT("easy");
+    case EAbyssDifficulty::Hard:
+        return TEXT("hard");
+    case EAbyssDifficulty::Normal:
+    default:
+        return TEXT("normal");
+    }
+}
+
+bool AbyssParseMatchMode(const FString& Value, EAbyssMatchMode& OutMode)
+{
+    const FString Lower = Value.ToLower();
+    if (Lower == TEXT("madman"))
+    {
+        OutMode = EAbyssMatchMode::Madman;
+        return true;
+    }
+    if (Lower == TEXT("standard"))
+    {
+        OutMode = EAbyssMatchMode::Standard;
+        return true;
+    }
+    return false;
+}
+
+bool AbyssParseDifficulty(const FString& Value, EAbyssDifficulty& OutDifficulty)
+{
+    const FString Lower = Value.ToLower();
+    if (Lower == TEXT("easy"))
+    {
+        OutDifficulty = EAbyssDifficulty::Easy;
+        return true;
+    }
+    if (Lower == TEXT("normal"))
+    {
+        OutDifficulty = EAbyssDifficulty::Normal;
+        return true;
+    }
+    if (Lower == TEXT("hard"))
+    {
+        OutDifficulty = EAbyssDifficulty::Hard;
+        return true;
+    }
+    return false;
+}
+
 const TCHAR* AbyssShipSystemJsonName(EAbyssShipSystem System)
 {
     switch (System)
@@ -266,10 +322,10 @@ void AAbyssLockGameMode::Logout(AController* Exiting)
 
 void AAbyssLockGameMode::AssignRolesForCurrentPlayers()
 {
-    AssignRolesForCurrentPlayersInternal(INDEX_NONE);
+    AssignRolesForCurrentPlayersInternal(INDEX_NONE, ActiveMatchConfig.MadmanCount);
 }
 
-void AAbyssLockGameMode::AssignRolesForCurrentPlayersInternal(int32 SaboteurCountOverride)
+void AAbyssLockGameMode::AssignRolesForCurrentPlayersInternal(int32 SaboteurCountOverride, int32 MadmanCount)
 {
     if (!HasAuthority() || !GameState)
     {
@@ -286,13 +342,16 @@ void AAbyssLockGameMode::AssignRolesForCurrentPlayersInternal(int32 SaboteurCoun
     }
 
     const int32 PlayerCount = ConnectedPlayers.Num();
-    const int32 DesiredSaboteurCount = SaboteurCountOverride >= 0 ? SaboteurCountOverride : CalculateSaboteurCount(PlayerCount);
-    const int32 SaboteurCount = FMath::Clamp(DesiredSaboteurCount, 0, PlayerCount);
     if (PlayerCount <= 0)
     {
         UE_LOG(LogAbyssGameplay, Warning, TEXT("role_assignment_skipped players=%d"), PlayerCount);
         return;
     }
+
+    const int32 DesiredSaboteurCount = SaboteurCountOverride >= 0 ? SaboteurCountOverride : CalculateSaboteurCount(PlayerCount);
+    const int32 SaboteurCount = FMath::Clamp(DesiredSaboteurCount, 0, PlayerCount);
+    // Madmen fill the next slots after Saboteurs; clamp so Crew is never fully displaced.
+    const int32 ClampedMadmanCount = FMath::Clamp(MadmanCount, 0, FMath::Max(0, PlayerCount - SaboteurCount));
 
     for (int32 Index = 0; Index < ConnectedPlayers.Num(); ++Index)
     {
@@ -303,22 +362,79 @@ void AAbyssLockGameMode::AssignRolesForCurrentPlayersInternal(int32 SaboteurCoun
     for (int32 Index = 0; Index < ConnectedPlayers.Num(); ++Index)
     {
         AAbyssLockPlayerState* PlayerState = ConnectedPlayers[Index];
-        const bool bIsSaboteur = Index < SaboteurCount;
-        PlayerState->SetSecretTeam(bIsSaboteur ? EAbyssTeam::Saboteur : EAbyssTeam::Crew);
+        EAbyssTeam SecretTeam;
+        if (Index < SaboteurCount)
+        {
+            SecretTeam = EAbyssTeam::Saboteur;
+        }
+        else if (Index < SaboteurCount + ClampedMadmanCount)
+        {
+            // Madman knows their own role (owner-only SecretTeam) but is indistinguishable
+            // from Crew to everyone else, has no Saboteur abilities, and wins iff Saboteurs win.
+            SecretTeam = EAbyssTeam::Madman;
+        }
+        else
+        {
+            SecretTeam = EAbyssTeam::Crew;
+        }
+        PlayerState->SetSecretTeam(SecretTeam);
         PlayerState->SetRevealedTeam(EAbyssTeam::Unassigned);
         PlayerState->SetLifeState(EAbyssLifeState::Alive);
     }
 
-    UE_LOG(LogAbyssGameplay, Log, TEXT("role_assignment_complete players=%d saboteurs=%d"), PlayerCount, SaboteurCount);
+    const FString ModeName = AbyssMatchModeToString(ActiveMatchConfig.Mode);
+    UE_LOG(LogAbyssGameplay, Log, TEXT("role_assignment_complete players=%d saboteurs=%d madmen=%d mode=%s"), PlayerCount, SaboteurCount, ClampedMadmanCount, *ModeName);
     if (UGameInstance* GameInstance = GetGameInstance())
     {
         if (UAbyssTelemetrySubsystem* TelemetrySubsystem = GameInstance->GetSubsystem<UAbyssTelemetrySubsystem>())
         {
             TelemetrySubsystem->LogEvent(
                 TEXT("role_assignment_complete"),
-                FString::Printf(TEXT("{\"players\":%d,\"saboteurs\":%d}"), PlayerCount, SaboteurCount));
+                FString::Printf(TEXT("{\"players\":%d,\"saboteurs\":%d,\"madmen\":%d,\"mode\":\"%s\"}"), PlayerCount, SaboteurCount, ClampedMadmanCount, *ModeName));
         }
     }
+}
+
+void AAbyssLockGameMode::SetActiveMatchConfig(const FAbyssMatchConfig& NewConfig)
+{
+    if (!HasAuthority())
+    {
+        return;
+    }
+
+    ActiveMatchConfig = NewConfig;
+    UE_LOG(LogAbyssGameplay, Log, TEXT("match_config_set mode=%s difficulty=%s saboteurs=%d madmen=%d"),
+        *AbyssMatchModeToString(ActiveMatchConfig.Mode), *AbyssDifficultyToString(ActiveMatchConfig.Difficulty),
+        ActiveMatchConfig.SaboteurCount, ActiveMatchConfig.MadmanCount);
+}
+
+FAbyssMatchConfig AAbyssLockGameMode::ResolveMatchConfig(EAbyssMatchMode Mode, EAbyssDifficulty Difficulty) const
+{
+    FAbyssMatchConfig Config;
+    Config.Mode = Mode;
+    Config.Difficulty = Difficulty;
+    Config.SaboteurCount = -1; // auto from player count
+    Config.MadmanCount = (Mode == EAbyssMatchMode::Madman) ? 1 : 0;
+    Config.RequiredCrewSurvivorsOverride = -1; // auto unless the host customizes it
+
+    switch (Difficulty)
+    {
+    case EAbyssDifficulty::Easy:
+        Config.SurvivalDecayMultiplier = 0.75f;
+        Config.SabotageIntensityMultiplier = 0.8f;
+        break;
+    case EAbyssDifficulty::Hard:
+        Config.SurvivalDecayMultiplier = 1.35f;
+        Config.SabotageIntensityMultiplier = 1.25f;
+        break;
+    case EAbyssDifficulty::Normal:
+    default:
+        Config.SurvivalDecayMultiplier = 1.0f;
+        Config.SabotageIntensityMultiplier = 1.0f;
+        break;
+    }
+
+    return Config;
 }
 
 void AAbyssLockGameMode::TryAutoStartMatchForDev()
@@ -339,7 +455,21 @@ void AAbyssLockGameMode::TryAutoStartMatchForDev()
 
     int32 SaboteurOverride = 0;
     FParse::Value(FCommandLine::Get(), TEXT("AbyssDevSaboteurs="), SaboteurOverride);
-    AssignRolesForCurrentPlayersInternal(SaboteurOverride);
+
+    EAbyssMatchMode DevMode = ActiveMatchConfig.Mode;
+    EAbyssDifficulty DevDifficulty = ActiveMatchConfig.Difficulty;
+    FString DevModeString;
+    if (FParse::Value(FCommandLine::Get(), TEXT("AbyssMode="), DevModeString))
+    {
+        AbyssParseMatchMode(DevModeString, DevMode);
+    }
+    FString DevDifficultyString;
+    if (FParse::Value(FCommandLine::Get(), TEXT("AbyssDifficulty="), DevDifficultyString))
+    {
+        AbyssParseDifficulty(DevDifficultyString, DevDifficulty);
+    }
+    ActiveMatchConfig = ResolveMatchConfig(DevMode, DevDifficulty);
+    AssignRolesForCurrentPlayersInternal(SaboteurOverride, ActiveMatchConfig.MadmanCount);
 
     if (AAbyssLockGameState* AbyssGameState = GetGameState<AAbyssLockGameState>())
     {
@@ -1914,6 +2044,8 @@ bool AAbyssLockGameMode::EvaluateMatchEnd()
         }
 
         ++TotalAssignedPlayers;
+        // Only true Crew count toward survival. Saboteurs and the Madman are antagonist-aligned
+        // (the Madman wins iff the Saboteurs win), so they are intentionally excluded here.
         if (Team != EAbyssTeam::Crew)
         {
             continue;
@@ -2038,7 +2170,7 @@ bool AAbyssLockGameMode::TryStartMatchFromReady()
     }
 #endif
 
-    AssignRolesForCurrentPlayersInternal(SaboteurOverride);
+    AssignRolesForCurrentPlayersInternal(SaboteurOverride, bSinglePlayerMode ? 0 : ActiveMatchConfig.MadmanCount);
     AbyssGameState->SetMatchPhase(EAbyssMatchPhase::InProgress);
     StartMatchTimer();
     const FString StartSource = bSinglePlayerMode ? TEXT("single_player") : TEXT("ready_lobby");
@@ -2146,11 +2278,11 @@ bool AAbyssLockGameMode::TryStartMatchFromHost(APlayerController* RequestingPlay
         return false;
     }
 
-    AssignRolesForCurrentPlayersInternal(INDEX_NONE);
+    AssignRolesForCurrentPlayersInternal(INDEX_NONE, ActiveMatchConfig.MadmanCount);
     AbyssGameState->SetMatchPhase(EAbyssMatchPhase::InProgress);
     StartMatchTimer();
 
-    UE_LOG(LogAbyssGameplay, Log, TEXT("match_started source=host_start players=%d host=%s"), PlayerCount, *GetNameSafe(RequestingPlayer->PlayerState));
+    UE_LOG(LogAbyssGameplay, Log, TEXT("match_started source=host_start players=%d host=%s mode=%s"), PlayerCount, *GetNameSafe(RequestingPlayer->PlayerState), *AbyssMatchModeToString(ActiveMatchConfig.Mode));
     if (UGameInstance* GameInstance = GetGameInstance())
     {
         if (UAbyssTelemetrySubsystem* TelemetrySubsystem = GameInstance->GetSubsystem<UAbyssTelemetrySubsystem>())
@@ -2252,6 +2384,11 @@ int32 AAbyssLockGameMode::CalculateSaboteurCount(int32 PlayerCount) const
 
 int32 AAbyssLockGameMode::GetRequiredCrewSurvivors(int32 PlayerCount) const
 {
+    if (ActiveMatchConfig.RequiredCrewSurvivorsOverride >= 0)
+    {
+        return FMath::Clamp(ActiveMatchConfig.RequiredCrewSurvivorsOverride, 1, FMath::Max(1, PlayerCount));
+    }
+
     if (PlayerCount <= AbyssPracticePlayers)
     {
         return 1;

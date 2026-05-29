@@ -40,14 +40,27 @@ public:
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Abyss|SinglePlayer")
     bool TryStartSinglePlayerMatch();
 
+    // Active match configuration (mode + difficulty + resolved knobs). Read-only for clients.
+    UFUNCTION(BlueprintCallable, Category = "Abyss|Match")
+    FAbyssMatchConfig GetActiveMatchConfig() const { return ActiveMatchConfig; }
+
+    // Host-side configuration entry point: set before starting the match (e.g. from the host lobby UI).
+    UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Abyss|Match")
+    void SetActiveMatchConfig(const FAbyssMatchConfig& NewConfig);
+
+    // Build a config from a mode + difficulty preset (fills auto counts and tuning multipliers).
+    UFUNCTION(BlueprintCallable, Category = "Abyss|Match")
+    FAbyssMatchConfig ResolveMatchConfig(EAbyssMatchMode Mode, EAbyssDifficulty Difficulty) const;
+
 private:
     bool bDevAutoStarted = false;
     bool bSoloUrlRequested = false;
+    FAbyssMatchConfig ActiveMatchConfig;
     FTimerHandle MatchTimerHandle;
     float MatchDurationSeconds = 25.0f * 60.0f;
     double MatchEndWorldSeconds = 0.0;
 
-    void AssignRolesForCurrentPlayersInternal(int32 SaboteurCountOverride);
+    void AssignRolesForCurrentPlayersInternal(int32 SaboteurCountOverride, int32 MadmanCount = 0);
     void TryAutoStartMatchForDev();
     void StartMatchTimer();
     void StopMatchTimer();

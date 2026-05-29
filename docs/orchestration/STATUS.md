@@ -20,7 +20,7 @@ priority order below + `DISPATCH.md` §2.
 | --- | --- | --- | --- | --- | --- |
 | **GP-01** Human Playability | 🟡 YELLOW | First real 6-8p human run + anonymized summary (`playtest-preflight --mode human`) | Re-confirm Windows listen-server preflight is green (`playtest-run-scaffold`/`preflight`) | **8 real humans** (no code change removes it) | 2026-05-29 |
 | **GP-02** Network/Hosting | 🔴 BLOCKED | `AbyssLockServer.exe` builds+boots+8 clients+ready-lobby | Keep runbook + `UE_ROOT` instructions consistent; verify `quality-gate` | **Server-capable UE 5.7** (Launcher UE can't build Server targets) | 2026-05-29 |
-| **GP-03** Core Match | 🟡 YELLOW | DH-parity feel + readable round (`docs/mechanics-parity-target.md`, `docs/control-scheme.md`) | ✅ HUD gauges + **survival restore loop: eat ration (F) / warm up (E)** (cycle 94) → win/lose result screen + use-selected-item for other items | Human P1-024/025 notes for tuning | 2026-05-29 |
+| **GP-03** Core Match | 🟡 YELLOW | DH-parity feel + readable round (`docs/mechanics-parity-target.md`, `docs/control-scheme.md`) | ✅ **Madman mode + host match-config (first C++ slice, cycle 97)** `docs/madman-mode-and-host-config-spec.md` → apply difficulty multipliers + show role (incl. 狂人) on HUD; win/lose result screen | Human P1-024/025 notes for tuning | 2026-05-29 |
 | **GP-04** Steam Online | 🟡 YELLOW | Lobby create/find/join + build/map-mismatch reject (P2-003/004) | Run `run_steam_lobby_validation.ps1` → `preflight_pass` on 5 steps | Runtime spike gated behind GP-02 (contracts already green) | 2026-05-29 |
 | **GP-05** Voice & Trust | 🟡 YELLOW | One voice provider chosen + 8p acceptance plan | Write `docs/voice-provider-decision.md` (VCI+EOS vs Vivox vs Steam Voice) | Runtime acceptance gated by server (decision itself unblocked) | 2026-05-29 |
 | **GP-06** Services & Tools | 🟢 GREEN | Backend ↔ `openapi.yaml` ↔ tests parity; `cargo test --workspace` green | ✅ 404s documented + tested (cycle 83) → add the 409 `lobby_full` test | none | 2026-05-29 |
@@ -53,6 +53,16 @@ Everything else advances now, headless, in parallel.
 
 ## Last loop iteration
 
+- 2026-05-29 **cycle 97** (GP-03, interactive) — **Madman mode + host match-config (first C++ slice)**.
+  Owner ask: a 狂人モード (8p = 5 Crew + 2 Saboteurs + **1 Madman** who looks like Crew to everyone
+  else, has no Saboteur abilities, and wins iff Saboteurs win — 人狼狂人型) + a host-configurable
+  mode/difficulty system. Added `EAbyssMatchMode`/`EAbyssDifficulty`/`FAbyssMatchConfig`,
+  `EAbyssTeam::Madman` (appended; values stable), Madman-aware role assignment, `Set/Get/ResolveMatchConfig`,
+  dev `-AbyssMode=`/`-AbyssDifficulty=` hooks + `mode`/`madmen` telemetry. **Game** target builds
+  (UHT clean, `AbyssLock.exe` links → changed module compiles); **Editor** target blocked by a running
+  `UnrealEditor.exe` (DLL lock — environmental, not code); `quality-gate` green. Spec + lane-assigned
+  follow-ups: `docs/madman-mode-and-host-config-spec.md` (GP-04 lobby meta, GP-09 host UI/JP, GP-07
+  analytics, GP-03 difficulty consumption + result-screen Madman win attribution).
 - 2026-05-29 **cycle 96** (GP-08, interactive) — **exterior arctic field, start**. Owner chose a
   **real field via Quixel/Fab (Megascans)**. Added the ground canvas `WB_Field_FrozenSea` (200×160 m
   plane the ship sits on, extends past the bow into fog) — Megascans surfaces are materials, so the
