@@ -158,8 +158,9 @@ struct FAbyssMatchConfig {
   減少に `SurvivalDecayMultiplier` を、`AAbyssShipTaskActor::Interact` が**妨害時のみ**条件デルタに
   `SabotageIntensityMultiplier` を乗算（いずれもサーバ権威で GameMode の `ActiveMatchConfig` を参照、
   取得不可時は 1.0）。修理は難易度の影響を受けない。
-- 狂人本人のHUD役職表示（「あなたは狂人」）は未実装。HUDは現状 `"Role: Crew"` の静的プレースホルダ。
-  GP-03 の動的HUD作業＋GP-09 の日本語文字列に合流。
+- ~~狂人本人のHUD役職表示（「あなたは狂人」）は未実装~~ → **cycle 104 で実装**。HUDの役職行が毎tick
+  owner-only `GetSecretTeamForOwner()` から更新され、狂人本人だけ「Role: Madman」表示（他者からはクルー）。
+  勝敗リザルト画面も同cycleで実装（狂人は工作員勝利で VICTORY）。文字列は `AbyssUIText` キー（JA翻訳はGP-09）。
 - ホストUI（モード／難易度／数値のUMGパネル）は未実装（GP-09）。
 - ロビーメタデータへの mode/difficulty 反映＋検証は未実装（GP-04）。
 - 死亡時の役職公開（reveal）は未実装。実装時は §2.2 の「狂人はクルーとして公開」を守る。

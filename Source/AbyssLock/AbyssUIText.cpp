@@ -49,6 +49,20 @@ void EnsureRegistered()
     LOCTABLE_SETSTRING("ST_FrostwakeUI", "Hud_FmtRouteToGoal", "Route to Goal  {Percent}%{Suffix}");
     LOCTABLE_SETSTRING("ST_FrostwakeUI", "Hud_RouteFinalApproachSuffix", "  - Final Approach!");
 
+    // --- HUD: dynamic role line (owner-only secret team; the Madman alone sees their true role) ---
+    LOCTABLE_SETSTRING("ST_FrostwakeUI", "Hud_RoleSaboteur", "Role: Saboteur");
+    LOCTABLE_SETSTRING("ST_FrostwakeUI", "Hud_RoleMadman", "Role: Madman");
+
+    // --- HUD: end-of-match result panel (Victory/Defeat + a human-readable reason) ---
+    LOCTABLE_SETSTRING("ST_FrostwakeUI", "Hud_ResultVictory", "VICTORY");
+    LOCTABLE_SETSTRING("ST_FrostwakeUI", "Hud_ResultDefeat", "DEFEAT");
+    LOCTABLE_SETSTRING("ST_FrostwakeUI", "Hud_ResultEnded", "The match has ended.");
+    LOCTABLE_SETSTRING("ST_FrostwakeUI", "Hud_ReasonFinalApproach", "The ship reached its destination.");
+    LOCTABLE_SETSTRING("ST_FrostwakeUI", "Hud_ReasonTimerExpired", "Time ran out before the voyage was complete.");
+    LOCTABLE_SETSTRING("ST_FrostwakeUI", "Hud_ReasonCrewIncapacitated", "The crew could no longer keep the ship underway.");
+    LOCTABLE_SETSTRING("ST_FrostwakeUI", "Hud_ReasonFatalShip", "A critical ship system failed.");
+    LOCTABLE_SETSTRING("ST_FrostwakeUI", "Hud_ReasonCrewThreshold", "Too few crew remained.");
+
     // --- Front-end menu: buttons (EN source; existing JP becomes the 'ja' translation) ---
     LOCTABLE_SETSTRING("ST_FrostwakeUI", "Menu_Play", "Play");
     LOCTABLE_SETSTRING("ST_FrostwakeUI", "Menu_SoloPractice", "Solo Practice");

@@ -3,6 +3,7 @@
 #include "AbyssInventoryComponent.h"
 #include "AbyssLockCharacter.h"
 #include "AbyssLockGameState.h"
+#include "AbyssLockPlayerState.h"
 #include "AbyssLockTypes.h"
 #include "AbyssUIText.h"
 #include "Blueprint/WidgetTree.h"
@@ -72,6 +73,32 @@ void UpdateGauge(UProgressBar* Bar, UTextBlock* Label, const FText& Name, float 
     Args.Add(TEXT("Label"), Name);
     Args.Add(TEXT("Percent"), FMath::RoundToInt(Percent * 100.0f));
     Label->SetText(FText::Format(AbyssUIText::Text(TEXT("Hud_FmtGauge")), Args));
+}
+
+// Map a server match-end reason code to a localized, human-readable result string key.
+const TCHAR* ReasonKeyFor(const FString& Reason)
+{
+    if (Reason == TEXT("final_approach_complete"))
+    {
+        return TEXT("Hud_ReasonFinalApproach");
+    }
+    if (Reason == TEXT("timer_expired"))
+    {
+        return TEXT("Hud_ReasonTimerExpired");
+    }
+    if (Reason == TEXT("crew_incapacitated"))
+    {
+        return TEXT("Hud_ReasonCrewIncapacitated");
+    }
+    if (Reason == TEXT("fatal_ship_state"))
+    {
+        return TEXT("Hud_ReasonFatalShip");
+    }
+    if (Reason == TEXT("crew_threshold"))
+    {
+        return TEXT("Hud_ReasonCrewThreshold");
+    }
+    return TEXT("Hud_ResultEnded");
 }
 }
 
@@ -156,6 +183,53 @@ void UAbyssHudWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
         Args.Add(TEXT("Suffix"), bFinalApproach ? AbyssUIText::Text(TEXT("Hud_RouteFinalApproachSuffix")) : FText::GetEmpty());
         RouteLabel->SetText(FText::Format(AbyssUIText::Text(TEXT("Hud_FmtRouteToGoal")), Args));
     }
+
+    // Role line (owner-only secret team) — the Madman alone sees their true role; to others they read as Crew.
+    const APlayerController* OwningPC = GetOwningPlayer();
+    const AAbyssLockPlayerState* MyPlayerState = OwningPC ? OwningPC->GetPlayerState<AAbyssLockPlayerState>() : nullptr;
+    const EAbyssTeam MyTeam = MyPlayerState ? MyPlayerState->GetSecretTeamForOwner() : EAbyssTeam::Unassigned;
+    if (RoleText)
+    {
+        const TCHAR* RoleKey = TEXT("Hud_RoleCrew");
+        if (MyTeam == EAbyssTeam::Saboteur)
+        {
+            RoleKey = TEXT("Hud_RoleSaboteur");
+        }
+        else if (MyTeam == EAbyssTeam::Madman)
+        {
+            RoleKey = TEXT("Hud_RoleMadman");
+        }
+        RoleText->SetText(AbyssUIText::Text(RoleKey));
+    }
+
+    // End-of-match result panel: Victory/Defeat for THIS player (Madman wins iff the Saboteurs win) + reason.
+    if (ResultBox)
+    {
+        const AAbyssLockGameState* ResultGameState = GetWorld() ? GetWorld()->GetGameState<AAbyssLockGameState>() : nullptr;
+        if (ResultGameState && ResultGameState->GetMatchPhase() == EAbyssMatchPhase::MatchEnded)
+        {
+            const EAbyssTeam Winner = ResultGameState->GetWinningTeam();
+            const bool bSaboteurAligned = (MyTeam == EAbyssTeam::Saboteur || MyTeam == EAbyssTeam::Madman);
+            const bool bWon = (Winner == EAbyssTeam::Crew && MyTeam == EAbyssTeam::Crew)
+                || (Winner == EAbyssTeam::Saboteur && bSaboteurAligned);
+            if (ResultTitle)
+            {
+                ResultTitle->SetText(AbyssUIText::Text(bWon ? TEXT("Hud_ResultVictory") : TEXT("Hud_ResultDefeat")));
+                ResultTitle->SetColorAndOpacity(bWon
+                    ? FSlateColor(FLinearColor(0.40f, 0.85f, 0.46f))
+                    : FSlateColor(FLinearColor(0.88f, 0.30f, 0.30f)));
+            }
+            if (ResultReason)
+            {
+                ResultReason->SetText(AbyssUIText::Text(ReasonKeyFor(ResultGameState->GetMatchEndReason())));
+            }
+            ResultBox->SetVisibility(ESlateVisibility::HitTestInvisible);
+        }
+        else
+        {
+            ResultBox->SetVisibility(ESlateVisibility::Collapsed);
+        }
+    }
 }
 
 void UAbyssHudWidget::BuildHud()
@@ -179,7 +253,9 @@ void UAbyssHudWidget::BuildHud()
     // UI strings come from the shared Frostwake UI string table (English source); JA / zh-Hans are
     // translations against the same keys. Legible CJK glyphs still need the GP-09 font step.
     RootBox->AddChildToVerticalBox(MakeLine(WidgetTree, AbyssUIText::Text(TEXT("Hud_TitlePractice")), 22.0f));
-    RootBox->AddChildToVerticalBox(MakeLine(WidgetTree, AbyssUIText::Text(TEXT("Hud_RoleCrew")), 18.0f));
+    // Role line is updated each tick from the owner-only SecretTeam (Crew / Saboteur / Madman).
+    RoleText = MakeLine(WidgetTree, AbyssUIText::Text(TEXT("Hud_RoleCrew")), 18.0f);
+    RootBox->AddChildToVerticalBox(RoleText);
     RootBox->AddChildToVerticalBox(MakeLine(WidgetTree, AbyssUIText::Text(TEXT("Hud_Objective")), 18.0f));
     RootBox->AddChildToVerticalBox(MakeLine(WidgetTree, AbyssUIText::Text(TEXT("Hud_Controls")), 16.0f));
 
@@ -230,4 +306,24 @@ void UAbyssHudWidget::BuildHud()
         RouteBarSlot->SetHorizontalAlignment(HAlign_Center);
         RouteBarSlot->SetPadding(FMargin(0.0f, 4.0f, 0.0f, 0.0f));
     }
+
+    // --- Match result panel (center): hidden until the match ends, then shows Victory/Defeat + reason. ---
+    ResultBox = WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass());
+    if (UOverlaySlot* ResultSlot = RootOverlay->AddChildToOverlay(ResultBox))
+    {
+        ResultSlot->SetHorizontalAlignment(HAlign_Center);
+        ResultSlot->SetVerticalAlignment(VAlign_Center);
+    }
+    ResultTitle = MakeLine(WidgetTree, AbyssUIText::Text(TEXT("Hud_ResultEnded")), 44.0f);
+    if (UVerticalBoxSlot* ResultTitleSlot = ResultBox->AddChildToVerticalBox(ResultTitle))
+    {
+        ResultTitleSlot->SetHorizontalAlignment(HAlign_Center);
+    }
+    ResultReason = MakeLine(WidgetTree, FText::GetEmpty(), 20.0f);
+    if (UVerticalBoxSlot* ResultReasonSlot = ResultBox->AddChildToVerticalBox(ResultReason))
+    {
+        ResultReasonSlot->SetHorizontalAlignment(HAlign_Center);
+        ResultReasonSlot->SetPadding(FMargin(0.0f, 10.0f, 0.0f, 0.0f));
+    }
+    ResultBox->SetVisibility(ESlateVisibility::Collapsed);
 }

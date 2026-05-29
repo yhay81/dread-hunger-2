@@ -20,7 +20,7 @@ priority order below + `DISPATCH.md` §2.
 | --- | --- | --- | --- | --- | --- |
 | **GP-01** Human Playability | 🟡 YELLOW | First real 6-8p human run + anonymized summary (`playtest-preflight --mode human`) | Re-confirm Windows listen-server preflight is green (`playtest-run-scaffold`/`preflight`) | **8 real humans** (no code change removes it) | 2026-05-29 |
 | **GP-02** Network/Hosting | 🔴 BLOCKED | `AbyssLockServer.exe` builds+boots+8 clients+ready-lobby | Keep runbook + `UE_ROOT` instructions consistent; verify `quality-gate` | **Server-capable UE 5.7** (Launcher UE can't build Server targets) | 2026-05-29 |
-| **GP-03** Core Match | 🟡 YELLOW | DH-parity feel + readable round (`docs/mechanics-parity-target.md`, `docs/control-scheme.md`) | ✅ **solo = real ~30-min voyage, headless-proven** (`docs/solo-voyage-completion-spec.md`): loss-on-incap (101) + fuel-gated time-based route (102) + difficulty + smoke proof `voyage_progress`/`final_approach_complete` (103) → **Step 4 result screen** + human tuning | Step 4 result UI waits on in-flight GP-09 HUD | 2026-05-29 |
+| **GP-03** Core Match | 🟡 YELLOW | DH-parity feel + readable round (`docs/mechanics-parity-target.md`, `docs/control-scheme.md`) | ✅ **solo complete: real ~30-min voyage with win/lose result screen** (`docs/solo-voyage-completion-spec.md`) — loss-on-incap (101) + fuel-gated route (102) + difficulty+proof (103) + **result screen & dynamic role/Madman HUD (104)** → host config UMG panel + human tuning | none blocking (host UI panel is next) | 2026-05-29 |
 | **GP-04** Steam Online | 🟡 YELLOW | Lobby create/find/join + build/map-mismatch reject (P2-003/004) | ✅ **lobby metadata now carries `mode`/`difficulty` (cycle 99)** → run `run_steam_lobby_validation.ps1` preflight; runtime spike still GP-02-gated | Runtime spike gated behind GP-02 (contracts already green) | 2026-05-29 |
 | **GP-05** Voice & Trust | 🟡 YELLOW | One voice provider chosen + 8p acceptance plan | Write `docs/voice-provider-decision.md` (VCI+EOS vs Vivox vs Steam Voice) | Runtime acceptance gated by server (decision itself unblocked) | 2026-05-29 |
 | **GP-06** Services & Tools | 🟢 GREEN | Backend ↔ `openapi.yaml` ↔ tests parity; `cargo test --workspace` green | ✅ 404s documented + tested (cycle 83) → add the 409 `lobby_full` test | none | 2026-05-29 |
@@ -53,6 +53,15 @@ Everything else advances now, headless, in parallel.
 
 ## Last loop iteration
 
+- 2026-05-29 **cycle 104** (GP-03 + GP-09, interactive) — **win/lose result screen + dynamic role HUD
+  (incl. Madman)**. Now that GP-09's localization (`AbyssUIText` String Table) landed, added without
+  collision: (1) a centered **result panel** shown at `MatchEnded` — VICTORY/DEFEAT (computed for the
+  viewer's alignment, so the Madman wins iff the Saboteurs win) + a localized reason
+  (final approach / timer / incapacitated / fatal ship / crew threshold); (2) a **dynamic role line**
+  updated each tick from the owner-only `GetSecretTeamForOwner()` — the Madman alone sees "Role: Madman",
+  everyone else reads as Crew. New `AbyssUIText` keys (EN source; JA/zh-Hans via the GP-09 pipeline).
+  Editor+Game build + `quality-gate` green. **Solo completion Steps 1-4 all done** + the Madman feature's
+  last UI piece. Remaining: host config UMG panel + human-playtest tuning.
 - 2026-05-29 **cycle 103** (GP-03, interactive) — **voyage difficulty wiring + headless proof**. Wired
   difficulty into the voyage: `FuelBurnMultiplier` preset (Easy 0.8 / Normal 1.0 / Hard 1.3) applied in
   `TickVoyage`, and the match timer scaled by difficulty (Easy 1.15× / Hard 0.85× of 30 min). Added

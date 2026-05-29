@@ -60,7 +60,9 @@
   観測用 `voyage_progress`（1%毎＋初回保証）/`ship_stalled` ログ追加。**headless smoke で実証**：ソロで
   `voyage_progress{progress:0.001,fuel:0.997}`（tickが時間で進行＋燃料消費）＋
   `match_ended{winner:crew,reason:final_approach_complete}`（勝利解決）。Editor+Game build＋quality-gate green。
-- [ ] **Step 4（リザルトUI／GP-09協調）**：勝敗リザルト画面（`WinningTeam`/`MatchEndReason` を表示）。並行HUD作業が landed 後。
+- [x] **Step 4（リザルトUI）cycle 104**：勝敗リザルト画面を実装（`MatchEnded` で中央に VICTORY/DEFEAT ＋
+  理由を表示、視点プレイヤーの陣営で勝敗判定＝狂人は工作員勝利で勝ち）。文字列は `AbyssUIText` キー（JA/zh-Hans は
+  GP-09パイプラインで翻訳）。GP-09のローカライズ基盤が landed したため衝突なしで実装。Editor+Game build＋quality-gate green。
 
 ## 6. 検証
 

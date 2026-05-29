@@ -29,6 +29,18 @@ private:
     UPROPERTY()
     UTextBlock* HotbarText = nullptr;
 
+    // Dynamic role line (updated from the owner-only SecretTeam): Crew / Saboteur / Madman.
+    UPROPERTY()
+    UTextBlock* RoleText = nullptr;
+
+    // Centered end-of-match result panel (hidden until the match ends).
+    UPROPERTY()
+    UVerticalBox* ResultBox = nullptr;
+    UPROPERTY()
+    UTextBlock* ResultTitle = nullptr;
+    UPROPERTY()
+    UTextBlock* ResultReason = nullptr;
+
     // Survival gauges (health / food / warmth) + route-to-goal bar. Original styling.
     UPROPERTY()
     UProgressBar* HealthBar = nullptr;
