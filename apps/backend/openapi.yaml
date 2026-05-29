@@ -158,6 +158,10 @@ paths:
                     $ref: "#/components/schemas/JoinedMatchmakingLobby"
         "403":
           description: Player does not meet the lobby experience requirement
+        "404":
+          description: Lobby not found
+        "409":
+          description: Lobby is full
   /v1/matchmaking/lobbies/{lobbyId}/leave:
     post:
       summary: Leave a matchmaking lobby
@@ -191,6 +195,8 @@ paths:
                     type: boolean
                   lobby:
                     $ref: "#/components/schemas/MatchmakingLobby"
+        "404":
+          description: Lobby not found
   /v1/banlists/{scope}:
     get:
       summary: Fetch ban metadata by scope
@@ -209,6 +215,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/BanlistResponse"
+        "404":
+          description: Unknown banlist scope
   /v1/news:
     get:
       summary: Fetch patch notes and announcements

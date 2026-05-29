@@ -606,6 +606,51 @@ async fn leaving_matchmaking_lobbies_updates_readiness_and_removes_empty_lobbies
 }
 
 #[tokio::test]
+async fn joining_unknown_lobby_returns_not_found() {
+    let (status, _, body) = request_json(
+        fixed_app(),
+        json_request(
+            Method::POST,
+            "/v1/matchmaking/lobbies/does-not-exist/join",
+            json!({ "playerLocalId": "player-x", "completedMatches": 50 }),
+        ),
+    )
+    .await;
+    assert_eq!(status, StatusCode::NOT_FOUND);
+    assert_eq!(body["error"], "lobby_not_found");
+}
+
+#[tokio::test]
+async fn leaving_unknown_lobby_returns_not_found() {
+    let (status, _, body) = request_json(
+        fixed_app(),
+        json_request(
+            Method::POST,
+            "/v1/matchmaking/lobbies/does-not-exist/leave",
+            json!({ "playerLocalId": "player-x" }),
+        ),
+    )
+    .await;
+    assert_eq!(status, StatusCode::NOT_FOUND);
+    assert_eq!(body["error"], "lobby_not_found");
+}
+
+#[tokio::test]
+async fn banlist_unknown_scope_returns_not_found() {
+    let (status, _, body) = request_json(
+        fixed_app(),
+        Request::builder()
+            .method(Method::GET)
+            .uri("/v1/banlists/bogus-scope")
+            .body(Body::empty())
+            .expect("valid request"),
+    )
+    .await;
+    assert_eq!(status, StatusCode::NOT_FOUND);
+    assert_eq!(body["error"], "unknown_banlist_scope");
+}
+
+#[tokio::test]
 async fn read_only_metadata_endpoints_return_empty_local_prototype_data() {
     let app = fixed_app();
 
