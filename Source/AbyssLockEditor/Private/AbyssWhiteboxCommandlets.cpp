@@ -368,13 +368,26 @@ bool CreateWhitebox(FString& Error)
         }
     }
 
-    if (!SpawnActor(ADirectionalLight::StaticClass(), TEXT("L_Key_ArcticSun"), FVector(-900, -1200, 2200), FRotator(-38, -35, 0), Error))
+    AActor* KeyLight = SpawnActor(ADirectionalLight::StaticClass(), TEXT("L_Key_ArcticSun"), FVector(-900, -1200, 2200), FRotator(-38, -35, 0), Error);
+    if (!KeyLight)
     {
         return false;
     }
-    if (!SpawnActor(ASkyLight::StaticClass(), TEXT("L_Sky_Overcast"), FVector(0, 0, 1200), FRotator::ZeroRotator, Error))
+    if (USceneComponent* KeyRoot = KeyLight->GetRootComponent())
+    {
+        // Movable so the greybox is fully dynamically lit at runtime: no lighting bake, no
+        // "LIGHTING NEEDS TO BE REBUILT" warning, always visible for debugging.
+        KeyRoot->SetMobility(EComponentMobility::Movable);
+    }
+
+    AActor* SkyLight = SpawnActor(ASkyLight::StaticClass(), TEXT("L_Sky_Overcast"), FVector(0, 0, 1200), FRotator::ZeroRotator, Error);
+    if (!SkyLight)
     {
         return false;
+    }
+    if (USceneComponent* SkyRoot = SkyLight->GetRootComponent())
+    {
+        SkyRoot->SetMobility(EComponentMobility::Movable);
     }
 
     World->MarkPackageDirty();
