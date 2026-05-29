@@ -210,6 +210,8 @@ TMap<FString, FString> UAbyssLobbySubsystem::ToKeyValueMetadata(const FAbyssLobb
     Values.Add(TEXT("buildId"), Metadata.BuildId);
     Values.Add(TEXT("mapId"), Metadata.MapId);
     Values.Add(TEXT("ruleset"), Metadata.Ruleset);
+    Values.Add(TEXT("mode"), Metadata.Mode);
+    Values.Add(TEXT("difficulty"), Metadata.Difficulty);
     Values.Add(TEXT("maxPlayers"), FString::FromInt(Metadata.MaxPlayers));
     Values.Add(TEXT("currentPlayers"), FString::FromInt(Metadata.CurrentPlayers));
     Values.Add(TEXT("minimumCompletedMatches"), FString::FromInt(Metadata.MinimumCompletedMatches));
@@ -240,6 +242,8 @@ FAbyssLobbyMetadata UAbyssLobbySubsystem::FromKeyValueMetadata(const TMap<FStrin
     ReadStringValue(Values, TEXT("buildId"), Metadata.BuildId);
     ReadStringValue(Values, TEXT("mapId"), Metadata.MapId);
     ReadStringValue(Values, TEXT("ruleset"), Metadata.Ruleset);
+    ReadStringValue(Values, TEXT("mode"), Metadata.Mode);
+    ReadStringValue(Values, TEXT("difficulty"), Metadata.Difficulty);
     ReadIntValue(Values, TEXT("maxPlayers"), Metadata.MaxPlayers);
     ReadIntValue(Values, TEXT("currentPlayers"), Metadata.CurrentPlayers);
     ReadIntValue(Values, TEXT("minimumCompletedMatches"), Metadata.MinimumCompletedMatches);

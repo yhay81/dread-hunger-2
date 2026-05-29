@@ -1814,6 +1814,11 @@ fn summarize_lobby_metadata(metadata: &Map<String, Value>) -> BTreeMap<String, V
         ("buildId".to_string(), value_or_null(metadata, "buildId")),
         ("mapId".to_string(), value_or_null(metadata, "mapId")),
         ("ruleset".to_string(), value_or_null(metadata, "ruleset")),
+        ("mode".to_string(), value_or_null(metadata, "mode")),
+        (
+            "difficulty".to_string(),
+            value_or_null(metadata, "difficulty"),
+        ),
         (
             "players".to_string(),
             json!(format!(
@@ -8301,6 +8306,38 @@ mod tests {
                 .iter()
                 .any(|error| error.contains("standard lobbies require at least 50"))
         );
+    }
+
+    #[test]
+    fn lobby_metadata_accepts_madman_mode() {
+        let schema = load_fixture("Tools/ops/lobby_metadata.schema.json");
+        let mut example = load_fixture("Tools/ops/lobby_metadata.example.json");
+        example.insert("mode".to_string(), json!("madman"));
+        example.insert("difficulty".to_string(), json!("hard"));
+        let errors = validate_lobby_metadata(&schema, &example, None, None);
+
+        assert_eq!(errors, Vec::<String>::new());
+    }
+
+    #[test]
+    fn lobby_metadata_rejects_unknown_mode() {
+        let schema = load_fixture("Tools/ops/lobby_metadata.schema.json");
+        let mut example = load_fixture("Tools/ops/lobby_metadata.example.json");
+        example.insert("mode".to_string(), json!("chaos"));
+        let errors = validate_lobby_metadata(&schema, &example, None, None);
+
+        assert!(errors.iter().any(|error| error.contains("mode")));
+        assert!(errors.iter().any(|error| error.contains("not in enum")));
+    }
+
+    #[test]
+    fn lobby_metadata_rejects_unknown_difficulty() {
+        let schema = load_fixture("Tools/ops/lobby_metadata.schema.json");
+        let mut example = load_fixture("Tools/ops/lobby_metadata.example.json");
+        example.insert("difficulty".to_string(), json!("nightmare"));
+        let errors = validate_lobby_metadata(&schema, &example, None, None);
+
+        assert!(errors.iter().any(|error| error.contains("difficulty")));
     }
 
     #[test]

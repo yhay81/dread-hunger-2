@@ -33,6 +33,10 @@ Optional display fields:
 
 - `region`
 - `serverName`
+- `mode` — match mode advertised to joiners: `standard` or `madman` (mirrors `EAbyssMatchMode`). Absent ⇒ treated as `standard`. Distinct from `ruleset`: `ruleset` is the lobby category (`standard`/`private_test`/`developer`), `mode` is the in-match game mode.
+- `difficulty` — difficulty preset: `easy`, `normal`, or `hard` (mirrors `EAbyssDifficulty`). Absent ⇒ treated as `normal`.
+
+`mode`/`difficulty` are informational rendezvous fields (so a browser/joiner can see the host's chosen mode + difficulty). They are **not** join-gates — only `buildId`/`mapId` mismatch (and the join-state/capacity rules) reject before travel. See `docs/madman-mode-and-host-config-spec.md`.
 
 ## Validation
 

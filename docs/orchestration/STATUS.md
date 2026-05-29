@@ -21,7 +21,7 @@ priority order below + `DISPATCH.md` §2.
 | **GP-01** Human Playability | 🟡 YELLOW | First real 6-8p human run + anonymized summary (`playtest-preflight --mode human`) | Re-confirm Windows listen-server preflight is green (`playtest-run-scaffold`/`preflight`) | **8 real humans** (no code change removes it) | 2026-05-29 |
 | **GP-02** Network/Hosting | 🔴 BLOCKED | `AbyssLockServer.exe` builds+boots+8 clients+ready-lobby | Keep runbook + `UE_ROOT` instructions consistent; verify `quality-gate` | **Server-capable UE 5.7** (Launcher UE can't build Server targets) | 2026-05-29 |
 | **GP-03** Core Match | 🟡 YELLOW | DH-parity feel + readable round (`docs/mechanics-parity-target.md`, `docs/control-scheme.md`) | ✅ Madman mode + host config (cycle 97) + **difficulty knobs now live: survival decay ×mult, sabotage severity ×mult (cycle 98)** `docs/madman-mode-and-host-config-spec.md` → show role (incl. 狂人) on HUD + win/lose result (after GP-09 HUD lands) | Human P1-024/025 notes for tuning | 2026-05-29 |
-| **GP-04** Steam Online | 🟡 YELLOW | Lobby create/find/join + build/map-mismatch reject (P2-003/004) | Run `run_steam_lobby_validation.ps1` → `preflight_pass` on 5 steps | Runtime spike gated behind GP-02 (contracts already green) | 2026-05-29 |
+| **GP-04** Steam Online | 🟡 YELLOW | Lobby create/find/join + build/map-mismatch reject (P2-003/004) | ✅ **lobby metadata now carries `mode`/`difficulty` (cycle 99)** → run `run_steam_lobby_validation.ps1` preflight; runtime spike still GP-02-gated | Runtime spike gated behind GP-02 (contracts already green) | 2026-05-29 |
 | **GP-05** Voice & Trust | 🟡 YELLOW | One voice provider chosen + 8p acceptance plan | Write `docs/voice-provider-decision.md` (VCI+EOS vs Vivox vs Steam Voice) | Runtime acceptance gated by server (decision itself unblocked) | 2026-05-29 |
 | **GP-06** Services & Tools | 🟢 GREEN | Backend ↔ `openapi.yaml` ↔ tests parity; `cargo test --workspace` green | ✅ 404s documented + tested (cycle 83) → add the 409 `lobby_full` test | none | 2026-05-29 |
 | **GP-07** Evidence/QA/Perf | 🟡 YELLOW | Perf budgets + measurement method; gates reproducible | Draft `docs/performance-budget.md`; verify `quality-gate` | Server-side perf rows need server build (doc still writable) | 2026-05-29 |
@@ -53,6 +53,14 @@ Everything else advances now, headless, in parallel.
 
 ## Last loop iteration
 
+- 2026-05-29 **cycle 99** (GP-04, interactive) — **lobby metadata carries match mode + difficulty**.
+  So a browser/joiner can see what kind of match a lobby runs: added optional `mode`
+  (`standard`/`madman`) + `difficulty` (`easy`/`normal`/`hard`) enums to `lobby_metadata.schema.json`,
+  the `FAbyssLobbyMetadata` C++ mirror (+`To/FromKeyValueMetadata`), and the Rust validator summary;
+  3 new tests (accept madman/hard, reject unknown mode/difficulty). Informational only — **not** a
+  join-gate (only build/map mismatch reject before travel). schemaVersion stays 1 (optional, absent ⇒
+  standard/normal). `cargo test` + `quality-gate` green; Editor+Game build PASS. Runtime Steam path
+  still GP-02-gated. Spec/contract: `docs/madman-mode-and-host-config-spec.md`, `docs/steam-lobby-metadata-contract.md`.
 - 2026-05-29 **cycle 98** (GP-03, interactive) — **difficulty knobs become live**. Consumed the two
   `FAbyssMatchConfig` multipliers cycle 97 only resolved: `AAbyssLockCharacter::UpdateSurvival` now
   scales food/warmth decay by `SurvivalDecayMultiplier` (Hard 1.35× / Easy 0.75×) and

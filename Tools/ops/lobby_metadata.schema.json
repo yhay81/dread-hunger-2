@@ -48,6 +48,14 @@
       "type": "string",
       "enum": ["standard", "private_test", "developer"]
     },
+    "mode": {
+      "type": "string",
+      "enum": ["standard", "madman"]
+    },
+    "difficulty": {
+      "type": "string",
+      "enum": ["easy", "normal", "hard"]
+    },
     "maxPlayers": {
       "type": "integer",
       "minimum": 8,

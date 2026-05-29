@@ -173,9 +173,10 @@ struct FAbyssMatchConfig {
   - (b) `SurvivalDecayMultiplier` を 1s decay に、`SabotageIntensityMultiplier` を sabotage delta に適用。
   - (c) 結果画面で「狂人＝工作員勝利で勝ち」をプレイヤー個別に属性付け。
   - (d) 人間テスト後、`crew_threshold` 閾値を真クルー数ベースにするか判断（§2.4 注記）。
-- **GP-04**: `FAbyssLobbyMetadata` / `lobby_metadata.schema.json` に `mode` / `difficulty` を追加し、
-  `lobby-join-decision` の build/map 整合と並べて検証。`FAbyssServerConfig.Ruleset` 文字列を
-  `EAbyssMatchMode` に橋渡し。
+- **GP-04**: ✅ **(cycle 99)** `FAbyssLobbyMetadata` / `lobby_metadata.schema.json` に `mode` / `difficulty`
+  を追加（任意・enum、欠落時は standard/normal、情報用で join 拒否理由ではない）。Rust 検証＋C++ KV変換＋
+  契約docも更新。**残り**: ホスト設定 / `FAbyssServerConfig.Ruleset` → ロビーの `mode`/`difficulty` を
+  実際に埋める配線（host UI と合わせて）。
 - **GP-09**: ホスト設定UMGパネル（モード／難易度／数値）＋全ラベルの LOCTEXT 日本語化
   （`docs/gp09-jp-localization-font-plan.md` に合流）。
 - **GP-07**: `match_started` / `match_ended` に `mode` / `difficulty` を載せ、モード別の集計を可能に。

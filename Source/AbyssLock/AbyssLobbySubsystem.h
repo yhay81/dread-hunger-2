@@ -42,6 +42,14 @@ struct FAbyssLobbyMetadata
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Abyss|Lobby")
     FString Ruleset = TEXT("standard");
 
+    // Match mode advertised to joiners ("standard" / "madman"). Mirrors EAbyssMatchMode; rendezvous-only, informational.
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Abyss|Lobby")
+    FString Mode = TEXT("standard");
+
+    // Difficulty preset advertised to joiners ("easy" / "normal" / "hard"). Mirrors EAbyssDifficulty.
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Abyss|Lobby")
+    FString Difficulty = TEXT("normal");
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Abyss|Lobby")
     int32 MaxPlayers = 8;
 

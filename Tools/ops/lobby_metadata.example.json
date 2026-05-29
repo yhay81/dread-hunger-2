@@ -5,6 +5,8 @@
   "buildId": "AbyssLock-Win64-Development-local",
   "mapId": "L_IcebreakerWhitebox",
   "ruleset": "standard",
+  "mode": "standard",
+  "difficulty": "normal",
   "maxPlayers": 8,
   "currentPlayers": 3,
   "minimumCompletedMatches": 0,
