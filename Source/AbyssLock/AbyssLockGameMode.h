@@ -57,7 +57,7 @@ private:
     bool bSoloUrlRequested = false;
     FAbyssMatchConfig ActiveMatchConfig;
     FTimerHandle MatchTimerHandle;
-    float MatchDurationSeconds = 25.0f * 60.0f;
+    float MatchDurationSeconds = 30.0f * 60.0f;
     double MatchEndWorldSeconds = 0.0;
 
     void AssignRolesForCurrentPlayersInternal(int32 SaboteurCountOverride, int32 MadmanCount = 0);
@@ -87,4 +87,7 @@ private:
     int32 GetSaboteurEliminationThreshold(int32 PlayerCount) const;
     // Returns a copy of a `{...}` telemetry JSON object with "mode"/"difficulty" fields appended.
     FString AppendMatchConfigTelemetry(const FString& JsonObject) const;
+    // Voyage tick (called each second): while underway (fueled), burn fuel and advance the route;
+    // flip to FinalApproach when the route is complete. This is the ~30-min objective arc.
+    void TickVoyage(class AAbyssLockGameState& AbyssGameState);
 };

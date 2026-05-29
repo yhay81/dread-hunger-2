@@ -580,7 +580,7 @@ bool CreateWhitebox(FString& Error)
         {TEXT("TASK_Sabotage_Fuel"), TEXT("Fuel"), true, FVector(-1850, -300, 70), 0.35f, false, true, false},
         {TEXT("TASK_Repair_HullFlooding"), TEXT("Flooding"), false, FVector(350, 300, 70), 0.35f, false, false, false},
         {TEXT("TASK_Sabotage_HullFlooding"), TEXT("Flooding"), true, FVector(350, -300, 70), 0.35f, false, true, false},
-        {TEXT("TASK_Repair_Route"), TEXT("Route"), false, FVector(1150, -430, 70), 0.35f, false, false, false},
+        {TEXT("TASK_Repair_Fuel"), TEXT("Fuel"), false, FVector(-1850, 0, 70), 0.5f, false, false, false},
     };
     for (const FTaskSpec& Task : Tasks)
     {
@@ -833,7 +833,7 @@ bool ValidateRequiredLabels(const TMap<FString, AActor*>& Actors, FString& Error
         TEXT("TASK_Sabotage_Fuel"),
         TEXT("TASK_Repair_HullFlooding"),
         TEXT("TASK_Sabotage_HullFlooding"),
-        TEXT("TASK_Repair_Route"),
+        TEXT("TASK_Repair_Fuel"),
         TEXT("DOOR_RadioBulkhead"),
         TEXT("DOOR_EngineBulkhead"),
         TEXT("DOOR_HoldFloodBulkhead"),
@@ -869,7 +869,7 @@ bool ValidateTaskConfig(const TMap<FString, AActor*>& Actors, FString& Error)
         {TEXT("TASK_Sabotage_Fuel"), TEXT("fuel"), TEXT("sabotage")},
         {TEXT("TASK_Repair_HullFlooding"), TEXT("flooding"), TEXT("repair")},
         {TEXT("TASK_Sabotage_HullFlooding"), TEXT("flooding"), TEXT("sabotage")},
-        {TEXT("TASK_Repair_Route"), TEXT("route"), TEXT("repair")},
+        {TEXT("TASK_Repair_Fuel"), TEXT("fuel"), TEXT("repair")},
     };
 
     for (const FTaskExpectation& Expectation : Expectations)
@@ -1540,4 +1540,94 @@ int32 UImportPolyhavenCc0AssetsCommandlet::Main(const FString& Params)
 {
     FString Error;
     return FrostwakePolyhaven::ImportPolyhaven(Error) ? 0 : 1;
+}
+
+namespace FrostwakeFonts
+{
+// Quarantined OFL Noto Sans CJK fonts (fetched by Tools/assets/fetch_noto_cjk_ofl.ps1).
+const FString FontDestRoot = TEXT("/Game/ThirdParty/Quarantine/fonts");
+
+bool ImportOneFont(IAssetTools& AssetTools, const FString& AbsTtf, const FString& DestPath, FString& Error)
+{
+    if (!FPaths::FileExists(AbsTtf))
+    {
+        Error = FString::Printf(TEXT("Missing font file: %s (run Tools/assets/fetch_noto_cjk_ofl.ps1)"), *AbsTtf);
+        return false;
+    }
+
+    UAutomatedAssetImportData* ImportData = NewObject<UAutomatedAssetImportData>();
+    ImportData->Filenames = { AbsTtf };
+    ImportData->DestinationPath = DestPath;
+    ImportData->bReplaceExisting = true;
+    ImportData->bSkipReadOnly = true;
+
+    const TArray<UObject*> Imported = AssetTools.ImportAssetsAutomated(ImportData);
+    if (Imported.Num() == 0)
+    {
+        Error = FString::Printf(TEXT("Font import produced no asset for: %s"), *AbsTtf);
+        return false;
+    }
+
+    for (UObject* Object : Imported)
+    {
+        UPackage* Package = Object ? Object->GetPackage() : nullptr;
+        if (!Package)
+        {
+            Error = TEXT("Imported font asset has no package.");
+            return false;
+        }
+        const FString PackageFilename = FPackageName::LongPackageNameToFilename(Package->GetName(), FPackageName::GetAssetPackageExtension());
+        FSavePackageArgs SaveArgs;
+        SaveArgs.TopLevelFlags = RF_Public | RF_Standalone;
+        SaveArgs.Error = GWarn;
+        if (!UPackage::SavePackage(Package, Object, *PackageFilename, SaveArgs))
+        {
+            Error = FString::Printf(TEXT("Could not save imported font package: %s"), *PackageFilename);
+            return false;
+        }
+        UE_LOG(LogAbyssWhiteboxCommandlet, Display, TEXT("Imported font asset %s (%s)"), *Object->GetPathName(), *Object->GetClass()->GetName());
+    }
+    return true;
+}
+
+bool ImportNotoCjkFonts(FString& Error)
+{
+    if (!FSlateApplication::IsInitialized())
+    {
+        FSlateApplication::InitializeAsStandaloneApplication(GetStandardStandaloneRenderer());
+    }
+    IAssetTools& AssetTools = FModuleManager::LoadModuleChecked<FAssetToolsModule>(TEXT("AssetTools")).Get();
+    const FString Base = FPaths::Combine(FPaths::ProjectContentDir(), TEXT("ThirdParty/Quarantine/fonts"));
+
+    if (!ImportOneFont(AssetTools, FPaths::Combine(Base, TEXT("notosansjp"), TEXT("NotoSansJP-VF.ttf")), FontDestRoot + TEXT("/NotoSansJP"), Error))
+    {
+        return false;
+    }
+    if (!ImportOneFont(AssetTools, FPaths::Combine(Base, TEXT("notosanssc"), TEXT("NotoSansSC-VF.ttf")), FontDestRoot + TEXT("/NotoSansSC"), Error))
+    {
+        return false;
+    }
+
+    UE_LOG(LogAbyssWhiteboxCommandlet, Display, TEXT("Imported Noto Sans JP + SC font faces into %s."), *FontDestRoot);
+    return true;
+}
+}
+
+UImportNotoCjkFontAssetsCommandlet::UImportNotoCjkFontAssetsCommandlet()
+{
+    IsClient = false;
+    IsEditor = true;
+    IsServer = false;
+    LogToConsole = true;
+}
+
+int32 UImportNotoCjkFontAssetsCommandlet::Main(const FString& Params)
+{
+    FString Error;
+    if (!FrostwakeFonts::ImportNotoCjkFonts(Error))
+    {
+        UE_LOG(LogAbyssWhiteboxCommandlet, Error, TEXT("ImportNotoCjkFonts failed: %s"), *Error);
+        return 1;
+    }
+    return 0;
 }

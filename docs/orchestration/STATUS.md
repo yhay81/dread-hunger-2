@@ -20,7 +20,7 @@ priority order below + `DISPATCH.md` §2.
 | --- | --- | --- | --- | --- | --- |
 | **GP-01** Human Playability | 🟡 YELLOW | First real 6-8p human run + anonymized summary (`playtest-preflight --mode human`) | Re-confirm Windows listen-server preflight is green (`playtest-run-scaffold`/`preflight`) | **8 real humans** (no code change removes it) | 2026-05-29 |
 | **GP-02** Network/Hosting | 🔴 BLOCKED | `AbyssLockServer.exe` builds+boots+8 clients+ready-lobby | Keep runbook + `UE_ROOT` instructions consistent; verify `quality-gate` | **Server-capable UE 5.7** (Launcher UE can't build Server targets) | 2026-05-29 |
-| **GP-03** Core Match | 🟡 YELLOW | DH-parity feel + readable round (`docs/mechanics-parity-target.md`, `docs/control-scheme.md`) | 🎯 **completing solo as a real ~30-min voyage** (`docs/solo-voyage-completion-spec.md`): ✅ crew-incapacitated loss (cycle 101) → **Step 2: fuel-gated time-based route + remove instant-win** (needs owner confirm of pacing model A) | instant-win loop (E×3 wins in ~10s); pacing model A/B/C confirm | 2026-05-29 |
+| **GP-03** Core Match | 🟡 YELLOW | DH-parity feel + readable round (`docs/mechanics-parity-target.md`, `docs/control-scheme.md`) | 🎯 **solo = real ~30-min voyage** (`docs/solo-voyage-completion-spec.md`): ✅ crew-incapacitated loss (101) + ✅ **fuel-gated time-based route, instant-win removed, 30-min timer (102)** → Step 3 tune+difficulty, Step 4 result screen | Step 4 result UI waits on in-flight GP-09 HUD | 2026-05-29 |
 | **GP-04** Steam Online | 🟡 YELLOW | Lobby create/find/join + build/map-mismatch reject (P2-003/004) | ✅ **lobby metadata now carries `mode`/`difficulty` (cycle 99)** → run `run_steam_lobby_validation.ps1` preflight; runtime spike still GP-02-gated | Runtime spike gated behind GP-02 (contracts already green) | 2026-05-29 |
 | **GP-05** Voice & Trust | 🟡 YELLOW | One voice provider chosen + 8p acceptance plan | Write `docs/voice-provider-decision.md` (VCI+EOS vs Vivox vs Steam Voice) | Runtime acceptance gated by server (decision itself unblocked) | 2026-05-29 |
 | **GP-06** Services & Tools | 🟢 GREEN | Backend ↔ `openapi.yaml` ↔ tests parity; `cargo test --workspace` green | ✅ 404s documented + tested (cycle 83) → add the 409 `lobby_full` test | none | 2026-05-29 |
@@ -53,6 +53,15 @@ Everything else advances now, headless, in parallel.
 
 ## Last loop iteration
 
+- 2026-05-29 **cycle 102** (GP-03, interactive) — **solo is now a real ~30-min voyage**. Replaced the
+  ~10s instant-win (Route task ×3) with a fuel-gated time-based voyage: `AAbyssLockGameMode::TickVoyage`
+  (each second) advances `RouteProgress` only while underway (Fuel system condition > 0), burning fuel;
+  100% → Final Approach → crew win. Removed the manual route-advance from the ship task; converted
+  `TASK_Repair_Route`→`TASK_Repair_Fuel` (refuel +0.5, fuel bay) and **regenerated the whitebox map**;
+  match timer 25→30 min. A full tank lasts ~6 min, so the player must refuel + eat + warm for ~25 min of
+  uptime to complete the route inside the 30-min clock; out of fuel stalls the route (timer-loss risk).
+  `create`/`validate-icebreaker-whitebox` + Game build + `quality-gate` green (editor target needed the
+  owner to close the live editor first). Next: Step 3 (tune + difficulty wiring), Step 4 (result screen, GP-09).
 - 2026-05-29 **cycle 101** (GP-03, interactive) — **start completing solo as a real ~30-min voyage**.
   Assessment: the shared objective (advance Route→100%→Final Approach→crew win) exists, but solo wins in
   ~10s (Route task +0.35×3, no cooldown), has no pacing, no result screen, and a downed solo player never

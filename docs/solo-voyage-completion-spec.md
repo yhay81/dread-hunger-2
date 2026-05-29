@@ -51,10 +51,11 @@
 
 ## 5. インクリメンタル計画（小さく検証可能）
 
-- [ ] **Step 1（モデル非依存・即実装）**：`EvaluateMatchEnd` に「稼働クルー0→敗北（`crew_incapacitated`）」を追加し、
+- [x] **Step 1（モデル非依存・即実装）cycle 101**：`EvaluateMatchEnd` に「稼働クルー0→敗北（`crew_incapacitated`）」を追加し、
   1秒 `HandleMatchTimerTick` から毎秒 `EvaluateMatchEnd` を呼ぶ（操作が無くても死亡で即決着）。→ ギャップ#4解消。
-- [ ] **Step 2（航海ペース＝Aの心臓部）**：航海tickで Fuel を燃やしつつ `RouteProgress` を時間前進。即勝利を撤去。
-  `TASK_Repair_Fuel`（補給）を配置。→ ギャップ#1/#2解消。headless smoke で「時間で前進・Fuel0で停止」を検証。
+- [x] **Step 2（航海ペース＝Aの心臓部）cycle 102**：`TickVoyage` が航行中（Fuel条件>0）のみ毎秒 Fuel を燃やしつつ
+  `RouteProgress` を時間前進、100%で FinalApproach。即勝利（ルート手動前進）を撤去。`TASK_Repair_Fuel`（補給+0.5、燃料庫）に
+  変換しマップ再生成。タイマー30分。→ ギャップ#1/#2解消（E×3即勝利→約25分の航海維持で勝利）。次: headless smoke。
 - [ ] **Step 3（チューニング）**：タイマー~28–30分、`BurnPerSec`/`ProgressPerSec` を難易度連動。Fuelの初期値・補給量を調整。
 - [ ] **Step 4（リザルトUI／GP-09協調）**：勝敗リザルト画面（`WinningTeam`/`MatchEndReason` を表示）。並行HUD作業が landed 後。
 

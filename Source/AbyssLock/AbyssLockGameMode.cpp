@@ -27,6 +27,12 @@ namespace
 constexpr int32 AbyssFixedMatchPlayers = 8;
 constexpr int32 AbyssPracticePlayers = 1;
 
+// Voyage pacing (Option A): the route advances over time only while the ship is underway (fueled),
+// so completing the voyage takes a sustained ~25 min of keeping the ship fuelled (the win), inside
+// the ~30 min match timer (the loss). See docs/solo-voyage-completion-spec.md.
+constexpr float AbyssVoyageRouteProgressPerSecond = 1.0f / 1500.0f; // ~25 min of uptime to reach 100%
+constexpr float AbyssVoyageFuelBurnPerSecond = 1.0f / 360.0f;       // a full fuel tank lasts ~6 min underway
+
 FString AbyssMatchModeToString(EAbyssMatchMode Mode)
 {
     return Mode == EAbyssMatchMode::Madman ? TEXT("madman") : TEXT("standard");
@@ -610,8 +616,10 @@ void AAbyssLockGameMode::HandleMatchTimerTick()
         return;
     }
 
-    // Resolve win/lose every second so crew death/incapacitation (e.g. a solo player who starved or
-    // froze) ends the match promptly, even with no ship-task interaction this tick.
+    // Advance the voyage (route progresses over time while fueled), then resolve win/lose every second
+    // so the route completing, the timer, or crew death/incapacitation all end the match promptly even
+    // with no ship-task interaction this tick.
+    TickVoyage(*AbyssGameState);
     if (EvaluateMatchEnd())
     {
         return;
@@ -807,45 +815,36 @@ void AAbyssLockGameMode::RunDevSmokeRouteComplete()
         return;
     }
 
-    APawn* InstigatorPawn = FindPawnForTeam(EAbyssTeam::Crew);
-    if (!InstigatorPawn)
+    AAbyssLockGameState* AbyssGameState = GetGameState<AAbyssLockGameState>();
+    if (!AbyssGameState)
     {
-        InstigatorPawn = FindPawnForTeam(EAbyssTeam::Saboteur);
+        return;
     }
 
-    AAbyssShipTaskActor* RouteTask = nullptr;
-    for (TActorIterator<AAbyssShipTaskActor> It(GetWorld()); It; ++It)
+    // The route now advances over time while underway (see TickVoyage); for the smoke we drive it
+    // straight to completion, flip to FinalApproach, and resolve the crew win.
+    const float Progress = AbyssGameState->AddRouteProgress(1.0f);
+    if (AbyssGameState->GetMatchPhase() == EAbyssMatchPhase::InProgress)
     {
-        AAbyssShipTaskActor* TaskActor = *It;
-        if (TaskActor && TaskActor->GetTaskMode() == EAbyssShipTaskMode::Repair && TaskActor->GetTargetSystem() == EAbyssShipSystem::Route)
+        AbyssGameState->SetMatchPhase(EAbyssMatchPhase::FinalApproach);
+    }
+    if (UGameInstance* GameInstance = GetGameInstance())
+    {
+        if (UAbyssTelemetrySubsystem* TelemetrySubsystem = GameInstance->GetSubsystem<UAbyssTelemetrySubsystem>())
         {
-            RouteTask = TaskActor;
-            break;
+            TelemetrySubsystem->LogEvent(TEXT("route_progress"), FString::Printf(TEXT("{\"progress\":%.3f,\"source\":\"dev_smoke\"}"), Progress));
+            TelemetrySubsystem->LogEvent(TEXT("final_approach_started"), TEXT("{\"progress\":1.0,\"source\":\"dev_smoke\"}"));
         }
     }
 
-    int32 AppliedCount = 0;
-    if (RouteTask && InstigatorPawn)
-    {
-        for (int32 Index = 0; Index < 4; ++Index)
-        {
-            if (RouteTask->Interact(InstigatorPawn))
-            {
-                ++AppliedCount;
-            }
-        }
-    }
+    EvaluateMatchEnd();
 
-    const AAbyssLockGameState* AbyssGameState = GetGameState<AAbyssLockGameState>();
     UE_LOG(
         LogAbyssGameplay,
         Log,
-        TEXT("dev_smoke_route_complete applied=%d progress=%.2f phase=%d task=%s instigator=%s"),
-        AppliedCount,
-        AbyssGameState ? AbyssGameState->GetRouteProgress() : 0.0f,
-        AbyssGameState ? static_cast<int32>(AbyssGameState->GetMatchPhase()) : -1,
-        *GetNameSafe(RouteTask),
-        *GetNameSafe(InstigatorPawn));
+        TEXT("dev_smoke_route_complete progress=%.2f phase=%d"),
+        AbyssGameState->GetRouteProgress(),
+        static_cast<int32>(AbyssGameState->GetMatchPhase()));
 #endif
 }
 
@@ -2412,6 +2411,40 @@ FString AAbyssLockGameMode::AppendMatchConfigTelemetry(const FString& JsonObject
     return bEmptyObject
         ? FString::Printf(TEXT("%s%s}"), *Body, *Fields)
         : FString::Printf(TEXT("%s,%s}"), *Body, *Fields);
+}
+
+void AAbyssLockGameMode::TickVoyage(AAbyssLockGameState& AbyssGameState)
+{
+    // Only advance while underway (InProgress). FinalApproach/MatchEnded do not consume fuel or progress.
+    if (AbyssGameState.GetMatchPhase() != EAbyssMatchPhase::InProgress)
+    {
+        return;
+    }
+
+    FAbyssShipSystemStatus FuelStatus;
+    if (!AbyssGameState.GetShipSystemStatus(EAbyssShipSystem::Fuel, FuelStatus) || FuelStatus.Condition <= 0.0f)
+    {
+        // Out of fuel: the ship is stalled, so the route does not advance (the clock keeps running).
+        return;
+    }
+
+    // Underway: burn fuel and advance the voyage by one second's worth of progress.
+    const float NewFuel = FMath::Clamp(FuelStatus.Condition - AbyssVoyageFuelBurnPerSecond, 0.0f, 1.0f);
+    AbyssGameState.SetShipSystemStatus(EAbyssShipSystem::Fuel, NewFuel, FuelStatus.bOffline, FuelStatus.bSabotaged);
+
+    const float NewProgress = AbyssGameState.AddRouteProgress(AbyssVoyageRouteProgressPerSecond);
+    if (NewProgress >= 1.0f)
+    {
+        AbyssGameState.SetMatchPhase(EAbyssMatchPhase::FinalApproach);
+        UE_LOG(LogAbyssGameplay, Log, TEXT("final_approach_started progress=%.2f source=voyage"), NewProgress);
+        if (UGameInstance* GameInstance = GetGameInstance())
+        {
+            if (UAbyssTelemetrySubsystem* TelemetrySubsystem = GameInstance->GetSubsystem<UAbyssTelemetrySubsystem>())
+            {
+                TelemetrySubsystem->LogEvent(TEXT("final_approach_started"), TEXT("{\"progress\":1.0,\"source\":\"voyage\"}"));
+            }
+        }
+    }
 }
 
 int32 AAbyssLockGameMode::CalculateSaboteurCount(int32 PlayerCount) const

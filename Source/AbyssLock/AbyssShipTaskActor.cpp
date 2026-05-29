@@ -151,34 +151,9 @@ bool AAbyssShipTaskActor::Interact(APawn* InstigatorPawn)
 
     AbyssGameState->SetShipSystemStatus(TargetSystem, NewCondition, bNewOffline, bNewSabotaged);
 
-    if (TaskMode == EAbyssShipTaskMode::Repair && TargetSystem == EAbyssShipSystem::Route)
-    {
-        const float RouteProgress = AbyssGameState->AddRouteProgress(ConditionDelta);
-        UE_LOG(LogAbyssGameplay, Log, TEXT("route_progress task=%s progress=%.2f"), *GetNameSafe(this), RouteProgress);
-        if (UGameInstance* GameInstance = GetGameInstance())
-        {
-            if (UAbyssTelemetrySubsystem* TelemetrySubsystem = GameInstance->GetSubsystem<UAbyssTelemetrySubsystem>())
-            {
-                TelemetrySubsystem->LogEvent(
-                    TEXT("route_progress"),
-                    FString::Printf(TEXT("{\"task\":\"%s\",\"progress\":%.3f}"), *GetNameSafe(this), RouteProgress));
-            }
-        }
-
-        if (RouteProgress >= 1.0f && AbyssGameState->GetMatchPhase() == EAbyssMatchPhase::InProgress)
-        {
-            AbyssGameState->SetMatchPhase(EAbyssMatchPhase::FinalApproach);
-            UE_LOG(LogAbyssGameplay, Log, TEXT("final_approach_started progress=%.2f"), RouteProgress);
-            if (UGameInstance* GameInstance = GetGameInstance())
-            {
-                if (UAbyssTelemetrySubsystem* TelemetrySubsystem = GameInstance->GetSubsystem<UAbyssTelemetrySubsystem>())
-                {
-                    TelemetrySubsystem->LogEvent(TEXT("final_approach_started"), TEXT("{\"progress\":1.0}"));
-                }
-            }
-        }
-    }
-    else if (TargetSystem == EAbyssShipSystem::Flooding)
+    // The route is no longer advanced by interacting with a task; it progresses over time while the
+    // ship is underway (see AAbyssLockGameMode::TickVoyage). The Route system is now vestigial here.
+    if (TargetSystem == EAbyssShipSystem::Flooding)
     {
         const float FloodingPressure = FMath::Clamp(1.0f - NewCondition, 0.0f, 1.0f);
         const float PressureDelta = FloodingPressure - FloodingPressureBefore;
