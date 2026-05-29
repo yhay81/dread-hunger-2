@@ -49,6 +49,12 @@ Everything else advances now, headless, in parallel.
 
 ## Last loop iteration
 
+- 2026-05-29 **cycle 87** (MULTI-AGENT, 7 lanes parallel) — workflow `frostwake-parallel-advance`
+  advanced GP-01/02/04/05/07/09/10 concurrently, each producing a doc + updating its state:
+  p1-024 readiness checklist, server-capable-UE unblock runbook, steam-lobby spike runbook,
+  **voice provider decision** (Unreal VCI+EOS chosen), **performance-budget**, comprehension
+  checklist + JP-font plan, **steam-playtest-readiness** snapshot. Gate green; integrated serially.
+  Per-lane current Next Action is in each `lanes/GP-0X.state.md`. (Code lanes GP-03/06/08 stay serial.)
 - 2026-05-29 **cycle 86** (GP-08, interactive) — acquired staple **CC0** assets (Poly Haven
   overcast HDRI + 5 industrial props) into quarantine with provenance + ledger rows; reproducible
   `Tools/assets/fetch_polyhaven_cc0.ps1`. Next: import (sky/IBL + meshes) + place + screenshot.

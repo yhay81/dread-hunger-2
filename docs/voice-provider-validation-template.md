@@ -30,9 +30,9 @@ Player count:
 
 | Check | Result | Evidence | Notes |
 | --- | --- | --- | --- |
-| Provider selected | pass / fail / blocked | Decision note path | Prefer Unreal Voice Chat Interface-compatible provider |
-| Rejected alternatives documented | pass / fail / blocked | Decision note path | Include Steam-only and custom-transport reasons |
-| Cost/licensing understood | pass / fail / blocked | Provider notes | Include free tier, per-user/minute risk, and redistribution limits |
+| Provider selected | pass | `docs/voice-provider-decision.md` § 4 | Unreal VCI + EOS Voice chosen; rejected alternatives in § 3B and § 3C |
+| Rejected alternatives documented | pass | `docs/voice-provider-decision.md` § 3B, § 3C | Vivox-style deferred (third-party cost/contract risk); Steam Voice rejected (no VCI, no proximity attenuation) |
+| Cost/licensing understood | pass | `docs/voice-provider-decision.md` § 5 | EOS free tier covers closed-test scale; per-DAU risk noted; no redistribution fee; credentials must stay ignored |
 | Windows setup repeatable | pass / fail / blocked | Setup notes / command | Include plugin enablement, config path, and build target |
 | Automated smoke disable switch exists | pass / fail / blocked | Config/command | Required before default CI/smoke use |
 | Config is local/ignored | pass / fail / blocked | `git check-ignore` result or note | Do not commit provider credentials |
