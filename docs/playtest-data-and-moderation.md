@@ -77,9 +77,24 @@ Severity handling:
 | --- | --- | --- |
 | Low | Production | Reply and document within same day |
 | Medium | Production + Engineering | Respond within 4 hours, follow-up with fix triage |
-| High | Production + Engineering + Owner | Respond within 1 hour and freeze growth only if abuse is reproducible or a restart safety issue |
+| High | **Incident Triage Lead: yhay81 (project owner)** | Respond within 1 hour and freeze growth only if abuse is reproducible or a restart safety issue |
 
 If two `high` incidents or one `high` plus unresolved `crash` happens in one wave, pause new invites and run rollback review before the next wave.
+
+### Incident-triage ownership
+
+The named incident-triage owner is **yhay81 (project owner)**, acting as Incident Triage Lead.
+This is the single accountable person for:
+
+- Acting on `high`-severity incidents within the 1-hour response target.
+- The ban/report handling decision and recording the immediate action taken.
+- The Wave Gate cancel decision — freezing new invites for 24 hours if a severe abuse incident
+  cannot be acted on within one hour.
+
+Escalation contact details for the 1-hour channel are kept out-of-repo per the data policy above
+(no email, phone, SteamID, or chat handle is committed). Until moderation tooling
+(report / mute / kick / ban) lands via GP-05, enforcement is manual: the owner acts through host
+controls and match restarts.
 
 ## Deletion
 

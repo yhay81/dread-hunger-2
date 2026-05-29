@@ -1,6 +1,7 @@
 # Steam Playtest Readiness Snapshot
 
 Generated: 2026-05-29 by GP-10 lane agent.
+Updated: 2026-05-29 — moderation-response incident-triage owner assigned (yhay81, project owner); Section 5 gap resolved.
 Source checklist: `docs/steam-playtest-checklist.md` (last updated 2026-05-25).
 
 This snapshot reflects the honest state of every Steam Playtest prerequisite.
@@ -21,7 +22,7 @@ status — do not read blanks as implied PASS.
 | IP boundary checked | Production | `docs/ip-boundary.md` and `docs/ip-risk.md` reviewed against current copy/assets | PARTIAL — both docs exist and are current; no sign-off record against the current store copy draft exists | none (docs-only task) | Cancel store submission if IP review flags a protected-expression match against any other game |
 | Asset rights tracked | Art / Production | Purchased or free assets added to `docs/asset-ledger.md` before import | NOT READY — `docs/asset-ledger.md` schema exists; ambientCG candidates are in `Content/ThirdParty/Quarantine/` but ledger entries and approval decisions are pending (**GP-08** tracks this) | **GP-08**: IP/AI review incomplete; ambientCG promotion deferred | Cancel asset import of any quarantined asset until ledger entry + reviewer approval is recorded |
 | AI disclosure ready | Production | `docs/ai-content-disclosure.md` updated for generated/pre-generated content | PARTIAL — policy and draft Steam disclosure text exist in `docs/ai-content-disclosure.md`; final revision against actual shipped content has not been done (explicitly noted as "revise before submission") | none (docs-only task once content is locked) | Do not submit Content Survey until disclosure text is reconciled with the final shipped asset list |
-| Moderation minimum defined | Backend / Gameplay | Report, mute, kick, ban path scoped in backlog or implemented before public scale | NOT READY — `docs/playtest-data-and-moderation.md` defines incident intake and severity escalation policy but no named incident-triage owner exists; moderation tooling (report/mute/kick/ban) is in "Feature Claims Not Allowed Yet" | **GP-05**: voice provider and moderation tooling decisions pending | Cancel public signups if severe abuse cannot be acted on within 1 hour; no named owner currently enforces this |
+| Moderation minimum defined | Backend / Gameplay | Report, mute, kick, ban path scoped in backlog or implemented before public scale | NOT READY — `docs/playtest-data-and-moderation.md` defines incident intake and severity escalation policy and now names an incident-triage owner (yhay81, project owner); moderation tooling (report/mute/kick/ban) is still in "Feature Claims Not Allowed Yet" | **GP-05**: voice provider and moderation tooling decisions pending | Cancel public signups if severe abuse cannot be acted on within 1 hour; the named owner (yhay81) is accountable for enforcing this |
 | Voice provider boundary defined | Gameplay / Backend | `docs/voice-provider-validation-template.md` has provider evidence or explicit blocker before any voice claim is made | NOT READY — `docs/voice-provider-validation-template.md` § Provider Decision is blank; no provider chosen | **GP-05**: voice provider decision outstanding | Do not make any proximity-voice claim in store copy or Playtest description until provider evidence is recorded |
 
 ---
@@ -48,7 +49,7 @@ Before each wave starts, all five signals must be PASS.
 | --- | --- | --- | --- | --- | --- |
 | Startup reproducibility | Engineering | Successful launch proof under the same config as the target wave | NOT READY — listen-server smoke passes headlessly (null-RHI, Editor/Game); no wave-config launch proof exists; Server target blocked | **GP-02**: `AbyssLockServer.exe` absent; cannot prove dedicated-server startup reproducibility | Cancel the wave if the build fails to launch on the intended platform or cannot reconnect after one crash/restart drill |
 | Match stability | QA | Dedicated or listen-server evidence with match start/end and at least one clean 6-8 player cycle | NOT READY — headless smoke evidence covers match-timer and life-action events on listen-server (null-RHI); no human 6-8p cycle exists; dedicated-server evidence is fully blocked | **GP-02** (server); **GP-07** (perf budgets and stability evidence not committed); **GP-01** (human run pending) | Roll back wave growth if match completion rate is below 90% for two consecutive local replay runs |
-| Moderation response | UNASSIGNED | Incident triage owner and ban/report handling notes in `docs/playtest-data-and-moderation.md` | NOT READY — policy is written; severity escalation table exists; **no named incident-triage owner exists anywhere in the repository** | **GP-05**: voice provider and moderation tooling decisions pending; but the ownership gap is independent of GP-05 | Cancel new invites for 24 h if severe abuse cannot be acted on within one hour |
+| Moderation response | yhay81 (project owner) | Incident triage owner and ban/report handling notes in `docs/playtest-data-and-moderation.md` | PARTIAL — policy is written; severity escalation table exists; incident-triage owner now named (yhay81, project owner) with ban/report handling notes added in the "Incident-triage ownership" section; ban/report **tooling** still pending | **GP-05**: voice provider and moderation tooling decisions pending (ownership gap is now closed; tooling remains) | Cancel new invites for 24 h if severe abuse cannot be acted on within one hour |
 | Support readiness | Production | Support contact method and escalation path linked in docs | NOT READY — `docs/playtest-data-and-moderation.md` defines severity/escalation rules; no public support contact method or link exists in the repository | none (docs-only task) | Escalate to holding status if two unresolved severity incidents are reported in one wave |
 | Public claims accuracy | Production | Final claim list from `docs/store-copy-drafts.md` and checklist sign-off | PARTIAL — "Feature Claims Not Allowed Yet" list is thorough and correct; final sign-off against a specific submitted build has not been done | none once build is locked | Pause signup changes if a tested feature is missing from the submitted build |
 
@@ -64,41 +65,48 @@ Before each wave starts, all five signals must be PASS.
 | Playtest build uploaded | Engineering | Windows build launches and joins a local/private match | NOT STARTED — no SteamCMD / depot config exists; `Tools/build_and_upload.md` is a placeholder | All build and upload infrastructure missing | Do not upload a build with broken startup |
 | Access plan defined | Production | Initial tester batch size, wave schedule, and shutdown criteria written down | NOT STARTED — `docs/steam-store.md` notes "Start small; increase only after logs and moderation hold" but no written access plan exists in `docs/playtests/` | n/a (docs-only task) | Do not increase cohort size faster than GP-02 / GP-05 / GP-07 evidence supports |
 | Support route exists | Production | Steam discussions/community hub or official web support path | NOT STARTED — no community hub or support URL exists; external chat must not be required to find or play matches | n/a (Steamworks setup) | Do not open Playtest if the only support path requires an external chat service |
-| Moderation owner assigned | UNASSIGNED | Someone named who can review reports, ban list changes, and post-test incidents | NOT READY — **no named owner anywhere in the repository**; `docs/playtest-data-and-moderation.md` has the policy but no person assigned | Independent of all upstream lanes | Do not open Playtest without a named moderation owner who can respond within 1 hour to a severe incident |
+| Moderation owner assigned | yhay81 (project owner) | Someone named who can review reports, ban list changes, and post-test incidents | PASS — incident-triage owner named in `docs/playtest-data-and-moderation.md` (yhay81, project owner; see "Incident-triage ownership"): accountable for report review, ban decisions, and post-test incidents | Independent of all upstream lanes | Do not open Playtest without a named moderation owner who can respond within 1 hour to a severe incident |
 
 ---
 
-## Section 5 — Highest-Risk Missing Item
+## Section 5 — Highest-Risk Missing Item (RESOLVED 2026-05-29)
 
 **"Moderation response" owner (Wave Gate) / "Moderation owner assigned" (Playtest App)**
 
-This is the single highest-risk gap. Both the Wave Gate row and the Playtest App row share the
-same root cause: **no named person or role is assigned anywhere in the repository** as the
-incident-triage owner who can act within one hour on a severe abuse incident.
+This was the single highest-risk gap: **no named person or role was assigned anywhere in the
+repository** as the incident-triage owner who can act within one hour on a severe abuse incident.
+Both the Wave Gate row and the Playtest App row shared that same root cause.
 
-Why this is highest-risk:
+**Resolution (2026-05-29):** The incident-triage owner is now named — **yhay81 (project owner),
+acting as Incident Triage Lead** — in `docs/playtest-data-and-moderation.md` (the "High" severity
+row of the Severity handling table, plus a dedicated "Incident-triage ownership" section). The
+same owner is recorded in the "Moderation response" (Wave Gate, Section 3) and "Moderation owner
+assigned" (Playtest App, Section 4) rows above.
+
+Why this had been highest-risk:
 
 1. **Independent of all upstream blockers.** Unlike Startup Reproducibility or Match Stability,
    which cannot be resolved until GP-02 delivers `AbyssLockServer.exe`, the moderation-owner gap
-   requires only a human decision and a two-line doc edit. It can be resolved today without any
-   code or infrastructure change.
+   required only a human decision and a doc edit — and has now been closed without any code or
+   infrastructure change.
 
 2. **Hard cancel condition attached.** The Wave Gate specifies: "Cancel new invites for 24 h if
-   severe abuse cannot be acted on within one hour." With no named owner, this rule cannot be
-   enforced — meaning the cancel condition is nominally active at all times.
+   severe abuse cannot be acted on within one hour." A named owner (yhay81) is now accountable
+   for meeting this, so the rule is enforceable.
 
-3. **No artifact path exists even as a future placeholder.** For every other NOT READY row
-   there is a target artifact path (a doc to fill, a build to produce, an AppID to create).
-   For moderation ownership the artifact is a named person/role in
-   `docs/playtest-data-and-moderation.md` — but the field has never been written.
+3. **Artifact now exists.** The required artifact — a named person/role in
+   `docs/playtest-data-and-moderation.md` — is present as of this edit.
 
 4. **Social deduction games have fast moderation requirements.** Sustained trust-and-deception
-   gameplay makes toxic behavior more likely and harder to distinguish from in-game play.
+   gameplay makes toxic behavior more likely and harder to distinguish from in-game play, so a
+   clearly accountable owner matters even at small scale.
 
-**Required fix (unblocked right now):** Add a named owner (or role + escalation contact) to the
-Severity table in `docs/playtest-data-and-moderation.md` for the "High" severity row, and record
-the same name in the Playtest App checklist. Until then, the Wave Gate cancel condition for
-moderation cannot be met.
+**Residual dependency (does not block ownership):** moderation *tooling* (report / mute / kick /
+ban) is still gated on **GP-05**. Until it lands, enforcement is manual via host controls and
+match restarts, so the "Moderation response" row is PARTIAL rather than PASS.
+
+**Next-highest unresolved items** are now the upstream-blocked Wave Gate rows — "Startup
+reproducibility" and "Match stability" — both pending **GP-02** (`AbyssLockServer.exe`).
 
 ---
 
@@ -108,15 +116,16 @@ moderation cannot be met.
 | --- | --- | --- | --- |
 | Preconditions (9 rows) | 1 | 3 | 5 |
 | Main Game App (7 rows) | 0 | 0 | 7 |
-| Playtest Wave Gate (5 rows) | 0 | 1 | 4 |
-| Playtest App (7 rows) | 0 | 0 | 7 |
-| **Total (28 rows)** | **1** | **4** | **23** |
+| Playtest Wave Gate (5 rows) | 0 | 2 | 3 |
+| Playtest App (7 rows) | 1 | 0 | 6 |
+| **Total (28 rows)** | **2** | **5** | **21** |
 
 The build is in Phase 1 (listen-server, headless smoke passing). Playtest-readiness work is
 blocked primarily by: (1) server-capable UE for GP-02, (2) voice/moderation decisions for
 GP-05, (3) perf evidence for GP-07, (4) store assets and IP review for GP-08, and
-(5) Steamworks partner/AppID setup (external). The one gap that is fully unblocked and
-owner-independent is the moderation-response ownership gap identified in Section 5.
+(5) Steamworks partner/AppID setup (external). The moderation-response ownership gap that was
+previously the one fully-unblocked, owner-independent risk has been resolved (Section 5): the
+incident-triage owner is now named (yhay81, project owner).
 
 Verify this doc is present:
 `cargo run -p frostwake-tools -- quality-gate` (set `$env:CARGO_TARGET_DIR = 'target/loop-gp10'`)
