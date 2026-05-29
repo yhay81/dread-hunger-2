@@ -4,7 +4,7 @@ This is production guidance, not legal advice.
 
 ## Core Rule
 
-Do not reproduce protected expression from Dread Hunger or any other game. Use only broad genre structure and emotional goals: cooperative survival, betrayal, proximity voice, shipboard pressure, and hostile environment.
+Expression rules are **phase-gated** — see the Development Phase Policy in [ip-boundary.md](ip-boundary.md). During the prototype phase, DH-near expression is allowed as temporary placeholder scaffolding in our own original build. **Before any public exposure or ship**, do not reproduce protected expression from Dread Hunger or any other game — originalize it and pass IP Review, using only broad genre structure and emotional goals: cooperative survival, betrayal, proximity voice, shipboard pressure, and hostile environment. Two lines never relax in any phase: never commit/distribute DH files, and never circumvent DRM / extract DH assets.
 
 ## Allowed Direction
 
@@ -16,6 +16,8 @@ Do not reproduce protected expression from Dread Hunger or any other game. Use o
 - Saboteurs as agents or mutineers, not occult magic users.
 
 ## Must Avoid
+
+These must not appear in **public-facing or shipped** material. Prototype-phase placeholders are allowed but must be originalized before public exposure (see Development Phase Policy in `ip-boundary.md`).
 
 - Names, logos, store copy, UI layout, map layout, character designs, sound effects, music, and unique terminology from other games.
 - Strongly associated terms such as `Dread`, `Hunger`, `Thrall`, `Franklin`, and direct sequel-like naming.
@@ -37,7 +39,7 @@ Do not reproduce protected expression from Dread Hunger or any other game. Use o
 
 ## IP Boundary For AI Work
 
-Every AI prompt for design, UI, art, code, or copy must include:
+Every AI prompt for **public-facing or ship-bound** design, UI, art, code, or copy must include the line below. For internal prototype scaffolding this is optional — but tag DH-near outputs so the pre-ship originalization pass can find them.
 
 > Do not copy Dread Hunger's names, characters, UI, map, roles, item names, occult elements, cannibalism, Thrall concept, or store wording. Design an original near-future icebound research-vessel survival deduction game focused on hull, fuel, power, radio, route, hypothermia, and proximity voice.
 

@@ -37,7 +37,10 @@ Key verbs: `quality-gate [--require-ue]`, `unreal-gate [--include-server] [--pla
   `Saved/SmokeSuites/…`, manifests). Distinguish pass / fail / blocked / not-run.
 - **Never commit** secrets, SteamIDs, IPs, raw voice/chat, PII, or private reference files.
 - **No unverified public claims** (store copy, features). IP/rights gates apply before any
-  third-party asset adoption.
+  third-party asset adoption. **Expression is phase-gated** (`docs/ip-boundary.md` Development
+  Phase Policy): DH-near placeholders are allowed during prototyping and originalized before any
+  public exposure; mechanics may match DH freely. Never commit/distribute DH files or circumvent
+  DRM in any phase.
 - **PowerShell is launch-wrappers only**; durable logic lives in Rust or UE C++.
 - `docs/cycles/` is historical evidence — old command names there are not active instructions.
 

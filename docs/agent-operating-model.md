@@ -141,7 +141,7 @@ Accept only when:
 
 ### IP Review
 
-Accept only when:
+Accept only when (expression criteria apply at the **pre-public / ship gate** — prototype-phase DH-near placeholders are allowed per the Development Phase Policy in `docs/ip-boundary.md`):
 
 - Names, mechanics descriptions, art directions, and store copy respect `docs/ip-boundary.md`.
 - Reference usage follows `docs/reference-policy.md`.

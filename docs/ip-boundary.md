@@ -1,5 +1,27 @@
 # IP Boundary
 
+## Development Phase Policy (expression timing)
+
+Frostwake ships in two phases, and the expression rules below are **gated by phase**:
+
+- **Prototype / internal phase (now):** to iterate fast on Dread-Hunger-class feel, DH-near
+  *expression* — placeholder names, UI layout, look, item/role labels — is **allowed as
+  temporary scaffolding** in our own original build and internal docs. Tag it so the pre-ship
+  pass can find and replace it.
+- **Pre-public / ship gate:** before any public exposure (Steam page, trailer, demo, Playtest
+  build, store copy, Early Access), every public-facing artifact must be **originalized and
+  pass IP Review**. Nothing DH-derived in expression ships.
+
+This relaxes only *when* expression must be original. Two hard lines **never relax, in any phase**:
+
+- **Never commit or distribute Dread Hunger files** (pak / binary / reverse-engineered
+  material) — `docs/reference-policy.md` still governs.
+- **Never circumvent DRM or extract DH assets** (pak decryption, AES-key recovery,
+  decompilation-for-content). Use runtime observation + metadata inventory only.
+
+Game **mechanics, systems, controls, and pacing** are functional ideas and may match DH freely
+in every phase (`docs/mechanics-parity-target.md`).
+
 ## Reference Boundary
 
 Reference only the emotional structure and broad genre:
@@ -11,7 +33,7 @@ Reference only the emotional structure and broad genre:
 - 1-2 hidden saboteurs
 - short match stories
 
-Do not reference protected expression:
+Do not **ship** protected expression (originalize before the pre-public gate — see Development Phase Policy above):
 
 - names, logos, UI, characters, roles, item names, map layouts
 - occult systems, blood rituals, totems, cannibalism, human meat

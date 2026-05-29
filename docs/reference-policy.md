@@ -4,6 +4,11 @@
 
 Do not commit Dread Hunger server binaries, packaged content, assets, logs with player identifiers, or reverse-engineered materials into Git history.
 
+> Note: the prototype-phase expression relaxation (Development Phase Policy in
+> [ip-boundary.md](ip-boundary.md)) changes only *when* shipped expression must be original. It
+> does **not** touch this policy — committing or distributing Dread Hunger files remains
+> forbidden in every phase, as does DRM circumvention / asset extraction.
+
 This research repository may contain local-only ignored copies under `references/private/raw/` for private study. Those copies must never be staged, committed, pushed, used as production dependencies, or migrated into the future product repository.
 
 The project can learn from broad operational patterns: server cost, DDoS risk, community hosting, moderation needs, and playtest logistics. The product implementation must not import or depend on protected expression, proprietary files, or game-specific implementation details from another title.
