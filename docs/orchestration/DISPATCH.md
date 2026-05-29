@@ -123,7 +123,10 @@ verified by a file check, not a multi-minute build.
    record so history stays continuous:
    `cargo run -p frostwake-tools -- new-cycle --phase GP-0X --owner loop --goal "<goal>" --gate "<measurable gate>"`
    then fill the generated `docs/cycles/<date>-cycle-<n>.md` (scope, files, verification,
-   evidence, decisions, next cycle).
+   evidence, decisions, next cycle). **Every cycle record MUST contain the literal command
+   `cargo run -p frostwake-tools -- quality-gate` and its result** — the `cycle_records` gate
+   enforces this, so an iteration that writes a cycle record runs the full gate (this overrides
+   the cheap-health shortcut in §2.1 for cycle-producing iterations).
 
 ---
 
