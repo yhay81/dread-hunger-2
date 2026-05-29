@@ -7,6 +7,8 @@ AAbyssLockGameState::AAbyssLockGameState()
     , MatchTimeRemainingSeconds(0.0f)
     , WinningTeam(EAbyssTeam::Unassigned)
     , RouteProgress(0.0f)
+    , bFurnaceLit(false)
+    , bHelmManned(false)
 {
     InitializeShipSystems();
 }
@@ -23,6 +25,8 @@ void AAbyssLockGameState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
     DOREPLIFETIME(AAbyssLockGameState, MatchEndReason);
     DOREPLIFETIME(AAbyssLockGameState, ShipSystems);
     DOREPLIFETIME(AAbyssLockGameState, RouteProgress);
+    DOREPLIFETIME(AAbyssLockGameState, bFurnaceLit);
+    DOREPLIFETIME(AAbyssLockGameState, bHelmManned);
 }
 
 bool AAbyssLockGameState::IsMatchActive() const
@@ -99,6 +103,22 @@ void AAbyssLockGameState::SetMatchResult(EAbyssTeam NewWinningTeam, const FStrin
         WinningTeam = NewWinningTeam;
         MatchEndReason = EndReason;
         MatchPhase = EAbyssMatchPhase::MatchEnded;
+    }
+}
+
+void AAbyssLockGameState::SetFurnaceLit(bool bLit)
+{
+    if (HasAuthority())
+    {
+        bFurnaceLit = bLit;
+    }
+}
+
+void AAbyssLockGameState::SetHelmManned(bool bManned)
+{
+    if (HasAuthority())
+    {
+        bHelmManned = bManned;
     }
 }
 

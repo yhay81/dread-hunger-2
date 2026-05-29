@@ -54,6 +54,12 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Abyss|Objective")
     float GetRouteProgress() const { return RouteProgress; }
 
+    UFUNCTION(BlueprintCallable, Category = "Abyss|Voyage")
+    bool IsFurnaceLit() const { return bFurnaceLit; }
+
+    UFUNCTION(BlueprintCallable, Category = "Abyss|Voyage")
+    bool IsHelmManned() const { return bHelmManned; }
+
     UFUNCTION(BlueprintCallable, Category = "Abyss|Ship")
     float GetFloodingPressure() const;
 
@@ -61,6 +67,8 @@ public:
     void SetMatchId(const FString& NewMatchId);
     void SetMatchTimeRemaining(float NewTimeRemainingSeconds);
     void SetMatchResult(EAbyssTeam NewWinningTeam, const FString& EndReason);
+    void SetFurnaceLit(bool bLit);
+    void SetHelmManned(bool bManned);
 
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Abyss|Ship")
     void SetShipSystemStatus(EAbyssShipSystem System, float Condition, bool bOffline, bool bSabotaged);
@@ -92,6 +100,14 @@ protected:
 
     UPROPERTY(Replicated, BlueprintReadOnly, Category = "Abyss|Objective")
     float RouteProgress;
+
+    // Voyage: the furnace is lit (fuel burning) and a player is manning the helm. Both are needed,
+    // along with Fuel-system condition > 0, for the ship to advance — it never advances on its own.
+    UPROPERTY(Replicated, BlueprintReadOnly, Category = "Abyss|Voyage")
+    bool bFurnaceLit;
+
+    UPROPERTY(Replicated, BlueprintReadOnly, Category = "Abyss|Voyage")
+    bool bHelmManned;
 
     UFUNCTION()
     void OnRep_MatchPhase();

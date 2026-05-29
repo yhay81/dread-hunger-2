@@ -2462,32 +2462,47 @@ void AAbyssLockGameMode::TickVoyage(AAbyssLockGameState& AbyssGameState)
         TelemetrySubsystem = GameInstance->GetSubsystem<UAbyssTelemetrySubsystem>();
     }
 
+    // Dread-Hunger model: the furnace must be lit AND fuelled for the ship to have power, and the ship
+    // only advances while a player is manning the helm. It NEVER advances on its own.
     FAbyssShipSystemStatus FuelStatus;
-    if (!AbyssGameState.GetShipSystemStatus(EAbyssShipSystem::Fuel, FuelStatus) || FuelStatus.Condition <= 0.0f)
+    AbyssGameState.GetShipSystemStatus(EAbyssShipSystem::Fuel, FuelStatus);
+    const bool bPowered = AbyssGameState.IsFurnaceLit() && FuelStatus.Condition > 0.0f;
+    if (!bPowered)
     {
-        // Out of fuel: the ship is stalled, so the route does not advance (the clock keeps running).
+        // Unlit or out of fuel: no progress. Extinguish a burned-out furnace so the crew must load +
+        // ignite again. The match clock keeps running (time-out is still a loss).
         if (!bVoyageStalledLogged)
         {
             bVoyageStalledLogged = true;
-            UE_LOG(LogAbyssGameplay, Log, TEXT("ship_stalled reason=out_of_fuel progress=%.2f"), AbyssGameState.GetRouteProgress());
+            if (AbyssGameState.IsFurnaceLit() && FuelStatus.Condition <= 0.0f)
+            {
+                AbyssGameState.SetFurnaceLit(false);
+            }
+            UE_LOG(LogAbyssGameplay, Log, TEXT("ship_stalled lit=%d fuel=%.2f progress=%.2f"),
+                AbyssGameState.IsFurnaceLit() ? 1 : 0, FuelStatus.Condition, AbyssGameState.GetRouteProgress());
             if (TelemetrySubsystem)
             {
-                TelemetrySubsystem->LogEvent(TEXT("ship_stalled"), FString::Printf(TEXT("{\"reason\":\"out_of_fuel\",\"progress\":%.3f}"), AbyssGameState.GetRouteProgress()));
+                TelemetrySubsystem->LogEvent(TEXT("ship_stalled"), FString::Printf(TEXT("{\"reason\":\"not_powered\",\"progress\":%.3f}"), AbyssGameState.GetRouteProgress()));
             }
         }
         return;
     }
-    bVoyageStalledLogged = false; // re-armed once the crew refuels
+    bVoyageStalledLogged = false; // re-armed while powered
 
-    // Underway: burn fuel (scaled by difficulty) and advance the voyage by one second's worth of progress.
+    // Lit + fuelled: the furnace burns down (scaled by difficulty) whether or not anyone is steering.
     const float Burn = AbyssVoyageFuelBurnPerSecond * FMath::Max(0.0f, ActiveMatchConfig.FuelBurnMultiplier);
     const float NewFuel = FMath::Clamp(FuelStatus.Condition - Burn, 0.0f, 1.0f);
     AbyssGameState.SetShipSystemStatus(EAbyssShipSystem::Fuel, NewFuel, FuelStatus.bOffline, FuelStatus.bSabotaged);
 
+    // The ship advances ONLY while a player is manning the helm (steering).
+    if (!AbyssGameState.IsHelmManned())
+    {
+        return;
+    }
+
     const float NewProgress = AbyssGameState.AddRouteProgress(AbyssVoyageRouteProgressPerSecond);
 
-    // Observable progress telemetry: always log the first underway tick, then throttle to every ~1%,
-    // so even a short headless run shows the voyage advancing over time and burning fuel.
+    // Observable progress telemetry: first steering tick, then throttle to every ~1%.
     if (TelemetrySubsystem && (LastLoggedRouteProgress <= 0.0f || NewProgress - LastLoggedRouteProgress >= 0.01f))
     {
         LastLoggedRouteProgress = NewProgress;
