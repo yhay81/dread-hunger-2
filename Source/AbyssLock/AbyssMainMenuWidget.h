@@ -15,6 +15,8 @@ enum class EAbyssFrontEndScreen : uint8
 {
     Start,
     LobbyChoice,
+    SoloConfig,
+    HostConfig,
     Lobby
 };
 
@@ -52,6 +54,9 @@ protected:
 
     UFUNCTION()
     void HandleDifficultyCycleClicked();
+
+    UFUNCTION()
+    void HandleConfigConfirmClicked();
 
 private:
     UPROPERTY()
@@ -94,6 +99,12 @@ private:
     UPROPERTY()
     UTextBlock* DifficultyButtonLabel = nullptr;
 
+    // Confirm button shown on the solo/host config screen (label switches: "Start Voyage" / "Host Lobby").
+    UPROPERTY()
+    UButton* ConfigConfirmButton = nullptr;
+    UPROPERTY()
+    UTextBlock* ConfigConfirmLabel = nullptr;
+
     EAbyssFrontEndScreen CurrentScreen = EAbyssFrontEndScreen::Start;
 
     // Host's chosen match configuration, carried into the travel URL (?mode=.. ?difficulty=..).
@@ -103,6 +114,8 @@ private:
     void BuildWidgetTree();
     void ShowStartScreen();
     void ShowLobbyChoiceScreen();
+    void ShowSoloConfigScreen();
+    void ShowHostConfigScreen();
     void RefreshLobbyState();
     bool IsLocalPlayerHost() const;
     int32 GetConnectedPlayerCount() const;

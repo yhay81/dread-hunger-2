@@ -69,6 +69,8 @@ void EnsureRegistered()
     LOCTABLE_SETSTRING("ST_FrostwakeUI", "Menu_HostLobby", "Host Lobby");
     LOCTABLE_SETSTRING("ST_FrostwakeUI", "Menu_JoinLobby", "Join Lobby");
     LOCTABLE_SETSTRING("ST_FrostwakeUI", "Menu_StartMatch", "Start Match");
+    LOCTABLE_SETSTRING("ST_FrostwakeUI", "Menu_StartSolo", "Start Voyage");
+    LOCTABLE_SETSTRING("ST_FrostwakeUI", "Menu_ConfigPrompt", "Choose your match settings.");
 
     // --- Front-end menu: status lines + fields ({Required}/{Current} from AbyssLobbyRequiredPlayers) ---
     LOCTABLE_SETSTRING("ST_FrostwakeUI", "Menu_LobbyChoicePrompt", "Host a lobby or join an existing one.");

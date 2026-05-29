@@ -20,7 +20,7 @@ priority order below + `DISPATCH.md` §2.
 | --- | --- | --- | --- | --- | --- |
 | **GP-01** Human Playability | 🟡 YELLOW | First real 6-8p human run + anonymized summary (`playtest-preflight --mode human`) | Re-confirm Windows listen-server preflight is green (`playtest-run-scaffold`/`preflight`) | **8 real humans** (no code change removes it) | 2026-05-29 |
 | **GP-02** Network/Hosting | 🔴 BLOCKED | `AbyssLockServer.exe` builds+boots+8 clients+ready-lobby | Keep runbook + `UE_ROOT` instructions consistent; verify `quality-gate` | **Server-capable UE 5.7** (Launcher UE can't build Server targets) | 2026-05-29 |
-| **GP-03** Core Match | 🟡 YELLOW | DH-parity feel + readable round (`docs/mechanics-parity-target.md`, `docs/control-scheme.md`) | ✅ **solo complete + host config UI** (`docs/solo-voyage-completion-spec.md`, `docs/madman-mode-and-host-config-spec.md`) — voyage+loss (101-103) + result/role-Madman HUD (104) + **host mode/difficulty selectors → travel URL → ActiveMatchConfig (105)** → human-playtest tuning | none blocking (owner playtest next) | 2026-05-29 |
+| **GP-03** Core Match | 🟡 YELLOW | DH-parity feel + readable round (`docs/mechanics-parity-target.md`, `docs/control-scheme.md`) | 🔧 **owner course-correction (cycle 106)**: menu flow fixed (Solo→difficulty / Host→mode+difficulty) + voyage **redesign** (ship must NOT auto-advance → furnace load+ignite + helm steer; ice damage ≤20) `docs/solo-voyage-completion-spec.md` → **rebuild voyage (Stage A: furnace+helm)** | voyage mechanic rebuild (furnace+helm) | 2026-05-29 |
 | **GP-04** Steam Online | 🟡 YELLOW | Lobby create/find/join + build/map-mismatch reject (P2-003/004) | ✅ **lobby metadata now carries `mode`/`difficulty` (cycle 99)** → run `run_steam_lobby_validation.ps1` preflight; runtime spike still GP-02-gated | Runtime spike gated behind GP-02 (contracts already green) | 2026-05-29 |
 | **GP-05** Voice & Trust | 🟡 YELLOW | One voice provider chosen + 8p acceptance plan | Write `docs/voice-provider-decision.md` (VCI+EOS vs Vivox vs Steam Voice) | Runtime acceptance gated by server (decision itself unblocked) | 2026-05-29 |
 | **GP-06** Services & Tools | 🟢 GREEN | Backend ↔ `openapi.yaml` ↔ tests parity; `cargo test --workspace` green | ✅ 404s documented + tested (cycle 83) → add the 409 `lobby_full` test | none | 2026-05-29 |
@@ -53,6 +53,14 @@ Everything else advances now, headless, in parallel.
 
 ## Last loop iteration
 
+- 2026-05-29 **cycle 106** (GP-03 + GP-09, interactive) — **owner course-correction**. From the owner
+  playtest: (1) **menu flow fixed** — mode/difficulty selectors now appear AFTER choosing Solo/Host
+  (`SoloConfig`/`HostConfig` screens + a confirm button); Solo shows difficulty only (no Madman), Host
+  shows mode + difficulty. (2) **Voyage design corrected** in `docs/solo-voyage-completion-spec.md`: the
+  ship must NOT auto-advance (cycle-102/103 model superseded) — Dread-Hunger model is load fuel + ignite,
+  then steer at the helm while it burns; ice damage (≤20 points) → flooding (sink if unrepaired) + speed
+  loss. Editor+Game build + `quality-gate` green. **Next: rebuild the voyage mechanic (furnace + helm,
+  remove auto-advance).**
 - 2026-05-29 **cycle 105** (GP-03 + GP-09, interactive) — **host match-config UI (mode/difficulty
   selectors)**. The front-end lobby-choice screen now has Mode (Standard/Madman) + Difficulty
   (Easy/Normal/Hard) cycle selectors; the choice rides the travel URL (`?mode=`/`?difficulty=`, alongside

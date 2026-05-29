@@ -130,6 +130,7 @@ void UAbyssMainMenuWidget::BuildWidgetTree()
     HostStartButton = MakeButton(WidgetTree, AbyssUIText::Text(TEXT("Menu_StartMatch")));
     ModeButton = MakeCycleButton(WidgetTree, ModeButtonLabel);
     DifficultyButton = MakeCycleButton(WidgetTree, DifficultyButtonLabel);
+    ConfigConfirmButton = MakeCycleButton(WidgetTree, ConfigConfirmLabel);
 
     JoinAddressText = WidgetTree->ConstructWidget<UEditableTextBox>(UEditableTextBox::StaticClass());
     JoinAddressText->SetText(FText::FromString(TEXT("127.0.0.1")));
@@ -142,14 +143,16 @@ void UAbyssMainMenuWidget::BuildWidgetTree()
     HostStartButton->OnClicked.AddDynamic(this, &UAbyssMainMenuWidget::HandleHostStartClicked);
     ModeButton->OnClicked.AddDynamic(this, &UAbyssMainMenuWidget::HandleModeCycleClicked);
     DifficultyButton->OnClicked.AddDynamic(this, &UAbyssMainMenuWidget::HandleDifficultyCycleClicked);
+    ConfigConfirmButton->OnClicked.AddDynamic(this, &UAbyssMainMenuWidget::HandleConfigConfirmClicked);
 
     AddBoxChild(RootBox, TitleText, 160.0f);
     AddBoxChild(RootBox, StatusText, 24.0f);
     AddBoxChild(RootBox, PlayerCountText);
     AddBoxChild(RootBox, JoinAddressText);
-    // Match-config selectors sit above the Solo/Host actions so the host picks mode + difficulty first.
+    // Match-config selectors + confirm: shown on the solo/host config screen (after Solo/Host is chosen).
     AddBoxChild(RootBox, ModeButton);
     AddBoxChild(RootBox, DifficultyButton);
+    AddBoxChild(RootBox, ConfigConfirmButton);
     AddBoxChild(RootBox, GameStartButton);
     AddBoxChild(RootBox, SoloModeButton);
     AddBoxChild(RootBox, HostLobbyButton);
@@ -173,6 +176,7 @@ void UAbyssMainMenuWidget::ShowStartScreen()
     HostStartButton->SetVisibility(ESlateVisibility::Collapsed);
     ModeButton->SetVisibility(ESlateVisibility::Collapsed);
     DifficultyButton->SetVisibility(ESlateVisibility::Collapsed);
+    ConfigConfirmButton->SetVisibility(ESlateVisibility::Collapsed);
 }
 
 void UAbyssMainMenuWidget::ShowLobbyChoiceScreen()
@@ -186,9 +190,48 @@ void UAbyssMainMenuWidget::ShowLobbyChoiceScreen()
     HostLobbyButton->SetVisibility(ESlateVisibility::Visible);
     JoinLobbyButton->SetVisibility(ESlateVisibility::Visible);
     HostStartButton->SetVisibility(ESlateVisibility::Collapsed);
-    // Host picks mode + difficulty here, before clicking Solo Practice or Host Lobby (carried in the travel URL).
+    // Config selectors appear AFTER choosing Solo / Host (on the config screen), not here.
+    ModeButton->SetVisibility(ESlateVisibility::Collapsed);
+    DifficultyButton->SetVisibility(ESlateVisibility::Collapsed);
+    ConfigConfirmButton->SetVisibility(ESlateVisibility::Collapsed);
+}
+
+void UAbyssMainMenuWidget::ShowSoloConfigScreen()
+{
+    CurrentScreen = EAbyssFrontEndScreen::SoloConfig;
+    StatusText->SetText(AbyssUIText::Text(TEXT("Menu_ConfigPrompt")));
+    PlayerCountText->SetVisibility(ESlateVisibility::Collapsed);
+    JoinAddressText->SetVisibility(ESlateVisibility::Collapsed);
+    GameStartButton->SetVisibility(ESlateVisibility::Collapsed);
+    SoloModeButton->SetVisibility(ESlateVisibility::Collapsed);
+    HostLobbyButton->SetVisibility(ESlateVisibility::Collapsed);
+    JoinLobbyButton->SetVisibility(ESlateVisibility::Collapsed);
+    HostStartButton->SetVisibility(ESlateVisibility::Collapsed);
+    // Solo = always Standard, so only the difficulty selector + Start are shown (no mode selector).
+    ModeButton->SetVisibility(ESlateVisibility::Collapsed);
+    DifficultyButton->SetVisibility(ESlateVisibility::Visible);
+    ConfigConfirmButton->SetVisibility(ESlateVisibility::Visible);
+    ConfigConfirmLabel->SetText(AbyssUIText::Text(TEXT("Menu_StartSolo")));
+    UpdateConfigButtonLabels();
+}
+
+void UAbyssMainMenuWidget::ShowHostConfigScreen()
+{
+    CurrentScreen = EAbyssFrontEndScreen::HostConfig;
+    StatusText->SetText(AbyssUIText::Text(TEXT("Menu_ConfigPrompt")));
+    PlayerCountText->SetVisibility(ESlateVisibility::Collapsed);
+    JoinAddressText->SetVisibility(ESlateVisibility::Collapsed);
+    GameStartButton->SetVisibility(ESlateVisibility::Collapsed);
+    SoloModeButton->SetVisibility(ESlateVisibility::Collapsed);
+    HostLobbyButton->SetVisibility(ESlateVisibility::Collapsed);
+    JoinLobbyButton->SetVisibility(ESlateVisibility::Collapsed);
+    HostStartButton->SetVisibility(ESlateVisibility::Collapsed);
+    // Host = mode + difficulty, then confirm to open the listen lobby.
     ModeButton->SetVisibility(ESlateVisibility::Visible);
     DifficultyButton->SetVisibility(ESlateVisibility::Visible);
+    ConfigConfirmButton->SetVisibility(ESlateVisibility::Visible);
+    ConfigConfirmLabel->SetText(AbyssUIText::Text(TEXT("Menu_HostLobby")));
+    UpdateConfigButtonLabels();
 }
 
 void UAbyssMainMenuWidget::ShowLobbyScreen()
@@ -203,6 +246,7 @@ void UAbyssMainMenuWidget::ShowLobbyScreen()
     HostStartButton->SetVisibility(IsLocalPlayerHost() ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
     ModeButton->SetVisibility(ESlateVisibility::Collapsed);
     DifficultyButton->SetVisibility(ESlateVisibility::Collapsed);
+    ConfigConfirmButton->SetVisibility(ESlateVisibility::Collapsed);
     RefreshLobbyState();
 }
 
@@ -255,24 +299,36 @@ void UAbyssMainMenuWidget::HandleGameStartClicked()
 
 void UAbyssMainMenuWidget::HandleHostLobbyClicked()
 {
-    if (APlayerController* PlayerController = GetOwningPlayer())
-    {
-        // Carry the host's chosen mode + difficulty into the match GameMode via InitGame URL options.
-        PlayerController->ConsoleCommand(FString::Printf(TEXT("open /Game/Maps/L_IcebreakerWhitebox?listen%s"), *BuildConfigUrlOptions(true)));
-    }
-    ShowLobbyScreen();
+    // Choosing "Host" opens the host config screen (mode + difficulty); travel happens on confirm.
+    ShowHostConfigScreen();
 }
 
 void UAbyssMainMenuWidget::HandleSoloModeClicked()
 {
-    if (APlayerController* PlayerController = GetOwningPlayer())
+    // Choosing "Solo" opens the solo config screen (difficulty only); travel happens on confirm.
+    ShowSoloConfigScreen();
+}
+
+void UAbyssMainMenuWidget::HandleConfigConfirmClicked()
+{
+    APlayerController* PlayerController = GetOwningPlayer();
+    if (!PlayerController)
     {
-        // Travel to the gameplay map in standalone (no ?listen). The gameplay GameMode reads the
-        // "solo" option in InitGame and auto-starts a 1-player, 0-saboteur practice match.
-        // Solo forces Standard (no Madman), so only the difficulty selection is carried.
-        PlayerController->ConsoleCommand(FString::Printf(TEXT("open /Game/Maps/L_IcebreakerWhitebox?solo%s"), *BuildConfigUrlOptions(false)));
+        return;
     }
-    EnterGameInputAndClose();
+
+    if (CurrentScreen == EAbyssFrontEndScreen::SoloConfig)
+    {
+        // Solo standalone practice: InitGame reads "solo" + the chosen difficulty (Standard forced).
+        PlayerController->ConsoleCommand(FString::Printf(TEXT("open /Game/Maps/L_IcebreakerWhitebox?solo%s"), *BuildConfigUrlOptions(false)));
+        EnterGameInputAndClose();
+    }
+    else if (CurrentScreen == EAbyssFrontEndScreen::HostConfig)
+    {
+        // Host: open a listen lobby carrying the chosen mode + difficulty.
+        PlayerController->ConsoleCommand(FString::Printf(TEXT("open /Game/Maps/L_IcebreakerWhitebox?listen%s"), *BuildConfigUrlOptions(true)));
+        ShowLobbyScreen();
+    }
 }
 
 void UAbyssMainMenuWidget::HandleJoinLobbyClicked()
