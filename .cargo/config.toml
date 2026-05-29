@@ -1,0 +1,6 @@
+# frostwake-tools' main() is one large match over ~30 subcommands. In debug builds the compiler
+# does not overlap per-arm stack slots, so the main() frame exceeds the default 1 MB Windows
+# main-thread stack and any subcommand overflows on entry. Give the binary a larger linker stack
+# reserve (32 MB) so the CLI runs regardless of how many subcommands are added.
+[target.x86_64-pc-windows-msvc]
+rustflags = ["-C", "link-arg=/STACK:33554432"]

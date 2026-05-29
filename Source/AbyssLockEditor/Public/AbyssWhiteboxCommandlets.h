@@ -80,3 +80,14 @@ public:
 
     virtual int32 Main(const FString& Params) override;
 };
+
+UCLASS()
+class ABYSSLOCKEDITOR_API UImportPolyhavenCc0AssetsCommandlet : public UCommandlet
+{
+    GENERATED_BODY()
+
+public:
+    UImportPolyhavenCc0AssetsCommandlet();
+
+    virtual int32 Main(const FString& Params) override;
+};

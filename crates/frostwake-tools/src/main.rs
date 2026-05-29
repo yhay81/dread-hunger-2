@@ -418,6 +418,19 @@ enum Command {
         #[arg(long)]
         skip_build: bool,
     },
+    #[command(
+        about = "Import the quarantined Poly Haven CC0 assets (HDRI + props) into Unreal uassets."
+    )]
+    ImportPolyhavenCc0 {
+        #[arg(long)]
+        ue_root: Option<PathBuf>,
+        #[arg(long)]
+        platform: Option<String>,
+        #[arg(long)]
+        print_command: bool,
+        #[arg(long)]
+        skip_build: bool,
+    },
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, ValueEnum)]
@@ -1104,6 +1117,20 @@ fn run(cli: Cli) -> Result<(), String> {
         } => {
             run_unreal_editor_commandlet(
                 "CreateMainMenu",
+                ue_root,
+                platform.unwrap_or_else(host_platform),
+                print_command,
+                skip_build,
+            )?;
+        }
+        Command::ImportPolyhavenCc0 {
+            ue_root,
+            platform,
+            print_command,
+            skip_build,
+        } => {
+            run_unreal_editor_commandlet(
+                "ImportPolyhavenCc0Assets",
                 ue_root,
                 platform.unwrap_or_else(host_platform),
                 print_command,

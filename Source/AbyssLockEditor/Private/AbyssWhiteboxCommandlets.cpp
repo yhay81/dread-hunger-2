@@ -1105,3 +1105,111 @@ int32 UCreateMainMenuCommandlet::Main(const FString& Params)
     UE_LOG(LogAbyssWhiteboxCommandlet, Display, TEXT("Created main menu map %s with menu GameMode."), *MapPackage);
     return 0;
 }
+
+namespace FrostwakePolyhaven
+{
+const FString SourceRoot = TEXT("Content/ThirdParty/Quarantine/polyhaven");
+const FString DestRoot = TEXT("/Game/ThirdParty/Quarantine/polyhaven");
+
+bool Fail(FString& Error, const FString& Message)
+{
+    Error = Message;
+    UE_LOG(LogAbyssWhiteboxCommandlet, Error, TEXT("%s"), *Message);
+    return false;
+}
+
+bool IsImportable(const FString& File)
+{
+    const FString Ext = FPaths::GetExtension(File).ToLower();
+    return Ext == TEXT("fbx") || Ext == TEXT("hdr") || Ext == TEXT("png") || Ext == TEXT("jpg") || Ext == TEXT("exr");
+}
+
+int32 ImportDir(IAssetTools& AssetTools, const FString& AbsSourceDir, const FString& DestPath)
+{
+    if (!FPaths::DirectoryExists(AbsSourceDir))
+    {
+        return 0;
+    }
+
+    TArray<FString> Files;
+    IFileManager::Get().FindFilesRecursive(Files, *AbsSourceDir, TEXT("*.*"), true, false, false);
+    TArray<FString> Importable;
+    for (const FString& File : Files)
+    {
+        if (IsImportable(File))
+        {
+            Importable.Add(File);
+        }
+    }
+    if (Importable.IsEmpty())
+    {
+        return 0;
+    }
+
+    UAutomatedAssetImportData* ImportData = NewObject<UAutomatedAssetImportData>();
+    ImportData->Filenames = Importable;
+    ImportData->DestinationPath = DestPath;
+    ImportData->bReplaceExisting = true;
+    ImportData->bSkipReadOnly = true;
+
+    const TArray<UObject*> Imported = AssetTools.ImportAssetsAutomated(ImportData);
+    for (UObject* Object : Imported)
+    {
+        if (!Object || !Object->GetPackage())
+        {
+            continue;
+        }
+        UPackage* Package = Object->GetPackage();
+        const FString PackageFilename = FPackageName::LongPackageNameToFilename(Package->GetName(), FPackageName::GetAssetPackageExtension());
+        FSavePackageArgs SaveArgs;
+        SaveArgs.TopLevelFlags = RF_Public | RF_Standalone;
+        SaveArgs.Error = GWarn;
+        UPackage::SavePackage(Package, Object, *PackageFilename, SaveArgs);
+    }
+    UE_LOG(LogAbyssWhiteboxCommandlet, Display, TEXT("Imported %d asset(s) from %s into %s."), Imported.Num(), *AbsSourceDir, *DestPath);
+    return Imported.Num();
+}
+
+bool ImportPolyhaven(FString& Error)
+{
+    if (!FSlateApplication::IsInitialized())
+    {
+        FSlateApplication::InitializeAsStandaloneApplication(GetStandardStandaloneRenderer());
+    }
+    IAssetTools& AssetTools = FModuleManager::LoadModuleChecked<FAssetToolsModule>(TEXT("AssetTools")).Get();
+
+    const FString Base = FPaths::Combine(FPaths::ProjectDir(), SourceRoot);
+    if (!FPaths::DirectoryExists(Base))
+    {
+        return Fail(Error, FString::Printf(TEXT("Missing Poly Haven quarantine dir: %s"), *Base));
+    }
+
+    int32 Count = 0;
+    Count += ImportDir(AssetTools, FPaths::Combine(Base, TEXT("hdri")), DestRoot + TEXT("/hdri"));
+
+    const FString ModelsBase = FPaths::Combine(Base, TEXT("models"));
+    TArray<FString> ModelDirs;
+    IFileManager::Get().FindFiles(ModelDirs, *(ModelsBase / TEXT("*")), false, true);
+    for (const FString& Slug : ModelDirs)
+    {
+        Count += ImportDir(AssetTools, FPaths::Combine(ModelsBase, Slug), DestRoot + TEXT("/models/") + Slug);
+    }
+
+    UE_LOG(LogAbyssWhiteboxCommandlet, Display, TEXT("Imported %d Poly Haven CC0 asset(s) into %s."), Count, *DestRoot);
+    return Count > 0 ? true : Fail(Error, TEXT("No Poly Haven assets were imported."));
+}
+}
+
+UImportPolyhavenCc0AssetsCommandlet::UImportPolyhavenCc0AssetsCommandlet()
+{
+    IsClient = false;
+    IsEditor = true;
+    IsServer = false;
+    LogToConsole = true;
+}
+
+int32 UImportPolyhavenCc0AssetsCommandlet::Main(const FString& Params)
+{
+    FString Error;
+    return FrostwakePolyhaven::ImportPolyhaven(Error) ? 0 : 1;
+}
