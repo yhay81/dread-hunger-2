@@ -428,15 +428,18 @@ FAbyssMatchConfig AAbyssLockGameMode::ResolveMatchConfig(EAbyssMatchMode Mode, E
     case EAbyssDifficulty::Easy:
         Config.SurvivalDecayMultiplier = 0.75f;
         Config.SabotageIntensityMultiplier = 0.8f;
+        Config.FuelBurnMultiplier = 0.8f;
         break;
     case EAbyssDifficulty::Hard:
         Config.SurvivalDecayMultiplier = 1.35f;
         Config.SabotageIntensityMultiplier = 1.25f;
+        Config.FuelBurnMultiplier = 1.3f;
         break;
     case EAbyssDifficulty::Normal:
     default:
         Config.SurvivalDecayMultiplier = 1.0f;
         Config.SabotageIntensityMultiplier = 1.0f;
+        Config.FuelBurnMultiplier = 1.0f;
         break;
     }
 
@@ -566,8 +569,23 @@ void AAbyssLockGameMode::StartMatchTimer()
 
     float ConfiguredDurationSeconds = MatchDurationSeconds;
     FParse::Value(FCommandLine::Get(), TEXT("AbyssMatchDurationSeconds="), ConfiguredDurationSeconds);
-    MatchDurationSeconds = FMath::Max(1.0f, ConfiguredDurationSeconds);
+    // Difficulty scales the time limit (Easy = more time, Hard = less).
+    float DifficultyTimeScale = 1.0f;
+    switch (ActiveMatchConfig.Difficulty)
+    {
+    case EAbyssDifficulty::Easy:
+        DifficultyTimeScale = 1.15f;
+        break;
+    case EAbyssDifficulty::Hard:
+        DifficultyTimeScale = 0.85f;
+        break;
+    default:
+        break;
+    }
+    MatchDurationSeconds = FMath::Max(1.0f, ConfiguredDurationSeconds * DifficultyTimeScale);
     MatchEndWorldSeconds = GetWorld()->GetTimeSeconds() + MatchDurationSeconds;
+    LastLoggedRouteProgress = 0.0f;
+    bVoyageStalledLogged = false;
 
     if (AAbyssLockGameState* AbyssGameState = GetGameState<AAbyssLockGameState>())
     {
@@ -2421,28 +2439,51 @@ void AAbyssLockGameMode::TickVoyage(AAbyssLockGameState& AbyssGameState)
         return;
     }
 
+    UAbyssTelemetrySubsystem* TelemetrySubsystem = nullptr;
+    if (UGameInstance* GameInstance = GetGameInstance())
+    {
+        TelemetrySubsystem = GameInstance->GetSubsystem<UAbyssTelemetrySubsystem>();
+    }
+
     FAbyssShipSystemStatus FuelStatus;
     if (!AbyssGameState.GetShipSystemStatus(EAbyssShipSystem::Fuel, FuelStatus) || FuelStatus.Condition <= 0.0f)
     {
         // Out of fuel: the ship is stalled, so the route does not advance (the clock keeps running).
+        if (!bVoyageStalledLogged)
+        {
+            bVoyageStalledLogged = true;
+            UE_LOG(LogAbyssGameplay, Log, TEXT("ship_stalled reason=out_of_fuel progress=%.2f"), AbyssGameState.GetRouteProgress());
+            if (TelemetrySubsystem)
+            {
+                TelemetrySubsystem->LogEvent(TEXT("ship_stalled"), FString::Printf(TEXT("{\"reason\":\"out_of_fuel\",\"progress\":%.3f}"), AbyssGameState.GetRouteProgress()));
+            }
+        }
         return;
     }
+    bVoyageStalledLogged = false; // re-armed once the crew refuels
 
-    // Underway: burn fuel and advance the voyage by one second's worth of progress.
-    const float NewFuel = FMath::Clamp(FuelStatus.Condition - AbyssVoyageFuelBurnPerSecond, 0.0f, 1.0f);
+    // Underway: burn fuel (scaled by difficulty) and advance the voyage by one second's worth of progress.
+    const float Burn = AbyssVoyageFuelBurnPerSecond * FMath::Max(0.0f, ActiveMatchConfig.FuelBurnMultiplier);
+    const float NewFuel = FMath::Clamp(FuelStatus.Condition - Burn, 0.0f, 1.0f);
     AbyssGameState.SetShipSystemStatus(EAbyssShipSystem::Fuel, NewFuel, FuelStatus.bOffline, FuelStatus.bSabotaged);
 
     const float NewProgress = AbyssGameState.AddRouteProgress(AbyssVoyageRouteProgressPerSecond);
+
+    // Observable progress telemetry: always log the first underway tick, then throttle to every ~1%,
+    // so even a short headless run shows the voyage advancing over time and burning fuel.
+    if (TelemetrySubsystem && (LastLoggedRouteProgress <= 0.0f || NewProgress - LastLoggedRouteProgress >= 0.01f))
+    {
+        LastLoggedRouteProgress = NewProgress;
+        TelemetrySubsystem->LogEvent(TEXT("voyage_progress"), FString::Printf(TEXT("{\"progress\":%.3f,\"fuel\":%.3f}"), NewProgress, NewFuel));
+    }
+
     if (NewProgress >= 1.0f)
     {
         AbyssGameState.SetMatchPhase(EAbyssMatchPhase::FinalApproach);
         UE_LOG(LogAbyssGameplay, Log, TEXT("final_approach_started progress=%.2f source=voyage"), NewProgress);
-        if (UGameInstance* GameInstance = GetGameInstance())
+        if (TelemetrySubsystem)
         {
-            if (UAbyssTelemetrySubsystem* TelemetrySubsystem = GameInstance->GetSubsystem<UAbyssTelemetrySubsystem>())
-            {
-                TelemetrySubsystem->LogEvent(TEXT("final_approach_started"), TEXT("{\"progress\":1.0,\"source\":\"voyage\"}"));
-            }
+            TelemetrySubsystem->LogEvent(TEXT("final_approach_started"), TEXT("{\"progress\":1.0,\"source\":\"voyage\"}"));
         }
     }
 }

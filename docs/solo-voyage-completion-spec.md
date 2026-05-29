@@ -56,7 +56,10 @@
 - [x] **Step 2（航海ペース＝Aの心臓部）cycle 102**：`TickVoyage` が航行中（Fuel条件>0）のみ毎秒 Fuel を燃やしつつ
   `RouteProgress` を時間前進、100%で FinalApproach。即勝利（ルート手動前進）を撤去。`TASK_Repair_Fuel`（補給+0.5、燃料庫）に
   変換しマップ再生成。タイマー30分。→ ギャップ#1/#2解消（E×3即勝利→約25分の航海維持で勝利）。次: headless smoke。
-- [ ] **Step 3（チューニング）**：タイマー~28–30分、`BurnPerSec`/`ProgressPerSec` を難易度連動。Fuelの初期値・補給量を調整。
+- [x] **Step 3（チューニング＋実証）cycle 103**：難易度連動（燃料倍率 易0.8/標準1.0/難1.3、タイマー 易1.15×/難0.85×）。
+  観測用 `voyage_progress`（1%毎＋初回保証）/`ship_stalled` ログ追加。**headless smoke で実証**：ソロで
+  `voyage_progress{progress:0.001,fuel:0.997}`（tickが時間で進行＋燃料消費）＋
+  `match_ended{winner:crew,reason:final_approach_complete}`（勝利解決）。Editor+Game build＋quality-gate green。
 - [ ] **Step 4（リザルトUI／GP-09協調）**：勝敗リザルト画面（`WinningTeam`/`MatchEndReason` を表示）。並行HUD作業が landed 後。
 
 ## 6. 検証

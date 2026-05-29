@@ -59,6 +59,8 @@ private:
     FTimerHandle MatchTimerHandle;
     float MatchDurationSeconds = 30.0f * 60.0f;
     double MatchEndWorldSeconds = 0.0;
+    float LastLoggedRouteProgress = 0.0f; // throttles voyage_progress telemetry
+    bool bVoyageStalledLogged = false;     // one-shot ship_stalled log per stall
 
     void AssignRolesForCurrentPlayersInternal(int32 SaboteurCountOverride, int32 MadmanCount = 0);
     void TryAutoStartMatchForDev();

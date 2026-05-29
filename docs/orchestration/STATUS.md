@@ -20,7 +20,7 @@ priority order below + `DISPATCH.md` §2.
 | --- | --- | --- | --- | --- | --- |
 | **GP-01** Human Playability | 🟡 YELLOW | First real 6-8p human run + anonymized summary (`playtest-preflight --mode human`) | Re-confirm Windows listen-server preflight is green (`playtest-run-scaffold`/`preflight`) | **8 real humans** (no code change removes it) | 2026-05-29 |
 | **GP-02** Network/Hosting | 🔴 BLOCKED | `AbyssLockServer.exe` builds+boots+8 clients+ready-lobby | Keep runbook + `UE_ROOT` instructions consistent; verify `quality-gate` | **Server-capable UE 5.7** (Launcher UE can't build Server targets) | 2026-05-29 |
-| **GP-03** Core Match | 🟡 YELLOW | DH-parity feel + readable round (`docs/mechanics-parity-target.md`, `docs/control-scheme.md`) | 🎯 **solo = real ~30-min voyage** (`docs/solo-voyage-completion-spec.md`): ✅ crew-incapacitated loss (101) + ✅ **fuel-gated time-based route, instant-win removed, 30-min timer (102)** → Step 3 tune+difficulty, Step 4 result screen | Step 4 result UI waits on in-flight GP-09 HUD | 2026-05-29 |
+| **GP-03** Core Match | 🟡 YELLOW | DH-parity feel + readable round (`docs/mechanics-parity-target.md`, `docs/control-scheme.md`) | ✅ **solo = real ~30-min voyage, headless-proven** (`docs/solo-voyage-completion-spec.md`): loss-on-incap (101) + fuel-gated time-based route (102) + difficulty + smoke proof `voyage_progress`/`final_approach_complete` (103) → **Step 4 result screen** + human tuning | Step 4 result UI waits on in-flight GP-09 HUD | 2026-05-29 |
 | **GP-04** Steam Online | 🟡 YELLOW | Lobby create/find/join + build/map-mismatch reject (P2-003/004) | ✅ **lobby metadata now carries `mode`/`difficulty` (cycle 99)** → run `run_steam_lobby_validation.ps1` preflight; runtime spike still GP-02-gated | Runtime spike gated behind GP-02 (contracts already green) | 2026-05-29 |
 | **GP-05** Voice & Trust | 🟡 YELLOW | One voice provider chosen + 8p acceptance plan | Write `docs/voice-provider-decision.md` (VCI+EOS vs Vivox vs Steam Voice) | Runtime acceptance gated by server (decision itself unblocked) | 2026-05-29 |
 | **GP-06** Services & Tools | 🟢 GREEN | Backend ↔ `openapi.yaml` ↔ tests parity; `cargo test --workspace` green | ✅ 404s documented + tested (cycle 83) → add the 409 `lobby_full` test | none | 2026-05-29 |
@@ -53,6 +53,14 @@ Everything else advances now, headless, in parallel.
 
 ## Last loop iteration
 
+- 2026-05-29 **cycle 103** (GP-03, interactive) — **voyage difficulty wiring + headless proof**. Wired
+  difficulty into the voyage: `FuelBurnMultiplier` preset (Easy 0.8 / Normal 1.0 / Hard 1.3) applied in
+  `TickVoyage`, and the match timer scaled by difficulty (Easy 1.15× / Hard 0.85× of 30 min). Added
+  observable `voyage_progress` (throttled, +fuel) and `ship_stalled` telemetry. **Proved it headlessly**:
+  a solo `run-local-smoke` shows `voyage_progress {progress:0.001,fuel:0.997}` (the time-based fuel-gated
+  tick is live) and `--smoke-route-complete` shows `match_ended {winner:crew,reason:final_approach_complete}`
+  (crew win resolves). Editor+Game build + `quality-gate` green. Steps 1-3 of solo completion done; Step 4
+  (win/lose result screen) waits on the in-flight GP-09 HUD.
 - 2026-05-29 **cycle 102** (GP-03, interactive) — **solo is now a real ~30-min voyage**. Replaced the
   ~10s instant-win (Route task ×3) with a fuel-gated time-based voyage: `AAbyssLockGameMode::TickVoyage`
   (each second) advances `RouteProgress` only while underway (Fuel system condition > 0), burning fuel;

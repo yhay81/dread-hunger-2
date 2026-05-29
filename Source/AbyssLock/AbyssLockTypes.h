@@ -110,4 +110,8 @@ struct FAbyssMatchConfig
     // Difficulty knob: multiplies sabotage severity. Consumed by sabotage actors (follow-up step).
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Abyss|Match")
     float SabotageIntensityMultiplier = 1.0f;
+
+    // Difficulty knob: multiplies the voyage fuel burn rate (higher = refuel more often / harder).
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Abyss|Match")
+    float FuelBurnMultiplier = 1.0f;
 };
