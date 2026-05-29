@@ -38,6 +38,13 @@ Download and extract the 1K JPG source packages into quarantine:
 
 The script writes proof metadata under `Saved/AssetProof/ambientcg-free-materials/` and source files under `Content/ThirdParty/Quarantine/ambientCG/`.
 
+Import the extracted JPG maps as Unreal assets while keeping them quarantined:
+
+```powershell
+cargo run -p frostwake-tools -- import-ambient-cg-visual-poc-assets --platform Win64
+cargo run -p frostwake-tools -- validate-ambient-cg-visual-poc-assets --platform Win64 --skip-build
+```
+
 ## Visual POC Map
 
 Create the first dressed placeholder map:

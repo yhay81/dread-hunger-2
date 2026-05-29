@@ -6,6 +6,7 @@
 
 class UAbyssInteractionComponent;
 class UAbyssInventoryComponent;
+class UCameraComponent;
 class AAbyssItemPickupActor;
 
 UCLASS()
@@ -52,6 +53,9 @@ protected:
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abyss|Inventory")
     TObjectPtr<UAbyssInventoryComponent> InventoryComponent;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abyss|Camera")
+    TObjectPtr<UCameraComponent> FirstPersonCameraComponent;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Abyss|Life")
     float MaxHealth;

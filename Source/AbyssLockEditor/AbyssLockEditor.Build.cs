@@ -19,7 +19,10 @@ public class AbyssLockEditor : ModuleRules
 
         PrivateDependencyModuleNames.AddRange(new[]
         {
+            "AssetTools",
             "LevelEditor",
+            "Slate",
+            "StandaloneRenderer",
             "UnrealEd"
         });
     }

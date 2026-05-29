@@ -3,6 +3,7 @@
 #include "AbyssLockCharacter.h"
 #include "AbyssLockGameMode.h"
 #include "AbyssLockLog.h"
+#include "AbyssMainMenuWidget.h"
 #include "AbyssLockPlayerState.h"
 #include "AbyssTelemetrySubsystem.h"
 #include "Engine/GameInstance.h"
@@ -10,6 +11,31 @@
 AAbyssLockPlayerController::AAbyssLockPlayerController()
 {
     bReplicates = true;
+}
+
+void AAbyssLockPlayerController::BeginPlay()
+{
+    Super::BeginPlay();
+
+    if (!IsLocalController() || GetNetMode() == NM_DedicatedServer)
+    {
+        return;
+    }
+
+    MainMenuWidget = CreateWidget<UAbyssMainMenuWidget>(this, UAbyssMainMenuWidget::StaticClass());
+    if (MainMenuWidget)
+    {
+        MainMenuWidget->AddToViewport(10);
+        bShowMouseCursor = true;
+        FInputModeUIOnly InputMode;
+        InputMode.SetWidgetToFocus(MainMenuWidget->TakeWidget());
+        SetInputMode(InputMode);
+
+        if (GetNetMode() != NM_Standalone)
+        {
+            MainMenuWidget->ShowLobbyScreen();
+        }
+    }
 }
 
 void AAbyssLockPlayerController::TryPrimaryInteract()
@@ -37,6 +63,28 @@ void AAbyssLockPlayerController::SetReadyForMatch(bool bReady)
     ServerSetReadyForMatch(bReady);
 }
 
+void AAbyssLockPlayerController::RequestHostStartMatch()
+{
+    if (HasAuthority())
+    {
+        ServerRequestHostStartMatch_Implementation();
+        return;
+    }
+
+    ServerRequestHostStartMatch();
+}
+
+void AAbyssLockPlayerController::RequestSoloMatch()
+{
+    if (HasAuthority())
+    {
+        ServerRequestSoloMatch_Implementation();
+        return;
+    }
+
+    ServerRequestSoloMatch();
+}
+
 void AAbyssLockPlayerController::ServerSetReadyForMatch_Implementation(bool bReady)
 {
     AAbyssLockPlayerState* AbyssPlayerState = GetPlayerState<AAbyssLockPlayerState>();
@@ -62,6 +110,28 @@ void AAbyssLockPlayerController::ServerSetReadyForMatch_Implementation(bool bRea
         if (AAbyssLockGameMode* AbyssGameMode = World->GetAuthGameMode<AAbyssLockGameMode>())
         {
             AbyssGameMode->TryStartMatchFromReady();
+        }
+    }
+}
+
+void AAbyssLockPlayerController::ServerRequestHostStartMatch_Implementation()
+{
+    if (UWorld* World = GetWorld())
+    {
+        if (AAbyssLockGameMode* AbyssGameMode = World->GetAuthGameMode<AAbyssLockGameMode>())
+        {
+            AbyssGameMode->TryStartMatchFromHost(this);
+        }
+    }
+}
+
+void AAbyssLockPlayerController::ServerRequestSoloMatch_Implementation()
+{
+    if (UWorld* World = GetWorld())
+    {
+        if (AAbyssLockGameMode* AbyssGameMode = World->GetAuthGameMode<AAbyssLockGameMode>())
+        {
+            AbyssGameMode->TryStartSoloMatchFromMenu(this);
         }
     }
 }

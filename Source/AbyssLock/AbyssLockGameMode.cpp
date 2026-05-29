@@ -2103,6 +2103,92 @@ bool AAbyssLockGameMode::TryStartMatchFromReady()
     return true;
 }
 
+bool AAbyssLockGameMode::TryStartMatchFromHost(APlayerController* RequestingPlayer)
+{
+    if (!HasAuthority() || !GameState || !RequestingPlayer)
+    {
+        return false;
+    }
+
+    AAbyssLockGameState* AbyssGameState = GetGameState<AAbyssLockGameState>();
+    if (!AbyssGameState || AbyssGameState->GetMatchPhase() != EAbyssMatchPhase::WaitingForPlayers)
+    {
+        return false;
+    }
+
+    const bool bIsHostPlayer =
+        GameState->PlayerArray.Num() > 0 &&
+        RequestingPlayer->PlayerState &&
+        GameState->PlayerArray[0] == RequestingPlayer->PlayerState;
+    if (!bIsHostPlayer)
+    {
+        UE_LOG(LogAbyssGameplay, Log, TEXT("lobby_host_start_rejected reason=not_host requester=%s"), *GetNameSafe(RequestingPlayer));
+        return false;
+    }
+
+    const int32 PlayerCount = GameState->PlayerArray.Num();
+    if (PlayerCount != AbyssFixedMatchPlayers)
+    {
+        UE_LOG(LogAbyssGameplay, Log, TEXT("lobby_host_start_waiting players=%d required=%d"), PlayerCount, AbyssFixedMatchPlayers);
+        return false;
+    }
+
+    AssignRolesForCurrentPlayersInternal(INDEX_NONE);
+    AbyssGameState->SetMatchPhase(EAbyssMatchPhase::InProgress);
+    StartMatchTimer();
+
+    UE_LOG(LogAbyssGameplay, Log, TEXT("match_started source=host_start players=%d host=%s"), PlayerCount, *GetNameSafe(RequestingPlayer->PlayerState));
+    if (UGameInstance* GameInstance = GetGameInstance())
+    {
+        if (UAbyssTelemetrySubsystem* TelemetrySubsystem = GameInstance->GetSubsystem<UAbyssTelemetrySubsystem>())
+        {
+            TelemetrySubsystem->LogEvent(
+                TEXT("match_started"),
+                FString::Printf(TEXT("{\"source\":\"host_start\",\"players\":%d,\"host\":\"%s\"}"), PlayerCount, *GetNameSafe(RequestingPlayer->PlayerState)));
+        }
+    }
+
+    return true;
+}
+
+bool AAbyssLockGameMode::TryStartSoloMatchFromMenu(APlayerController* RequestingPlayer)
+{
+    if (!HasAuthority() || !GameState || !RequestingPlayer)
+    {
+        return false;
+    }
+
+    AAbyssLockGameState* AbyssGameState = GetGameState<AAbyssLockGameState>();
+    if (!AbyssGameState || AbyssGameState->GetMatchPhase() != EAbyssMatchPhase::WaitingForPlayers)
+    {
+        return false;
+    }
+
+    const int32 PlayerCount = GameState->PlayerArray.Num();
+    if (PlayerCount != AbyssPracticePlayers)
+    {
+        UE_LOG(LogAbyssGameplay, Log, TEXT("solo_start_rejected players=%d required=%d requester=%s"), PlayerCount, AbyssPracticePlayers, *GetNameSafe(RequestingPlayer));
+        return false;
+    }
+
+    AssignRolesForCurrentPlayersInternal(0);
+    AbyssGameState->SetMatchPhase(EAbyssMatchPhase::InProgress);
+    StartMatchTimer();
+
+    UE_LOG(LogAbyssGameplay, Log, TEXT("match_started source=solo_menu players=%d player=%s"), PlayerCount, *GetNameSafe(RequestingPlayer->PlayerState));
+    if (UGameInstance* GameInstance = GetGameInstance())
+    {
+        if (UAbyssTelemetrySubsystem* TelemetrySubsystem = GameInstance->GetSubsystem<UAbyssTelemetrySubsystem>())
+        {
+            TelemetrySubsystem->LogEvent(
+                TEXT("match_started"),
+                FString::Printf(TEXT("{\"source\":\"solo_menu\",\"players\":%d,\"player\":\"%s\"}"), PlayerCount, *GetNameSafe(RequestingPlayer->PlayerState)));
+        }
+    }
+
+    return true;
+}
+
 bool AAbyssLockGameMode::TryStartPracticeMatch()
 {
     return TryStartSinglePlayerMatch();

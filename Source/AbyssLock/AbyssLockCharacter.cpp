@@ -5,18 +5,38 @@
 #include "AbyssLockLog.h"
 #include "AbyssLockPlayerState.h"
 #include "AbyssTelemetrySubsystem.h"
+#include "Camera/CameraComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Engine/GameInstance.h"
 #include "Net/UnrealNetwork.h"
 
 AAbyssLockCharacter::AAbyssLockCharacter()
 {
     bReplicates = true;
+    bUseControllerRotationPitch = true;
+    bUseControllerRotationYaw = true;
+    bUseControllerRotationRoll = false;
+
     MaxHealth = 100.0f;
     Health = MaxHealth;
 
     InteractionComponent = CreateDefaultSubobject<UAbyssInteractionComponent>(TEXT("InteractionComponent"));
     InventoryComponent = CreateDefaultSubobject<UAbyssInventoryComponent>(TEXT("InventoryComponent"));
+
+    FirstPersonCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
+    FirstPersonCameraComponent->SetupAttachment(GetCapsuleComponent());
+    FirstPersonCameraComponent->SetRelativeLocation(FVector(0.0f, 0.0f, 64.0f));
+    FirstPersonCameraComponent->bUsePawnControlRotation = true;
+
+    if (UCharacterMovementComponent* MovementComponent = GetCharacterMovement())
+    {
+        MovementComponent->bOrientRotationToMovement = false;
+        MovementComponent->JumpZVelocity = 520.0f;
+        MovementComponent->AirControl = 0.35f;
+        MovementComponent->MaxWalkSpeed = 450.0f;
+    }
 }
 
 void AAbyssLockCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -34,6 +54,8 @@ void AAbyssLockCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
     PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &AAbyssLockCharacter::MoveRight);
     PlayerInputComponent->BindAxis(TEXT("Turn"), this, &AAbyssLockCharacter::Turn);
     PlayerInputComponent->BindAxis(TEXT("LookUp"), this, &AAbyssLockCharacter::LookUp);
+    PlayerInputComponent->BindAction(TEXT("Jump"), IE_Pressed, this, &ACharacter::Jump);
+    PlayerInputComponent->BindAction(TEXT("Jump"), IE_Released, this, &ACharacter::StopJumping);
     PlayerInputComponent->BindAction(TEXT("PrimaryInteract"), IE_Pressed, this, &AAbyssLockCharacter::TryPrimaryInteract);
     PlayerInputComponent->BindAction(TEXT("DropItem"), IE_Pressed, this, &AAbyssLockCharacter::TryDropItem);
 }

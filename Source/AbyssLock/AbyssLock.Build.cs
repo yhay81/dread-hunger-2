@@ -16,6 +16,9 @@ public class AbyssLock : ModuleRules
             "HTTP",
             "Json",
             "JsonUtilities",
+            "Slate",
+            "SlateCore",
+            "UMG",
             "OnlineSubsystem",
             "OnlineSubsystemUtils"
         });

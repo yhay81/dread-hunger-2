@@ -2,6 +2,8 @@
 
 #include "AbyssDoorActor.h"
 #include "AbyssShipTaskActor.h"
+#include "AssetToolsModule.h"
+#include "AutomatedAssetImportData.h"
 #include "Components/StaticMeshComponent.h"
 #include "Editor.h"
 #include "Engine/DirectionalLight.h"
@@ -12,13 +14,17 @@
 #include "Engine/World.h"
 #include "EngineUtils.h"
 #include "FileHelpers.h"
+#include "Framework/Application/SlateApplication.h"
 #include "Materials/Material.h"
 #include "GameFramework/PlayerStart.h"
 #include "LevelEditorSubsystem.h"
 #include "Misc/FileHelper.h"
 #include "Misc/PackageName.h"
 #include "Misc/Paths.h"
+#include "Modules/ModuleManager.h"
+#include "StandaloneRenderer.h"
 #include "Subsystems/EditorActorSubsystem.h"
+#include "UObject/SavePackage.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogAbyssWhiteboxCommandlet, Log, All);
 
@@ -616,6 +622,8 @@ namespace FrostwakeVisualPOC
 {
 const FString MapPackage = TEXT("/Game/Maps/L_FrostwakeVisualPOC");
 const FName VisualPocTag = TEXT("FrostwakeVisualPOC");
+const FString AmbientCgSourceRoot = TEXT("Content/ThirdParty/Quarantine/ambientCG");
+const FString AmbientCgDestinationRoot = TEXT("/Game/ThirdParty/Quarantine/ambientCG");
 
 struct FMaterialSpec
 {
@@ -634,6 +642,12 @@ struct FVisualPointSpec
 {
     const TCHAR* Label;
     FVector Location;
+};
+
+struct FAmbientCgAssetSpec
+{
+    const TCHAR* AssetId;
+    const TCHAR* RequiredColorAsset;
 };
 
 bool Fail(FString& Error, const FString& Message)
@@ -886,6 +900,103 @@ bool ValidateVisualPoc(FString& Error)
     UE_LOG(LogAbyssWhiteboxCommandlet, Display, TEXT("%s passed validation with %d actors."), *MapPackage, Labels.Num());
     return true;
 }
+
+TArray<FAmbientCgAssetSpec> AmbientCgAssets()
+{
+    return {
+        {TEXT("DiamondPlate009"), TEXT("DiamondPlate009_1K-JPG_Color")},
+        {TEXT("PaintedMetal004"), TEXT("PaintedMetal004_1K-JPG_Color")},
+        {TEXT("MetalWalkway014"), TEXT("MetalWalkway014_1K-JPG_Color")},
+        {TEXT("Snow015"), TEXT("Snow015_1K-JPG_Color")},
+        {TEXT("Ice003"), TEXT("Ice003_1K-JPG_Color")},
+    };
+}
+
+bool CollectAmbientCgSourceFiles(const FAmbientCgAssetSpec& Spec, TArray<FString>& OutFiles, FString& Error)
+{
+    const FString SourceDir = FPaths::Combine(FPaths::ProjectDir(), AmbientCgSourceRoot, Spec.AssetId, TEXT("1K-JPG"));
+    if (!FPaths::DirectoryExists(SourceDir))
+    {
+        return Fail(Error, FString::Printf(TEXT("Missing ambientCG source directory: %s"), *SourceDir));
+    }
+
+    IFileManager::Get().FindFilesRecursive(OutFiles, *SourceDir, TEXT("*.jpg"), true, false, false);
+    if (OutFiles.IsEmpty())
+    {
+        return Fail(Error, FString::Printf(TEXT("No JPG files found in ambientCG source directory: %s"), *SourceDir));
+    }
+    return true;
+}
+
+bool ImportAmbientCgVisualPocAssets(FString& Error)
+{
+    if (!FSlateApplication::IsInitialized())
+    {
+        FSlateApplication::InitializeAsStandaloneApplication(GetStandardStandaloneRenderer());
+    }
+
+    IAssetTools& AssetTools = FModuleManager::LoadModuleChecked<FAssetToolsModule>(TEXT("AssetTools")).Get();
+    int32 ImportedCount = 0;
+
+    for (const FAmbientCgAssetSpec& Spec : AmbientCgAssets())
+    {
+        TArray<FString> SourceFiles;
+        if (!CollectAmbientCgSourceFiles(Spec, SourceFiles, Error))
+        {
+            return false;
+        }
+
+        UAutomatedAssetImportData* ImportData = NewObject<UAutomatedAssetImportData>();
+        ImportData->Filenames = SourceFiles;
+        ImportData->DestinationPath = FString::Printf(TEXT("%s/%s"), *AmbientCgDestinationRoot, Spec.AssetId);
+        ImportData->bReplaceExisting = true;
+        ImportData->bSkipReadOnly = true;
+
+        const TArray<UObject*> ImportedObjects = AssetTools.ImportAssetsAutomated(ImportData);
+        ImportedCount += ImportedObjects.Num();
+        for (UObject* ImportedObject : ImportedObjects)
+        {
+            if (!ImportedObject || !ImportedObject->GetPackage())
+            {
+                return Fail(Error, FString::Printf(TEXT("Imported ambientCG object for %s has no package."), Spec.AssetId));
+            }
+
+            UPackage* Package = ImportedObject->GetPackage();
+            const FString PackageFilename = FPackageName::LongPackageNameToFilename(Package->GetName(), FPackageName::GetAssetPackageExtension());
+            FSavePackageArgs SaveArgs;
+            SaveArgs.TopLevelFlags = RF_Public | RF_Standalone;
+            SaveArgs.Error = GWarn;
+            if (!UPackage::SavePackage(Package, ImportedObject, *PackageFilename, SaveArgs))
+            {
+                return Fail(Error, FString::Printf(TEXT("Could not save imported ambientCG package: %s"), *PackageFilename));
+            }
+        }
+    }
+
+    UE_LOG(LogAbyssWhiteboxCommandlet, Display, TEXT("Imported %d ambientCG source files into %s."), ImportedCount, *AmbientCgDestinationRoot);
+    return ImportedCount > 0 || Fail(Error, TEXT("No ambientCG assets were imported."));
+}
+
+bool ValidateAmbientCgVisualPocAssets(FString& Error)
+{
+    for (const FAmbientCgAssetSpec& Spec : AmbientCgAssets())
+    {
+        const FString ObjectPath = FString::Printf(
+            TEXT("%s/%s/%s.%s"),
+            *AmbientCgDestinationRoot,
+            Spec.AssetId,
+            Spec.RequiredColorAsset,
+            Spec.RequiredColorAsset);
+        UObject* Asset = LoadObject<UObject>(nullptr, *ObjectPath);
+        if (!Asset)
+        {
+            return Fail(Error, FString::Printf(TEXT("Missing imported ambientCG asset: %s"), *ObjectPath));
+        }
+    }
+
+    UE_LOG(LogAbyssWhiteboxCommandlet, Display, TEXT("ambientCG visual POC assets passed validation."));
+    return true;
+}
 }
 
 UCreateFrostwakeVisualPocCommandlet::UCreateFrostwakeVisualPocCommandlet()
@@ -914,4 +1025,32 @@ int32 UValidateFrostwakeVisualPocCommandlet::Main(const FString& Params)
 {
     FString Error;
     return FrostwakeVisualPOC::ValidateVisualPoc(Error) ? 0 : 1;
+}
+
+UImportAmbientCgVisualPocAssetsCommandlet::UImportAmbientCgVisualPocAssetsCommandlet()
+{
+    IsClient = false;
+    IsEditor = true;
+    IsServer = false;
+    LogToConsole = true;
+}
+
+int32 UImportAmbientCgVisualPocAssetsCommandlet::Main(const FString& Params)
+{
+    FString Error;
+    return FrostwakeVisualPOC::ImportAmbientCgVisualPocAssets(Error) ? 0 : 1;
+}
+
+UValidateAmbientCgVisualPocAssetsCommandlet::UValidateAmbientCgVisualPocAssetsCommandlet()
+{
+    IsClient = false;
+    IsEditor = true;
+    IsServer = false;
+    LogToConsole = true;
+}
+
+int32 UValidateAmbientCgVisualPocAssetsCommandlet::Main(const FString& Params)
+{
+    FString Error;
+    return FrostwakeVisualPOC::ValidateAmbientCgVisualPocAssets(Error) ? 0 : 1;
 }

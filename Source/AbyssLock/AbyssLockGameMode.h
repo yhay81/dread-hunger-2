@@ -27,6 +27,12 @@ public:
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Abyss|Lobby")
     bool TryStartMatchFromReady();
 
+    UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Abyss|Lobby")
+    bool TryStartMatchFromHost(APlayerController* RequestingPlayer);
+
+    UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Abyss|SinglePlayer")
+    bool TryStartSoloMatchFromMenu(APlayerController* RequestingPlayer);
+
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Abyss|Practice")
     bool TryStartPracticeMatch();
 

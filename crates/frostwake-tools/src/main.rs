@@ -383,6 +383,30 @@ enum Command {
         #[arg(long)]
         skip_build: bool,
     },
+    #[command(
+        about = "Import the downloaded ambientCG visual POC source textures into Unreal quarantine assets."
+    )]
+    ImportAmbientCgVisualPocAssets {
+        #[arg(long)]
+        ue_root: Option<PathBuf>,
+        #[arg(long)]
+        platform: Option<String>,
+        #[arg(long)]
+        print_command: bool,
+        #[arg(long)]
+        skip_build: bool,
+    },
+    #[command(about = "Validate the ambientCG visual POC textures were imported as Unreal assets.")]
+    ValidateAmbientCgVisualPocAssets {
+        #[arg(long)]
+        ue_root: Option<PathBuf>,
+        #[arg(long)]
+        platform: Option<String>,
+        #[arg(long)]
+        print_command: bool,
+        #[arg(long)]
+        skip_build: bool,
+    },
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, ValueEnum)]
@@ -1027,6 +1051,34 @@ fn run(cli: Cli) -> Result<(), String> {
         } => {
             run_unreal_editor_commandlet(
                 "ValidateFrostwakeVisualPoc",
+                ue_root,
+                platform.unwrap_or_else(host_platform),
+                print_command,
+                skip_build,
+            )?;
+        }
+        Command::ImportAmbientCgVisualPocAssets {
+            ue_root,
+            platform,
+            print_command,
+            skip_build,
+        } => {
+            run_unreal_editor_commandlet(
+                "ImportAmbientCgVisualPocAssets",
+                ue_root,
+                platform.unwrap_or_else(host_platform),
+                print_command,
+                skip_build,
+            )?;
+        }
+        Command::ValidateAmbientCgVisualPocAssets {
+            ue_root,
+            platform,
+            print_command,
+            skip_build,
+        } => {
+            run_unreal_editor_commandlet(
+                "ValidateAmbientCgVisualPocAssets",
                 ue_root,
                 platform.unwrap_or_else(host_platform),
                 print_command,
@@ -7349,6 +7401,7 @@ fn build_editor_target(ue_root: &Path, platform: &str) -> Result<(), String> {
         "Development".to_string(),
         format!("-Project={}", project.display()),
         "-WaitMutex".to_string(),
+        "-NoLiveCoding".to_string(),
     ];
     let result = run_process("build_editor", &command, None);
     if result.status == "pass" {
@@ -9402,6 +9455,22 @@ Next backlog item: P1-025
 
         assert!(create.contains(&"-run=CreateFrostwakeVisualPoc".to_string()));
         assert!(validate.contains(&"-run=ValidateFrostwakeVisualPoc".to_string()));
+        assert!(
+            unreal_commandlet_command(
+                "ImportAmbientCgVisualPocAssets",
+                Path::new("C:/UE_5.7"),
+                "Win64"
+            )
+            .contains(&"-run=ImportAmbientCgVisualPocAssets".to_string())
+        );
+        assert!(
+            unreal_commandlet_command(
+                "ValidateAmbientCgVisualPocAssets",
+                Path::new("C:/UE_5.7"),
+                "Win64"
+            )
+            .contains(&"-run=ValidateAmbientCgVisualPocAssets".to_string())
+        );
     }
 
     #[test]

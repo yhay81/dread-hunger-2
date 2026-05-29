@@ -47,3 +47,25 @@ public:
 
     virtual int32 Main(const FString& Params) override;
 };
+
+UCLASS()
+class ABYSSLOCKEDITOR_API UImportAmbientCgVisualPocAssetsCommandlet : public UCommandlet
+{
+    GENERATED_BODY()
+
+public:
+    UImportAmbientCgVisualPocAssetsCommandlet();
+
+    virtual int32 Main(const FString& Params) override;
+};
+
+UCLASS()
+class ABYSSLOCKEDITOR_API UValidateAmbientCgVisualPocAssetsCommandlet : public UCommandlet
+{
+    GENERATED_BODY()
+
+public:
+    UValidateAmbientCgVisualPocAssetsCommandlet();
+
+    virtual int32 Main(const FString& Params) override;
+};
