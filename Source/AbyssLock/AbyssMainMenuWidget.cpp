@@ -7,6 +7,9 @@
 #include "Components/Button.h"
 #include "Components/EditableTextBox.h"
 #include "Components/TextBlock.h"
+#include "Components/Border.h"
+#include "Components/Overlay.h"
+#include "Components/OverlaySlot.h"
 #include "Components/VerticalBox.h"
 #include "Components/VerticalBoxSlot.h"
 #include "Components/Widget.h"
@@ -72,8 +75,25 @@ void UAbyssMainMenuWidget::BuildWidgetTree()
         return;
     }
 
+    UOverlay* RootOverlay = WidgetTree->ConstructWidget<UOverlay>(UOverlay::StaticClass());
+    WidgetTree->RootWidget = RootOverlay;
+
+    // Full-screen dark backdrop so the front-end reads as its own menu screen instead of
+    // showing the 3D whitebox behind it. It is removed with the widget when a match starts.
+    UBorder* Background = WidgetTree->ConstructWidget<UBorder>(UBorder::StaticClass());
+    Background->SetBrushColor(FLinearColor(0.012f, 0.02f, 0.035f, 1.0f));
+    if (UOverlaySlot* BackgroundSlot = RootOverlay->AddChildToOverlay(Background))
+    {
+        BackgroundSlot->SetHorizontalAlignment(HAlign_Fill);
+        BackgroundSlot->SetVerticalAlignment(VAlign_Fill);
+    }
+
     RootBox = WidgetTree->ConstructWidget<UVerticalBox>(UVerticalBox::StaticClass());
-    WidgetTree->RootWidget = RootBox;
+    if (UOverlaySlot* MenuSlot = RootOverlay->AddChildToOverlay(RootBox))
+    {
+        MenuSlot->SetHorizontalAlignment(HAlign_Center);
+        MenuSlot->SetVerticalAlignment(VAlign_Fill);
+    }
 
     TitleText = MakeText(WidgetTree, FText::FromString(TEXT("Frostwake")), 44.0f);
     StatusText = MakeText(WidgetTree, FText::GetEmpty(), 18.0f);
