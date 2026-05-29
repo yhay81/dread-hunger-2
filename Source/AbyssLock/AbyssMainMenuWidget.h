@@ -29,6 +29,8 @@ public:
     void ShowLobbyScreen();
 
 protected:
+    virtual TSharedRef<SWidget> RebuildWidget() override;
+
     UFUNCTION()
     void HandleGameStartClicked();
 

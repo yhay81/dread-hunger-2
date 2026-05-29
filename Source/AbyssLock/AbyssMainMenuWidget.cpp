@@ -50,12 +50,28 @@ void AddBoxChild(UVerticalBox* Box, UWidget* Child, float TopPadding = 12.0f)
 }
 }
 
+TSharedRef<SWidget> UAbyssMainMenuWidget::RebuildWidget()
+{
+    // This is a code-only UUserWidget (no UMG asset), so it has no WidgetTree by default.
+    // Create one and build the menu hierarchy before Slate is constructed, otherwise the
+    // widget renders nothing (a black screen).
+    if (!WidgetTree)
+    {
+        WidgetTree = NewObject<UWidgetTree>(this, TEXT("WidgetTree"));
+    }
+    BuildWidgetTree();
+    return Super::RebuildWidget();
+}
+
 void UAbyssMainMenuWidget::NativeConstruct()
 {
     Super::NativeConstruct();
 
+    SetIsFocusable(true);
     BuildWidgetTree();
     ShowStartScreen();
+
+    UE_LOG(LogTemp, Log, TEXT("frontend_menu_construct rootbox_children=%d"), RootBox ? RootBox->GetChildrenCount() : -1);
 }
 
 void UAbyssMainMenuWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
