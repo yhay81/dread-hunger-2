@@ -64,3 +64,8 @@ references/raw/
 references/private/
 references/imports/
 references/inventory/
+
+# Claude Code transient scheduling state (.claude/commands/ and settings*.json stay tracked)
+.claude/scheduled_tasks.json
+.claude/scheduled_tasks.lock
+.claude/*.lock

@@ -5,14 +5,15 @@ Two ways to drive the 10-minute autonomous loop (`/frostwake-loop`, which runs o
 
 ## 1. In-session (active by default)
 
-From an open Claude Code session in this repo:
+The session loop runs as a 10-minute recurring job whose prompt is **self-contained** — it
+instructs the agent to read `docs/orchestration/DISPATCH.md` and run one iteration, rather than
+calling the `/frostwake-loop` slash command. This avoids depending on project-command
+registration (a command file created mid-session is not always resolvable that session).
 
-```
-/loop 10m /frostwake-loop
-```
+Stop it with `CronDelete <job-id>` or by ending the session. No unattended cost.
 
-Runs every ~10 minutes while the session is open. Stop with `/loop stop` (or end the
-session). No unattended cost. This is the recommended day-to-day mode.
+`/frostwake-loop` (`.claude/commands/frostwake-loop.md`) still works when typed manually in a
+**fresh** session (project commands load at startup) and is what the persistent runner can use.
 
 ## 2. Persistent across sessions (opt-in — spends tokens unattended)
 

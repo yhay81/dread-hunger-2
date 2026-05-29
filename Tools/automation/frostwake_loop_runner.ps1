@@ -74,7 +74,10 @@ if (Test-Path $lock) {
     Tee-Object -FilePath $log -Append
 
 # Headless, non-interactive single iteration.
-& $claude -p "/frostwake-loop" --permission-mode $PermissionMode *>&1 |
+# Use a self-contained prompt (NOT the /frostwake-loop slash command) so the run never depends
+# on project-command registration. DISPATCH.md holds the full algorithm.
+$loopPrompt = 'Read docs/orchestration/DISPATCH.md and execute exactly one Frostwake dispatch iteration, following it literally: take the lock at Saved/Automation/loop.lock (abort if a fresh lock is held), pick the top-priority eligible lane per docs/orchestration/STATUS.md, do one small verifiable step, update the lane state file + docs/orchestration/STATUS.md, commit only the paths you changed to main with the trailer "Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>", release the lock, and end with a 3-line done/next/blocked report.'
+& $claude -p $loopPrompt --permission-mode $PermissionMode *>&1 |
     Tee-Object -FilePath $log -Append
 
 $end = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
