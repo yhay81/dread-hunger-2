@@ -58,9 +58,13 @@ then stop. A correct map is worth more than a rushed step.
 
 ## 2. Choose the lane (deterministic)
 
-1. **Health first.** If `cargo run -p frostwake-tools -- quality-gate` (add
-   `--require-ue` only when UE work is in scope) is failing, the only valid step is to fix
-   the gate. Stop after green.
+1. **Health first (cheap — do NOT re-run the full gate every iteration).** Read the gate
+   result recorded in the latest `docs/cycles/` file. If it was **red**, fixing it is the
+   only valid step this iteration; stop after green. If it was green, trust it and move on —
+   the full `cargo run -p frostwake-tools -- quality-gate` takes minutes and must not eat
+   every 10-minute slot. You only run the gate yourself when **your own change this
+   iteration touches a gated surface** (Rust, schemas, PowerShell, asset ledger, Unreal
+   metadata) — then it doubles as your verify step (§4).
 2. Otherwise walk the **priority order in `PLAN.md`** top to bottom and pick the first lane
    whose state is **not `BLOCKED`** and whose "Next Action" is not yet done.
 3. **Anti-starvation tie-break.** Among lanes of equal priority that are eligible, pick the
@@ -100,7 +104,10 @@ Run the smallest gate that proves the step, choosing from:
 | Playtest summary | `playtest-preflight` |
 | Secrets/PII risk | `secret-scan` |
 
-Record command + result (pass / fail / blocked / not-run-and-why).
+Record command + result (pass / fail / blocked / not-run-and-why). Use the **smallest** gate
+that proves *your* change — do not run the full `quality-gate` unless you changed a gated
+surface (Rust, schemas, PowerShell, asset ledger, Unreal metadata). A docs-only change is
+verified by a file check, not a multi-minute build.
 
 ---
 
