@@ -71,6 +71,9 @@ protected:
 
     AAbyssItemPickupActor* DropFirstInventoryItem();
 
+    void SelectNextItem();
+    void SelectPrevItem();
+
     void MoveForward(float Value);
     void MoveRight(float Value);
     void Turn(float Value);

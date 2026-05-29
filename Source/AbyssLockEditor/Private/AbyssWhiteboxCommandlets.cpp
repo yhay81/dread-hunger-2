@@ -1,6 +1,7 @@
 #include "AbyssWhiteboxCommandlets.h"
 
 #include "AbyssDoorActor.h"
+#include "AbyssItemPickupActor.h"
 #include "AbyssMenuGameMode.h"
 #include "AbyssShipTaskActor.h"
 #include "AssetToolsModule.h"
@@ -298,6 +299,17 @@ bool SpawnProp(const FPropSpec& Spec, FString& Error)
     return true;
 }
 
+bool SpawnItemPickup(const TCHAR* ItemId, const TCHAR* Label, const FVector& Location, FString& Error)
+{
+    AAbyssItemPickupActor* Pickup = Cast<AAbyssItemPickupActor>(SpawnActor(AAbyssItemPickupActor::StaticClass(), Label, Location, FRotator::ZeroRotator, Error));
+    if (!Pickup)
+    {
+        return false;
+    }
+    Pickup->ConfigureItem(FName(ItemId));
+    return true;
+}
+
 bool CreateWhitebox(FString& Error)
 {
     UWorld* World = nullptr;
@@ -485,6 +497,12 @@ bool CreateWhitebox(FString& Error)
             FogComp->SetFogInscatteringColor(FLinearColor(0.42f, 0.5f, 0.6f));
         }
     }
+
+    // Pickable items near the spawn so the player can pick up + scroll-select them (HUD hotbar).
+    SpawnItemPickup(TEXT("Wrench"), TEXT("WB_Item_Wrench"), FVector(300, 220, 30), Error);
+    SpawnItemPickup(TEXT("FuelDrum"), TEXT("WB_Item_FuelDrum"), FVector(300, -220, 30), Error);
+    SpawnItemPickup(TEXT("Fuse"), TEXT("WB_Item_Fuse"), FVector(480, 0, 30), Error);
+    SpawnItemPickup(TEXT("Headlamp"), TEXT("WB_Item_Headlamp"), FVector(140, 0, 30), Error);
 
     World->MarkPackageDirty();
     if (!UEditorLoadingAndSavingUtils::SaveMap(World, MapPackage))

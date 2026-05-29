@@ -16,12 +16,12 @@ priority order below + `DISPATCH.md` §2.
 | --- | --- | --- | --- | --- | --- |
 | **GP-01** Human Playability | 🟡 YELLOW | First real 6-8p human run + anonymized summary (`playtest-preflight --mode human`) | Re-confirm Windows listen-server preflight is green (`playtest-run-scaffold`/`preflight`) | **8 real humans** (no code change removes it) | 2026-05-29 |
 | **GP-02** Network/Hosting | 🔴 BLOCKED | `AbyssLockServer.exe` builds+boots+8 clients+ready-lobby | Keep runbook + `UE_ROOT` instructions consistent; verify `quality-gate` | **Server-capable UE 5.7** (Launcher UE can't build Server targets) | 2026-05-29 |
-| **GP-03** Core Match | 🟡 YELLOW | DH-parity feel + readable round (`docs/mechanics-parity-target.md`, `docs/control-scheme.md`) | ✅ minimal solo HUD (cycle 91) → make HUD dynamic (role/phase/route) + win-lose result; then readability audit | Human P1-024/025 notes for tuning | 2026-05-29 |
+| **GP-03** Core Match | 🟡 YELLOW | DH-parity feel + readable round (`docs/mechanics-parity-target.md`, `docs/control-scheme.md`) | ✅ HUD + **inventory pickup/scroll-select/hotbar** (cycle 92) → use-selected-item + win/lose result; dynamic HUD | Human P1-024/025 notes for tuning | 2026-05-29 |
 | **GP-04** Steam Online | 🟡 YELLOW | Lobby create/find/join + build/map-mismatch reject (P2-003/004) | Run `run_steam_lobby_validation.ps1` → `preflight_pass` on 5 steps | Runtime spike gated behind GP-02 (contracts already green) | 2026-05-29 |
 | **GP-05** Voice & Trust | 🟡 YELLOW | One voice provider chosen + 8p acceptance plan | Write `docs/voice-provider-decision.md` (VCI+EOS vs Vivox vs Steam Voice) | Runtime acceptance gated by server (decision itself unblocked) | 2026-05-29 |
 | **GP-06** Services & Tools | 🟢 GREEN | Backend ↔ `openapi.yaml` ↔ tests parity; `cargo test --workspace` green | ✅ 404s documented + tested (cycle 83) → add the 409 `lobby_full` test | none | 2026-05-29 |
 | **GP-07** Evidence/QA/Perf | 🟡 YELLOW | Perf budgets + measurement method; gates reproducible | Draft `docs/performance-budget.md`; verify `quality-gate` | Server-side perf rows need server build (doc still writable) | 2026-05-29 |
-| **GP-08** Presentation/Rights | 🟢 GREEN | **TOP**: dress the *playable* scene with IP-safe CC0 assets + atmosphere | ✅ HDRI sky + fog added (cycle 90); **awaiting owner screenshot** → then apply materials + tune scale (headless loop rotates to GP-03 meanwhile) | owner review | 2026-05-29 |
+| **GP-08** Presentation/Rights | 🟢 GREEN | **TOP**: dress the *playable* scene with IP-safe CC0 assets | ✅ sky/lighting approved by owner → **PROPER MAP**: replace white greybox cubes with a designed ship layout + CC0 materials (owner: 白い箱がだめ) | none (big design effort) | 2026-05-29 |
 | **GP-09** Comprehension/A11y | 🟡 YELLOW | First-match comprehension checklist + stable strings + glossary · dedicated **L_MainMenu** boot + start→lobby→**solo** debug (cycle 85) | Write `docs/gp09-comprehension-checklist.md`; verify `quality-gate` | No human comprehension data yet | 2026-05-29 |
 | **GP-10** Release/Community | 🟡 YELLOW | Steam Playtest readiness snapshot (owner/artifact/status/blocker/cancel) | Create `docs/steam-playtest-readiness.md`; verify `quality-gate` | No moderation-triage owner assigned anywhere | 2026-05-29 |
 
@@ -49,6 +49,10 @@ Everything else advances now, headless, in parallel.
 
 ## Last loop iteration
 
+- 2026-05-29 **cycle 92** (GP-03, interactive) — **inventory**: pickup (E) + **scroll-wheel select**
+  + HUD hotbar (SelectedSlot/CycleSelectedSlot; MaxSlots 4; pickups got a visible mesh; 4 placed in
+  the map). Owner verdict: sky good, **white boxes bad → GP-08 PROPER MAP** is the next big visual
+  effort. View: `L_IcebreakerWhitebox?solo -game -windowed` (E pick up, scroll select, Q drop).
 - 2026-05-29 **cycle 91** (GP-03, loop) — added a minimal **solo HUD** (`UAbyssHudWidget`:
   role/objective/`[E]` hint) shown in the solo path, so the round reads as a game; editor build +
   quality-gate green. Next: make the HUD dynamic + win/lose result. View: `L_IcebreakerWhitebox?solo`.

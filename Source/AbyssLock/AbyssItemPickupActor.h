@@ -4,6 +4,8 @@
 #include "AbyssInteractableActor.h"
 #include "AbyssItemPickupActor.generated.h"
 
+class UStaticMeshComponent;
+
 UCLASS(Blueprintable)
 class ABYSSLOCK_API AAbyssItemPickupActor : public AAbyssInteractableActor
 {
@@ -26,6 +28,9 @@ public:
     bool IsConsumed() const { return bConsumed; }
 
 protected:
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abyss|Item")
+    UStaticMeshComponent* DisplayMesh;
+
     UPROPERTY(Replicated, EditAnywhere, BlueprintReadOnly, Category = "Abyss|Item")
     FName ItemId;
 

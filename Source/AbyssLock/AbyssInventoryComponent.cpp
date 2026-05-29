@@ -11,7 +11,7 @@
 UAbyssInventoryComponent::UAbyssInventoryComponent()
 {
     SetIsReplicatedByDefault(true);
-    MaxSlots = 2;
+    MaxSlots = 4;
     DropPickupClass = AAbyssItemPickupActor::StaticClass();
 }
 
@@ -141,4 +141,34 @@ bool UAbyssInventoryComponent::HasItem(FName ItemId) const
 
 void UAbyssInventoryComponent::OnRep_Items()
 {
+}
+
+void UAbyssInventoryComponent::CycleSelectedSlot(int32 Delta)
+{
+    if (Items.Num() == 0)
+    {
+        SelectedSlot = 0;
+        return;
+    }
+
+    const int32 Count = Items.Num();
+    SelectedSlot = ((SelectedSlot + Delta) % Count + Count) % Count;
+}
+
+int32 UAbyssInventoryComponent::GetSelectedSlot() const
+{
+    if (Items.Num() == 0)
+    {
+        return 0;
+    }
+    return FMath::Clamp(SelectedSlot, 0, Items.Num() - 1);
+}
+
+FName UAbyssInventoryComponent::GetSelectedItemId() const
+{
+    if (Items.Num() == 0)
+    {
+        return NAME_None;
+    }
+    return Items[GetSelectedSlot()];
 }

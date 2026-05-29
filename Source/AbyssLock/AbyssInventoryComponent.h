@@ -36,12 +36,25 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Abyss|Inventory")
     int32 GetItemCount() const { return Items.Num(); }
 
+    // Selected/active slot (local UI choice) — scroll wheel cycles it; the HUD shows it.
+    UFUNCTION(BlueprintCallable, Category = "Abyss|Inventory")
+    void CycleSelectedSlot(int32 Delta);
+
+    UFUNCTION(BlueprintCallable, Category = "Abyss|Inventory")
+    int32 GetSelectedSlot() const;
+
+    UFUNCTION(BlueprintCallable, Category = "Abyss|Inventory")
+    FName GetSelectedItemId() const;
+
 protected:
     UPROPERTY(ReplicatedUsing = OnRep_Items, BlueprintReadOnly, Category = "Abyss|Inventory")
     TArray<FName> Items;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Abyss|Inventory")
     int32 MaxSlots;
+
+    // Local (non-replicated) selected slot for the hotbar; cycled by the scroll wheel.
+    int32 SelectedSlot = 0;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Abyss|Inventory")
     TSubclassOf<AAbyssItemPickupActor> DropPickupClass;

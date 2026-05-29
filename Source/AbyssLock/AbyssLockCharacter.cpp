@@ -58,6 +58,24 @@ void AAbyssLockCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
     PlayerInputComponent->BindAction(TEXT("Jump"), IE_Released, this, &ACharacter::StopJumping);
     PlayerInputComponent->BindAction(TEXT("PrimaryInteract"), IE_Pressed, this, &AAbyssLockCharacter::TryPrimaryInteract);
     PlayerInputComponent->BindAction(TEXT("DropItem"), IE_Pressed, this, &AAbyssLockCharacter::TryDropItem);
+    PlayerInputComponent->BindAction(TEXT("SelectNextItem"), IE_Pressed, this, &AAbyssLockCharacter::SelectNextItem);
+    PlayerInputComponent->BindAction(TEXT("SelectPrevItem"), IE_Pressed, this, &AAbyssLockCharacter::SelectPrevItem);
+}
+
+void AAbyssLockCharacter::SelectNextItem()
+{
+    if (InventoryComponent)
+    {
+        InventoryComponent->CycleSelectedSlot(1);
+    }
+}
+
+void AAbyssLockCharacter::SelectPrevItem()
+{
+    if (InventoryComponent)
+    {
+        InventoryComponent->CycleSelectedSlot(-1);
+    }
 }
 
 void AAbyssLockCharacter::MoveForward(float Value)

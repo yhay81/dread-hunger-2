@@ -1,5 +1,8 @@
 #include "AbyssItemPickupActor.h"
 #include "AbyssInventoryComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Engine/StaticMesh.h"
+#include "UObject/ConstructorHelpers.h"
 #include "AbyssLockLog.h"
 #include "AbyssTelemetrySubsystem.h"
 #include "Engine/GameInstance.h"
@@ -10,6 +13,17 @@ AAbyssItemPickupActor::AAbyssItemPickupActor()
     ItemId = TEXT("Item");
     bConsumed = false;
     InteractionText = FText::FromString(TEXT("Pick Up"));
+
+    // Small visible marker so the item can be seen and walked up to (hidden on pickup).
+    DisplayMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("DisplayMesh"));
+    DisplayMesh->SetupAttachment(RootComponent);
+    DisplayMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    static ConstructorHelpers::FObjectFinder<UStaticMesh> CubeMesh(TEXT("/Engine/BasicShapes/Cube.Cube"));
+    if (CubeMesh.Succeeded())
+    {
+        DisplayMesh->SetStaticMesh(CubeMesh.Object);
+        DisplayMesh->SetRelativeScale3D(FVector(0.3f));
+    }
 }
 
 void AAbyssItemPickupActor::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
