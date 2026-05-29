@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Engine/TimerHandle.h"
 #include "GameFramework/Character.h"
 #include "AbyssLockCharacter.generated.h"
 
@@ -17,6 +18,7 @@ class ABYSSLOCK_API AAbyssLockCharacter : public ACharacter
 public:
     AAbyssLockCharacter();
 
+    virtual void BeginPlay() override;
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
     virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
@@ -47,6 +49,23 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Abyss|Life")
     float GetHealth() const { return Health; }
 
+    UFUNCTION(BlueprintCallable, Category = "Abyss|Life")
+    float GetMaxHealth() const { return MaxHealth; }
+
+    // Survival gauges (original near-future expedition framing): food + warmth deplete over time and
+    // drain health when empty. Functional parity with the genre's survival meters; styling is original.
+    UFUNCTION(BlueprintCallable, Category = "Abyss|Survival")
+    float GetSatiation() const { return Satiation; }
+
+    UFUNCTION(BlueprintCallable, Category = "Abyss|Survival")
+    float GetMaxSatiation() const { return MaxSatiation; }
+
+    UFUNCTION(BlueprintCallable, Category = "Abyss|Survival")
+    float GetWarmth() const { return Warmth; }
+
+    UFUNCTION(BlueprintCallable, Category = "Abyss|Survival")
+    float GetMaxWarmth() const { return MaxWarmth; }
+
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abyss|Interaction")
     TObjectPtr<UAbyssInteractionComponent> InteractionComponent;
@@ -65,6 +84,35 @@ protected:
 
     UFUNCTION()
     void OnRep_Health();
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Abyss|Survival")
+    float MaxSatiation;
+
+    UPROPERTY(Replicated, BlueprintReadOnly, Category = "Abyss|Survival")
+    float Satiation;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Abyss|Survival")
+    float MaxWarmth;
+
+    UPROPERTY(Replicated, BlueprintReadOnly, Category = "Abyss|Survival")
+    float Warmth;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Abyss|Survival")
+    float SatiationDecayPerSecond;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Abyss|Survival")
+    float WarmthDecayPerSecond;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Abyss|Survival")
+    float StarvationDamagePerSecond;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Abyss|Survival")
+    float HypothermiaDamagePerSecond;
+
+    FTimerHandle SurvivalTimerHandle;
+
+    // Server-side periodic survival update: food/warmth decay, then health drains when either is empty.
+    void UpdateSurvival();
 
     UFUNCTION(Server, Reliable)
     void ServerTryDropItem();

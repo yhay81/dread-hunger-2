@@ -11,6 +11,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Engine/GameInstance.h"
 #include "Net/UnrealNetwork.h"
+#include "TimerManager.h"
 
 AAbyssLockCharacter::AAbyssLockCharacter()
 {
@@ -21,6 +22,17 @@ AAbyssLockCharacter::AAbyssLockCharacter()
 
     MaxHealth = 100.0f;
     Health = MaxHealth;
+
+    // Survival meters: start full, deplete slowly so the gauges read as moving without killing a
+    // debug session quickly. Rates are tunable in defaults; health only drains once a meter is empty.
+    MaxSatiation = 100.0f;
+    Satiation = MaxSatiation;
+    MaxWarmth = 100.0f;
+    Warmth = MaxWarmth;
+    SatiationDecayPerSecond = 0.20f;    // ~8.3 min from full to empty
+    WarmthDecayPerSecond = 0.25f;       // ~6.7 min from full to empty
+    StarvationDamagePerSecond = 1.0f;   // health drain once food hits zero
+    HypothermiaDamagePerSecond = 1.0f;  // health drain once warmth hits zero
 
     InteractionComponent = CreateDefaultSubobject<UAbyssInteractionComponent>(TEXT("InteractionComponent"));
     InventoryComponent = CreateDefaultSubobject<UAbyssInventoryComponent>(TEXT("InventoryComponent"));
@@ -44,6 +56,56 @@ void AAbyssLockCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
     DOREPLIFETIME(AAbyssLockCharacter, Health);
+    DOREPLIFETIME(AAbyssLockCharacter, Satiation);
+    DOREPLIFETIME(AAbyssLockCharacter, Warmth);
+}
+
+void AAbyssLockCharacter::BeginPlay()
+{
+    Super::BeginPlay();
+
+    if (HasAuthority())
+    {
+        // Drive survival decay on the server at a steady 1s cadence (cheap + keeps the math readable).
+        GetWorldTimerManager().SetTimer(
+            SurvivalTimerHandle, this, &AAbyssLockCharacter::UpdateSurvival, 1.0f, true);
+    }
+}
+
+void AAbyssLockCharacter::UpdateSurvival()
+{
+    if (!HasAuthority())
+    {
+        return;
+    }
+
+    // Pause decay while the player is not actively alive (downed / contained / dead).
+    const AAbyssLockPlayerState* AbyssPlayerState = GetPlayerState<AAbyssLockPlayerState>();
+    if (AbyssPlayerState && AbyssPlayerState->GetLifeState() != EAbyssLifeState::Alive)
+    {
+        return;
+    }
+
+    const float DeltaSeconds = 1.0f; // matches the repeating-timer cadence above
+
+    Satiation = FMath::Clamp(Satiation - SatiationDecayPerSecond * DeltaSeconds, 0.0f, MaxSatiation);
+    Warmth = FMath::Clamp(Warmth - WarmthDecayPerSecond * DeltaSeconds, 0.0f, MaxWarmth);
+
+    float HealthDrain = 0.0f;
+    if (Satiation <= 0.0f)
+    {
+        HealthDrain += StarvationDamagePerSecond * DeltaSeconds;
+    }
+    if (Warmth <= 0.0f)
+    {
+        HealthDrain += HypothermiaDamagePerSecond * DeltaSeconds;
+    }
+
+    if (HealthDrain > 0.0f)
+    {
+        // Reuse the damage path so starvation/exposure also downs the player and emits telemetry.
+        ApplyServerDamage(HealthDrain, this);
+    }
 }
 
 void AAbyssLockCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

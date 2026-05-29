@@ -4,6 +4,7 @@
 #include "Blueprint/UserWidget.h"
 #include "AbyssHudWidget.generated.h"
 
+class UProgressBar;
 class UTextBlock;
 class UVerticalBox;
 
@@ -27,6 +28,27 @@ private:
 
     UPROPERTY()
     UTextBlock* HotbarText = nullptr;
+
+    // Survival gauges (health / food / warmth) + route-to-goal bar. Original styling.
+    UPROPERTY()
+    UProgressBar* HealthBar = nullptr;
+    UPROPERTY()
+    UTextBlock* HealthLabel = nullptr;
+
+    UPROPERTY()
+    UProgressBar* FoodBar = nullptr;
+    UPROPERTY()
+    UTextBlock* FoodLabel = nullptr;
+
+    UPROPERTY()
+    UProgressBar* WarmthBar = nullptr;
+    UPROPERTY()
+    UTextBlock* WarmthLabel = nullptr;
+
+    UPROPERTY()
+    UProgressBar* RouteBar = nullptr;
+    UPROPERTY()
+    UTextBlock* RouteLabel = nullptr;
 
     void BuildHud();
 };

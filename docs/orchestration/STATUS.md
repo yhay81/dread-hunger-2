@@ -16,7 +16,7 @@ priority order below + `DISPATCH.md` §2.
 | --- | --- | --- | --- | --- | --- |
 | **GP-01** Human Playability | 🟡 YELLOW | First real 6-8p human run + anonymized summary (`playtest-preflight --mode human`) | Re-confirm Windows listen-server preflight is green (`playtest-run-scaffold`/`preflight`) | **8 real humans** (no code change removes it) | 2026-05-29 |
 | **GP-02** Network/Hosting | 🔴 BLOCKED | `AbyssLockServer.exe` builds+boots+8 clients+ready-lobby | Keep runbook + `UE_ROOT` instructions consistent; verify `quality-gate` | **Server-capable UE 5.7** (Launcher UE can't build Server targets) | 2026-05-29 |
-| **GP-03** Core Match | 🟡 YELLOW | DH-parity feel + readable round (`docs/mechanics-parity-target.md`, `docs/control-scheme.md`) | ✅ HUD + **inventory pickup/scroll-select/hotbar** (cycle 92) → use-selected-item + win/lose result; dynamic HUD | Human P1-024/025 notes for tuning | 2026-05-29 |
+| **GP-03** Core Match | 🟡 YELLOW | DH-parity feel + readable round (`docs/mechanics-parity-target.md`, `docs/control-scheme.md`) | ✅ HUD: inventory hotbar + **survival gauges (health/food/warmth) + route-to-goal bar** (cycle 93) → food/warmth **restore** interactions + win/lose result | Human P1-024/025 notes for tuning | 2026-05-29 |
 | **GP-04** Steam Online | 🟡 YELLOW | Lobby create/find/join + build/map-mismatch reject (P2-003/004) | Run `run_steam_lobby_validation.ps1` → `preflight_pass` on 5 steps | Runtime spike gated behind GP-02 (contracts already green) | 2026-05-29 |
 | **GP-05** Voice & Trust | 🟡 YELLOW | One voice provider chosen + 8p acceptance plan | Write `docs/voice-provider-decision.md` (VCI+EOS vs Vivox vs Steam Voice) | Runtime acceptance gated by server (decision itself unblocked) | 2026-05-29 |
 | **GP-06** Services & Tools | 🟢 GREEN | Backend ↔ `openapi.yaml` ↔ tests parity; `cargo test --workspace` green | ✅ 404s documented + tested (cycle 83) → add the 409 `lobby_full` test | none | 2026-05-29 |
@@ -49,6 +49,12 @@ Everything else advances now, headless, in parallel.
 
 ## Last loop iteration
 
+- 2026-05-29 **cycle 93** (GP-03, interactive) — **survival gauges + route bar** (owner ask: 体力/
+  空腹/寒さ + 船のゴールまでの位置). Added original replicated `Satiation`/`Warmth` meters to the
+  character (server 1s decay; health drains when empty) + a HUD Vitals panel (Health/Food/Warmth)
+  and a top-center Route-to-Goal bar (`GetRouteProgress()`). Functional parity, original styling.
+  Editor build + quality-gate green. View: `L_IcebreakerWhitebox?solo -game -windowed`. Next:
+  food/warmth restore interactions (eat/warm) to close the loop; JP labels (GP-09).
 - 2026-05-29 **cycle 92** (GP-03, interactive) — **inventory**: pickup (E) + **scroll-wheel select**
   + HUD hotbar (SelectedSlot/CycleSelectedSlot; MaxSlots 4; pickups got a visible mesh; 4 placed in
   the map). Owner verdict: sky good, **white boxes bad → GP-08 PROPER MAP** is the next big visual
