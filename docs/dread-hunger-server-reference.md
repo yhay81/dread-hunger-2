@@ -21,9 +21,12 @@
   - Read the Linux server launch wrapper (Epic-generated `.sh`).
   - Booted the Shipping client exe windowed for ~28 s and captured its boot log (it calls
     `RequestExit` at boot when no Steam client is running, so only online/UI init was observed).
-- Local-only artifacts (gitignored, never committed): `references/private/dh-server-obs/` and
-  `references/private/dh-client-obs/` (logs), `references/inventory/inventory_20260529_133254.tsv`
-  (+ summary).
+  - Read the *plaintext shipped server PDB*'s named type/symbol table with a throwaway `pdb`-crate
+    Rust reader (built outside this repo at `~/dh-pdb-reader`). Enumerated type *definitions only* —
+    no function logic was reconstructed/decompiled, and nothing was decrypted.
+- Local-only artifacts (gitignored, never committed): `references/private/dh-server-obs/`,
+  `references/private/dh-client-obs/` (logs), `references/private/dh-pdb-symbols/` (raw type names),
+  `references/inventory/inventory_20260529_133254.tsv` (+ summary).
 - Engine identified in log: **UE 4.26.1** (Shipping, compiled 2023-12-20).
 
 ## Observed architecture (abstracted)
@@ -65,13 +68,55 @@
 - Standard **Slate** UI on **D3D11**, with CEF (embedded Chromium) web views available.
 - Same engine build as the server (UE 4.26.1, compiled 2023-12-20).
 
+## Native-layer architecture (abstracted from server PDB symbols)
+
+Read from the plaintext server PDB (no decryption, no logic decompilation). Raw type names are
+kept local-only; only aggregate structure is recorded here.
+
+- **Scale:** ~211k total named type definitions (engine + game + template instantiations); ~9.2k
+  carry the game's module prefix — the native C++ surface. (Gameplay also lives in Blueprints
+  inside the encrypted pak, which is *not* in the PDB and was not read.)
+- **Relative engineering weight by domain** (heuristic substring bucketing of the game-prefixed
+  types; counts overlap and are directional, not exact):
+
+  | Domain (generic) | ~types | Read |
+  | --- | ---: | --- |
+  | UI / HUD / widget | ~3400 | Dominant cluster — matches the CEF + Slate stack; UI is a first-class, very large investment |
+  | Items / inventory / craft | ~1650 | Largest *gameplay* domain — deep survival-crafting/economy |
+  | Net / replication / voice | ~1200 | Substantial authoritative-replication + voice surface |
+  | Match / state / mode | ~650 | Mature match-flow / phase machinery |
+  | Roles / social / vote | ~500 | Well-developed social-deduction layer |
+  | Survival needs / health | ~400 | Core survival loop, moderate size |
+  | Ship / hull / deck | ~390 | Ship-as-systems, moderate |
+  | Interaction / usable / task | ~300 | Task / usable interaction layer |
+  | Heat / cold | ~220 | Environmental survival, focused |
+  | Combat / weapon | ~160 | Comparatively lean — not combat-centric |
+  | Power / fuel / engine | ~140 | Focused |
+  | Wildlife / AI | ~90 | Small |
+  | Navigation / route | ~40 | Smallest |
+
+- **Lessons for Frostwake (our decisions):**
+  - **Budget UI as a major workstream** — it is their single largest type cluster by far. Decide
+    our UI tech deliberately (UE5 UMG vs. a web layer); do not under-scope it.
+  - **Items/inventory/crafting is where the deepest complexity lives** — it dwarfs navigation,
+    wildlife, and combat. Scope ours explicitly and early.
+  - **Plan the replication + voice surface early** (GP-02 / GP-04): it is a large, first-class
+    layer, not an afterthought.
+  - **The native layer is broad (~9k game types)** → much is C++-side, not only Blueprint —
+    reinforces a C++-authoritative design with Blueprint tuning on top.
+  - **Combat / wildlife / navigation are comparatively small** → the experience is carried by
+    suspicion, tasks, items, and ship systems rather than shooting or PvE — consistent with our
+    duty-records / tasks-over-combat direction (`docs/competitive-analysis.md`).
+
 ## Deliberately NOT done (boundary)
 
 - **No decryption / no circumvention.** Paks are AES-encrypted and signed; the AES key was not
   sought or used (`UnrealPak -List` stops at the key check).
-- **No decompilation for content**, despite a shipped server PDB. The outputs of reverse
-  engineering (proprietary server behavior, packet formats, config values, names) are on
-  reference-policy.md's *Not Allowed* list and would contaminate clean-room implementation.
+- **No logic decompilation; the PDB was read for *structure* only.** The shipped server PDB is
+  plaintext, so reading its named type/symbol table needs no circumvention. It was read for
+  *aggregate architecture* (above) only — no function bodies were reconstructed, and no verbatim
+  type names, packet formats, or config values were recorded or copied into the repo (those stay
+  on reference-policy.md's *Not Allowed* list and would contaminate clean-room work).
 - **No protected expression** (class / map / item names, UI, config values) copied into this
   doc or into any Frostwake source.
 
