@@ -1,6 +1,6 @@
 # Naming Unification — AbyssLock → Frostwake
 
-- Status: **code rename complete; build-verifying** (2026-05-30). `Source/` + config + toolchain + living docs renamed; `cargo test --workspace` and `quality-gate` are green; UE compile (`unreal-gate`) running; in-editor map re-save pending. See Execution log.
+- Status: **COMPLETE** (2026-05-30). Code + config + toolchain + docs + content (maps baked, localization re-gathered/compiled) all renamed to Frostwake; CoreRedirects retired. `cargo test`, `quality-gate`, `unreal-gate` all green. Only deferred items remain (build-ID flip, repo rename).
 - Owner lane: **GP-06** (Product Services & Tools) — primary; GP-07 (Windows/Server) secondary; GP-04 (Steam lobby) sign-off
 - Supersedes the cycle-0 deferral: *"defer | Full UE module rename | Revisit after first successful UE compile"*
   ([docs/cycles/2026-05-25-cycle-0.md](cycles/2026-05-25-cycle-0.md)). First compile milestone has passed.
@@ -88,7 +88,7 @@ AAbyssDoorActor/FurnaceActor/HelmActor/ShipTaskActor/... (all Abyss* actors) -> 
 | UE compile | `cargo run -p frostwake-tools -- unreal-gate --skip-generate --platform Win64` | renamed module/classes compile | ✅ **PASS** — `build_editor` + `build_game` Succeeded |
 | Project-file gen | (no `--skip-generate`) | `.sln`/`.vcxproj` regen | ⚠️ env-blocked — Launcher UE lacks `GenerateProjectFiles.bat`; not needed for CLI build |
 | Server target | (build) | `FrostwakeServer.exe` | **BLOCKED** — Launcher-only UE_5.7, no Server target (standing blocker) |
-| Asset redirects | open editor, load `L_IcebreakerWhitebox` | maps resolve renamed classes | **manual** (editor only) — Phase 6; CoreRedirects make them load until baked |
+| Asset bake | `ResavePackages -MAPSONLY` + `GatherText` commandlets | maps reference `/Script/Frostwake` directly; loc manifest/archives/`.locres` regenerated | ✅ **DONE** — maps: 0 `AbyssLock` / 21 `/Script/Frostwake`; CoreRedirects retired |
 
 ## Execution log (2026-05-30)
 
@@ -105,6 +105,12 @@ Done and verified green (all three gates above):
   `Tools/assets/populate_loc_archives.ps1` (loc-namespace keys). `cargo fmt --all` applied.
 - **Docs** — 44 living docs + the 3 canonical "codename" notes reworded (CLAUDE.md, README.md,
   technical-architecture.md) + `Tools/*.md`.
+- **Content (Phase 6)** — `GatherText` re-gather (manifest now 57 `Source/Frostwake` paths /
+  14 `FrostwakeShipTaskActor` namespaces), `populate_loc_archives.ps1` (35/35 ja + zh-Hans),
+  `GatherText` compile (`.locres`); `ResavePackages` baked `L_IcebreakerWhitebox.umap` +
+  `L_MainMenu.umap` to `/Script/Frostwake`; **CoreRedirects retired** (Content/ verified 0
+  `AbyssLock`). Side effect: `-MAPSONLY` (lacked `-PROJECTONLY`) also re-serialized ~234 engine
+  unit-test maps in the UE install — not in the repo, functionally harmless.
 
 ## Intentionally NOT renamed (verified leave-list)
 
@@ -113,16 +119,11 @@ Done and verified green (all three gates above):
   `tests/fixtures/p1_024_human_events.jsonl`, `apps/backend/tests/server.rs`,
   `Tools/ops/lobby_metadata.example.json`, and tooling defaults — tied to the immutable fixture;
   flips to `Frostwake-…` when the first real Frostwake-named build is produced.
-- `Config/DefaultEngine.ini` `[CoreRedirects]` `OldName="/Script/AbyssLock.*"` — must name the
-  old class for the redirect to work.
 - lowercase `abyss` in `docs/localization-glossary.md` and `GP-09.state.md` — forbidden-terms list.
 - `Content/Localization/Game/Game.manifest` + `*.archive` — generated; regenerate via re-gather.
 
 ## Remaining (manual / gated)
 
-- **Phase 6 (editor, manual):** open the editor → re-save `Content/Maps/L_IcebreakerWhitebox.umap`
-  and `L_MainMenu.umap` to bake the CoreRedirects; re-run `GatherText`, then
-  `Tools/assets/populate_loc_archives.ps1`. CoreRedirects let the maps load correctly until baked.
 - **IDE project files** (`.sln`/`.vcxproj`): regenerate via the editor / UnrealVersionSelector
   (Launcher UE lacks `GenerateProjectFiles.bat`); not needed for the command-line build.
 

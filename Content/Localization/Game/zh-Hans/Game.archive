@@ -3,7 +3,7 @@
   "Namespace": "",
   "Subnamespaces": [
     {
-      "Namespace": "AbyssShipTaskActor",
+      "Namespace": "FrostwakeShipTaskActor",
       "Children": [
         {
           "Source": {
@@ -138,12 +138,57 @@
         },
         {
           "Source": {
+            "Text": "A critical ship system failed."
+          },
+          "Translation": {
+            "Text": ""
+          },
+          "Key": "Hud_ReasonFatalShip"
+        },
+        {
+          "Source": {
             "Text": "All {Required} players are ready. The host can start."
           },
           "Translation": {
             "Text": "{Required} 名玩家已就绪。房主可以开始。"
           },
           "Key": "Menu_FmtLobbyReady"
+        },
+        {
+          "Source": {
+            "Text": "Choose your match settings."
+          },
+          "Translation": {
+            "Text": ""
+          },
+          "Key": "Menu_ConfigPrompt"
+        },
+        {
+          "Source": {
+            "Text": "DEFEAT"
+          },
+          "Translation": {
+            "Text": ""
+          },
+          "Key": "Hud_ResultDefeat"
+        },
+        {
+          "Source": {
+            "Text": "Difficulty: {Value}"
+          },
+          "Translation": {
+            "Text": ""
+          },
+          "Key": "Menu_FmtDifficulty"
+        },
+        {
+          "Source": {
+            "Text": "Easy"
+          },
+          "Translation": {
+            "Text": ""
+          },
+          "Key": "Difficulty_Easy"
         },
         {
           "Source": {
@@ -162,6 +207,15 @@
             "Text": "Frostwake - 练习"
           },
           "Key": "Hud_TitlePractice"
+        },
+        {
+          "Source": {
+            "Text": "Hard"
+          },
+          "Translation": {
+            "Text": ""
+          },
+          "Key": "Difficulty_Hard"
         },
         {
           "Source": {
@@ -228,6 +282,33 @@
         },
         {
           "Source": {
+            "Text": "Madman"
+          },
+          "Translation": {
+            "Text": ""
+          },
+          "Key": "Mode_Madman"
+        },
+        {
+          "Source": {
+            "Text": "Mode: {Value}"
+          },
+          "Translation": {
+            "Text": ""
+          },
+          "Key": "Menu_FmtMode"
+        },
+        {
+          "Source": {
+            "Text": "Normal"
+          },
+          "Translation": {
+            "Text": ""
+          },
+          "Key": "Difficulty_Normal"
+        },
+        {
+          "Source": {
             "Text": "Objective: advance the route, keep ship systems online"
           },
           "Translation": {
@@ -252,6 +333,24 @@
             "Text": "角色：船员"
           },
           "Key": "Hud_RoleCrew"
+        },
+        {
+          "Source": {
+            "Text": "Role: Madman"
+          },
+          "Translation": {
+            "Text": ""
+          },
+          "Key": "Hud_RoleMadman"
+        },
+        {
+          "Source": {
+            "Text": "Role: Saboteur"
+          },
+          "Translation": {
+            "Text": ""
+          },
+          "Key": "Hud_RoleSaboteur"
         },
         {
           "Source": {
@@ -282,12 +381,84 @@
         },
         {
           "Source": {
+            "Text": "Standard"
+          },
+          "Translation": {
+            "Text": ""
+          },
+          "Key": "Mode_Standard"
+        },
+        {
+          "Source": {
             "Text": "Start Match"
           },
           "Translation": {
             "Text": "开始"
           },
           "Key": "Menu_StartMatch"
+        },
+        {
+          "Source": {
+            "Text": "Start Voyage"
+          },
+          "Translation": {
+            "Text": ""
+          },
+          "Key": "Menu_StartSolo"
+        },
+        {
+          "Source": {
+            "Text": "The crew could no longer keep the ship underway."
+          },
+          "Translation": {
+            "Text": ""
+          },
+          "Key": "Hud_ReasonCrewIncapacitated"
+        },
+        {
+          "Source": {
+            "Text": "The match has ended."
+          },
+          "Translation": {
+            "Text": ""
+          },
+          "Key": "Hud_ResultEnded"
+        },
+        {
+          "Source": {
+            "Text": "The ship reached its destination."
+          },
+          "Translation": {
+            "Text": ""
+          },
+          "Key": "Hud_ReasonFinalApproach"
+        },
+        {
+          "Source": {
+            "Text": "Time ran out before the voyage was complete."
+          },
+          "Translation": {
+            "Text": ""
+          },
+          "Key": "Hud_ReasonTimerExpired"
+        },
+        {
+          "Source": {
+            "Text": "Too few crew remained."
+          },
+          "Translation": {
+            "Text": ""
+          },
+          "Key": "Hud_ReasonCrewThreshold"
+        },
+        {
+          "Source": {
+            "Text": "VICTORY"
+          },
+          "Translation": {
+            "Text": ""
+          },
+          "Key": "Hud_ResultVictory"
         },
         {
           "Source": {
