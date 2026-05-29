@@ -76,6 +76,28 @@ bool UAbyssInventoryComponent::TryRemoveFirstItem(FName& OutItemId)
     return true;
 }
 
+bool UAbyssInventoryComponent::TryRemoveItemAt(int32 SlotIndex, FName& OutItemId)
+{
+    AActor* OwnerActor = GetOwner();
+    if (!OwnerActor || !OwnerActor->HasAuthority() || !Items.IsValidIndex(SlotIndex))
+    {
+        OutItemId = NAME_None;
+        return false;
+    }
+
+    OutItemId = Items[SlotIndex];
+    Items.RemoveAt(SlotIndex, 1, EAllowShrinking::No);
+    SelectedSlot = (Items.Num() > 0) ? FMath::Min(SelectedSlot, Items.Num() - 1) : 0;
+    OwnerActor->ForceNetUpdate();
+    UE_LOG(LogAbyssGameplay, Log, TEXT("item_removed owner=%s item=%s count=%d source=use"), *GetNameSafe(GetOwner()), *OutItemId.ToString(), Items.Num());
+    return true;
+}
+
+FName UAbyssInventoryComponent::GetItemIdAt(int32 SlotIndex) const
+{
+    return Items.IsValidIndex(SlotIndex) ? Items[SlotIndex] : NAME_None;
+}
+
 AAbyssItemPickupActor* UAbyssInventoryComponent::TryDropFirstItem(const FVector& DropLocation, const FRotator& DropRotation)
 {
     AActor* OwnerActor = GetOwner();

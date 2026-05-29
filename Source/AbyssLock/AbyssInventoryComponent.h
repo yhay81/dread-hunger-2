@@ -24,6 +24,14 @@ public:
 
     bool TryRemoveFirstItem(FName& OutItemId);
 
+    // Server-authoritative remove of a specific slot (used by "use selected item"). Returns the
+    // removed id via OutItemId. SelectedSlot is local/non-replicated, so callers re-clamp via
+    // GetSelectedSlot() afterward; the server's own SelectedSlot is irrelevant.
+    bool TryRemoveItemAt(int32 SlotIndex, FName& OutItemId);
+
+    UFUNCTION(BlueprintCallable, Category = "Abyss|Inventory")
+    FName GetItemIdAt(int32 SlotIndex) const;
+
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Abyss|Inventory")
     AAbyssItemPickupActor* TryDropFirstItem(const FVector& DropLocation, const FRotator& DropRotation);
 

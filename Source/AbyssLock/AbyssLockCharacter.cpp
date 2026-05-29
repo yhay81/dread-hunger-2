@@ -33,6 +33,8 @@ AAbyssLockCharacter::AAbyssLockCharacter()
     WarmthDecayPerSecond = 0.25f;       // ~6.7 min from full to empty
     StarvationDamagePerSecond = 1.0f;   // health drain once food hits zero
     HypothermiaDamagePerSecond = 1.0f;  // health drain once warmth hits zero
+    RationSatiationRestore = 40.0f;     // one ration refills ~40% of food
+    FoodItemIds = { FName(TEXT("Ration")) };
 
     InteractionComponent = CreateDefaultSubobject<UAbyssInteractionComponent>(TEXT("InteractionComponent"));
     InventoryComponent = CreateDefaultSubobject<UAbyssInventoryComponent>(TEXT("InventoryComponent"));
@@ -120,6 +122,7 @@ void AAbyssLockCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInput
     PlayerInputComponent->BindAction(TEXT("Jump"), IE_Released, this, &ACharacter::StopJumping);
     PlayerInputComponent->BindAction(TEXT("PrimaryInteract"), IE_Pressed, this, &AAbyssLockCharacter::TryPrimaryInteract);
     PlayerInputComponent->BindAction(TEXT("DropItem"), IE_Pressed, this, &AAbyssLockCharacter::TryDropItem);
+    PlayerInputComponent->BindAction(TEXT("UseItem"), IE_Pressed, this, &AAbyssLockCharacter::UseSelectedItem);
     PlayerInputComponent->BindAction(TEXT("SelectNextItem"), IE_Pressed, this, &AAbyssLockCharacter::SelectNextItem);
     PlayerInputComponent->BindAction(TEXT("SelectPrevItem"), IE_Pressed, this, &AAbyssLockCharacter::SelectPrevItem);
 }
@@ -339,4 +342,109 @@ AAbyssItemPickupActor* AAbyssLockCharacter::DropFirstInventoryItem()
 
     const FVector DropLocation = GetActorLocation() + GetActorForwardVector() * 120.0f + FVector(0.0f, 0.0f, 20.0f);
     return InventoryComponent->TryDropFirstItem(DropLocation, GetActorRotation());
+}
+
+void AAbyssLockCharacter::UseSelectedItem()
+{
+    if (!InventoryComponent)
+    {
+        return;
+    }
+
+    // SelectedSlot is local to this client; forward it so the server consumes the right slot.
+    const int32 SlotIndex = InventoryComponent->GetSelectedSlot();
+    if (HasAuthority())
+    {
+        EatRation(SlotIndex);
+        return;
+    }
+
+    ServerUseSelectedItem(SlotIndex);
+}
+
+void AAbyssLockCharacter::ServerUseSelectedItem_Implementation(int32 SlotIndex)
+{
+    EatRation(SlotIndex);
+}
+
+bool AAbyssLockCharacter::EatRation(int32 SlotIndex)
+{
+    if (!HasAuthority() || !InventoryComponent)
+    {
+        return false;
+    }
+
+    const AAbyssLockPlayerState* AbyssPlayerState = GetPlayerState<AAbyssLockPlayerState>();
+    if (!AbyssPlayerState || AbyssPlayerState->GetLifeState() != EAbyssLifeState::Alive)
+    {
+        return false;
+    }
+
+    const FName ItemId = InventoryComponent->GetItemIdAt(SlotIndex);
+    if (ItemId.IsNone() || !FoodItemIds.Contains(ItemId))
+    {
+        return false;
+    }
+
+    FName RemovedId = NAME_None;
+    if (!InventoryComponent->TryRemoveItemAt(SlotIndex, RemovedId))
+    {
+        return false;
+    }
+
+    const float Before = Satiation;
+    Satiation = FMath::Clamp(Satiation + RationSatiationRestore, 0.0f, MaxSatiation);
+    const float Restored = Satiation - Before;
+
+    UE_LOG(LogAbyssGameplay, Log, TEXT("player_ate player=%s item=%s satiation=%.1f restored=%.1f"), *GetNameSafe(AbyssPlayerState), *RemovedId.ToString(), Satiation, Restored);
+    if (UGameInstance* GameInstance = GetGameInstance())
+    {
+        if (UAbyssTelemetrySubsystem* TelemetrySubsystem = GameInstance->GetSubsystem<UAbyssTelemetrySubsystem>())
+        {
+            TelemetrySubsystem->LogEvent(
+                TEXT("player_ate"),
+                FString::Printf(
+                    TEXT("{\"player\":\"%s\",\"item\":\"%s\",\"satiation\":%.1f,\"restored\":%.1f}"),
+                    *GetNameSafe(AbyssPlayerState), *RemovedId.ToString(), Satiation, Restored));
+        }
+    }
+
+    return true;
+}
+
+bool AAbyssLockCharacter::ApplyWarmth(float WarmthAmount, AActor* HeatSource)
+{
+    if (!HasAuthority() || WarmthAmount <= 0.0f)
+    {
+        return false;
+    }
+
+    const AAbyssLockPlayerState* AbyssPlayerState = GetPlayerState<AAbyssLockPlayerState>();
+    if (!AbyssPlayerState || AbyssPlayerState->GetLifeState() != EAbyssLifeState::Alive)
+    {
+        return false;
+    }
+
+    const float Before = Warmth;
+    Warmth = FMath::Clamp(Warmth + WarmthAmount, 0.0f, MaxWarmth);
+    const float Restored = Warmth - Before;
+    if (Restored <= 0.0f)
+    {
+        return false; // already warm
+    }
+
+    UE_LOG(LogAbyssGameplay, Log, TEXT("player_warmed player=%s warmth=%.1f restored=%.1f source=%s"), *GetNameSafe(AbyssPlayerState), Warmth, Restored, *GetNameSafe(HeatSource));
+    if (UGameInstance* GameInstance = GetGameInstance())
+    {
+        if (UAbyssTelemetrySubsystem* TelemetrySubsystem = GameInstance->GetSubsystem<UAbyssTelemetrySubsystem>())
+        {
+            TelemetrySubsystem->LogEvent(
+                TEXT("player_warmed"),
+                FString::Printf(
+                    TEXT("{\"player\":\"%s\",\"warmth\":%.1f,\"restored\":%.1f,\"source\":\"%s\"}"),
+                    *GetNameSafe(AbyssPlayerState), Warmth, Restored, *GetNameSafe(HeatSource)));
+        }
+    }
+
+    return true;
 }

@@ -66,6 +66,14 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Abyss|Survival")
     float GetMaxWarmth() const { return MaxWarmth; }
 
+    // Server-authoritative: consume the item in SlotIndex if it is food, restoring Satiation.
+    UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Abyss|Survival")
+    bool EatRation(int32 SlotIndex);
+
+    // Server-authoritative: add Warmth (clamped). Called by a heat-source interactable.
+    UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Abyss|Survival")
+    bool ApplyWarmth(float WarmthAmount, AActor* HeatSource);
+
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Abyss|Interaction")
     TObjectPtr<UAbyssInteractionComponent> InteractionComponent;
@@ -109,6 +117,13 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Abyss|Survival")
     float HypothermiaDamagePerSecond;
 
+    // Satiation restored by eating one ration, and the set of item ids that count as food.
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Abyss|Survival")
+    float RationSatiationRestore;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Abyss|Survival")
+    TSet<FName> FoodItemIds;
+
     FTimerHandle SurvivalTimerHandle;
 
     // Server-side periodic survival update: food/warmth decay, then health drains when either is empty.
@@ -116,6 +131,13 @@ protected:
 
     UFUNCTION(Server, Reliable)
     void ServerTryDropItem();
+
+    // Use (e.g. eat) the locally-selected item. SelectedSlot is client-local, so the index is sent
+    // to the server explicitly.
+    void UseSelectedItem();
+
+    UFUNCTION(Server, Reliable)
+    void ServerUseSelectedItem(int32 SlotIndex);
 
     AAbyssItemPickupActor* DropFirstInventoryItem();
 

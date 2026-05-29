@@ -16,13 +16,13 @@ priority order below + `DISPATCH.md` §2.
 | --- | --- | --- | --- | --- | --- |
 | **GP-01** Human Playability | 🟡 YELLOW | First real 6-8p human run + anonymized summary (`playtest-preflight --mode human`) | Re-confirm Windows listen-server preflight is green (`playtest-run-scaffold`/`preflight`) | **8 real humans** (no code change removes it) | 2026-05-29 |
 | **GP-02** Network/Hosting | 🔴 BLOCKED | `AbyssLockServer.exe` builds+boots+8 clients+ready-lobby | Keep runbook + `UE_ROOT` instructions consistent; verify `quality-gate` | **Server-capable UE 5.7** (Launcher UE can't build Server targets) | 2026-05-29 |
-| **GP-03** Core Match | 🟡 YELLOW | DH-parity feel + readable round (`docs/mechanics-parity-target.md`, `docs/control-scheme.md`) | ✅ HUD: inventory hotbar + **survival gauges (health/food/warmth) + route-to-goal bar** (cycle 93) → food/warmth **restore** interactions + win/lose result | Human P1-024/025 notes for tuning | 2026-05-29 |
+| **GP-03** Core Match | 🟡 YELLOW | DH-parity feel + readable round (`docs/mechanics-parity-target.md`, `docs/control-scheme.md`) | ✅ HUD gauges + **survival restore loop: eat ration (F) / warm up (E)** (cycle 94) → win/lose result screen + use-selected-item for other items | Human P1-024/025 notes for tuning | 2026-05-29 |
 | **GP-04** Steam Online | 🟡 YELLOW | Lobby create/find/join + build/map-mismatch reject (P2-003/004) | Run `run_steam_lobby_validation.ps1` → `preflight_pass` on 5 steps | Runtime spike gated behind GP-02 (contracts already green) | 2026-05-29 |
 | **GP-05** Voice & Trust | 🟡 YELLOW | One voice provider chosen + 8p acceptance plan | Write `docs/voice-provider-decision.md` (VCI+EOS vs Vivox vs Steam Voice) | Runtime acceptance gated by server (decision itself unblocked) | 2026-05-29 |
 | **GP-06** Services & Tools | 🟢 GREEN | Backend ↔ `openapi.yaml` ↔ tests parity; `cargo test --workspace` green | ✅ 404s documented + tested (cycle 83) → add the 409 `lobby_full` test | none | 2026-05-29 |
 | **GP-07** Evidence/QA/Perf | 🟡 YELLOW | Perf budgets + measurement method; gates reproducible | Draft `docs/performance-budget.md`; verify `quality-gate` | Server-side perf rows need server build (doc still writable) | 2026-05-29 |
-| **GP-08** Presentation/Rights | 🟢 GREEN | **TOP**: dress the *playable* scene with IP-safe CC0 assets | ✅ sky/lighting approved by owner → **PROPER MAP**: replace white greybox cubes with a designed ship layout + CC0 materials (owner: 白い箱がだめ) | none (big design effort) | 2026-05-29 |
-| **GP-09** Comprehension/A11y | 🟡 YELLOW | First-match comprehension checklist + stable strings + glossary · dedicated **L_MainMenu** boot + start→lobby→**solo** debug (cycle 85) | Write `docs/gp09-comprehension-checklist.md`; verify `quality-gate` | No human comprehension data yet | 2026-05-29 |
+| **GP-08** Presentation/Rights | 🟢 GREEN | **TOP**: dress the *playable* scene with IP-safe CC0 assets | ✅ buildable **ship-map spec ready** `docs/gp08-ship-map-spec.md` (cycle 94) → implement Path A (layout, builds today), regenerate, validate, screenshot (owner: 白い箱がだめ) | none (spec done; impl is next) | 2026-05-29 |
+| **GP-09** Comprehension/A11y | 🟡 YELLOW | First-match comprehension checklist + stable strings + glossary · dedicated **L_MainMenu** boot + start→lobby→**solo** debug (cycle 85) | ✅ **JP localization + OFL-font plan ready** `docs/gp09-jp-localization-font-plan.md` (cycle 94) → LOCTEXT wrap (no download) or owner OK to fetch Noto Sans JP | No human comprehension data yet | 2026-05-29 |
 | **GP-10** Release/Community | 🟡 YELLOW | Steam Playtest readiness snapshot (owner/artifact/status/blocker/cancel) | Create `docs/steam-playtest-readiness.md`; verify `quality-gate` | No moderation-triage owner assigned anywhere | 2026-05-29 |
 
 Legend: 🟢 GREEN = healthy & advancing · 🟡 YELLOW = workable, signal needs work · 🔴 BLOCKED = needs an external unblock.
@@ -49,6 +49,13 @@ Everything else advances now, headless, in parallel.
 
 ## Last loop iteration
 
+- 2026-05-29 **cycle 94** (GP-03 impl + GP-08/09 parallel design, interactive) — **survival restore
+  loop + multi-agent specs**. Closed the cycle-93 gauges: **F** eats the selected ration (+40 Food,
+  consumes it) and a new `AAbyssHeatSourceActor` (**E**) restores Warmth (+50); server-authoritative,
+  telemetry `player_ate`/`player_warmed`; Ration + 2 heat sources placed. Done with **3 read-only
+  design agents in parallel** (race-free: they returned text, the loop integrated serially) — also
+  producing `docs/gp08-ship-map-spec.md` (buildable ship layout) + `docs/gp09-jp-localization-font-plan.md`.
+  Editor+game build + quality-gate green. View: `L_IcebreakerWhitebox?solo` (E pickup, scroll, F eat; E at heat source).
 - 2026-05-29 **cycle 93** (GP-03, interactive) — **survival gauges + route bar** (owner ask: 体力/
   空腹/寒さ + 船のゴールまでの位置). Added original replicated `Satiation`/`Warmth` meters to the
   character (server 1s decay; health drains when empty) + a HUD Vitals panel (Health/Food/Warmth)

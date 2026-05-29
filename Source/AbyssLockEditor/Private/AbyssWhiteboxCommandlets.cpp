@@ -1,6 +1,7 @@
 #include "AbyssWhiteboxCommandlets.h"
 
 #include "AbyssDoorActor.h"
+#include "AbyssHeatSourceActor.h"
 #include "AbyssItemPickupActor.h"
 #include "AbyssMenuGameMode.h"
 #include "AbyssShipTaskActor.h"
@@ -310,6 +311,11 @@ bool SpawnItemPickup(const TCHAR* ItemId, const TCHAR* Label, const FVector& Loc
     return true;
 }
 
+bool SpawnHeatSource(const TCHAR* Label, const FVector& Location, FString& Error)
+{
+    return SpawnActor(AAbyssHeatSourceActor::StaticClass(), Label, Location, FRotator::ZeroRotator, Error) != nullptr;
+}
+
 bool CreateWhitebox(FString& Error)
 {
     UWorld* World = nullptr;
@@ -503,6 +509,11 @@ bool CreateWhitebox(FString& Error)
     SpawnItemPickup(TEXT("FuelDrum"), TEXT("WB_Item_FuelDrum"), FVector(300, -220, 30), Error);
     SpawnItemPickup(TEXT("Fuse"), TEXT("WB_Item_Fuse"), FVector(480, 0, 30), Error);
     SpawnItemPickup(TEXT("Headlamp"), TEXT("WB_Item_Headlamp"), FVector(140, 0, 30), Error);
+
+    // Survival loop: a ration restores Food (F to eat the selected item); heat sources restore Warmth (E).
+    SpawnItemPickup(TEXT("Ration"), TEXT("WB_Item_Ration"), FVector(140, 220, 30), Error);
+    SpawnHeatSource(TEXT("WB_HeatSource_A"), FVector(-220, 360, 40), Error);
+    SpawnHeatSource(TEXT("WB_HeatSource_B"), FVector(620, -260, 40), Error);
 
     World->MarkPackageDirty();
     if (!UEditorLoadingAndSavingUtils::SaveMap(World, MapPackage))
