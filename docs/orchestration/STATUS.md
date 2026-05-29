@@ -21,7 +21,7 @@ priority order below + `DISPATCH.md` §2.
 | **GP-05** Voice & Trust | 🟡 YELLOW | One voice provider chosen + 8p acceptance plan | Write `docs/voice-provider-decision.md` (VCI+EOS vs Vivox vs Steam Voice) | Runtime acceptance gated by server (decision itself unblocked) | 2026-05-29 |
 | **GP-06** Services & Tools | 🟢 GREEN | Backend ↔ `openapi.yaml` ↔ tests parity; `cargo test --workspace` green | ✅ 404s documented + tested (cycle 83) → add the 409 `lobby_full` test | none | 2026-05-29 |
 | **GP-07** Evidence/QA/Perf | 🟡 YELLOW | Perf budgets + measurement method; gates reproducible | Draft `docs/performance-budget.md`; verify `quality-gate` | Server-side perf rows need server build (doc still writable) | 2026-05-29 |
-| **GP-08** Presentation/Rights | 🟢 GREEN | **TOP**: dress the *playable* scene with IP-safe CC0 assets + atmosphere | ✅ imported 33 CC0 uassets (cycle 88) → place props + set HDRI sky + ambientCG materials + fog; screenshot for owner | none | 2026-05-29 |
+| **GP-08** Presentation/Rights | 🟢 GREEN | **TOP**: dress the *playable* scene with IP-safe CC0 assets + atmosphere | ✅ placed 6 CC0 props (cycle 89) → set HDRI sky + fog + ambientCG materials + tune scale; screenshot for owner | none | 2026-05-29 |
 | **GP-09** Comprehension/A11y | 🟡 YELLOW | First-match comprehension checklist + stable strings + glossary · dedicated **L_MainMenu** boot + start→lobby→**solo** debug (cycle 85) | Write `docs/gp09-comprehension-checklist.md`; verify `quality-gate` | No human comprehension data yet | 2026-05-29 |
 | **GP-10** Release/Community | 🟡 YELLOW | Steam Playtest readiness snapshot (owner/artifact/status/blocker/cancel) | Create `docs/steam-playtest-readiness.md`; verify `quality-gate` | No moderation-triage owner assigned anywhere | 2026-05-29 |
 
@@ -49,6 +49,9 @@ Everything else advances now, headless, in parallel.
 
 ## Last loop iteration
 
+- 2026-05-29 **cycle 89** (GP-08, loop) — placed 6 CC0 props (barrels/crates/can/lantern) in the
+  playable whitebox via the commandlet (regenerable, Movable). View: `L_IcebreakerWhitebox?solo
+  -game -windowed`. Scale is first-pass — owner screenshot to confirm. Next: HDRI sky + fog + materials.
 - 2026-05-29 **cycle 88** (GP-08, loop) — imported the Poly Haven CC0 assets into UE (33 uassets:
   meshes + textures + HDRI) via a new `import-polyhaven-cc0` commandlet/verb; fixed a CLI stack
   overflow (a new subcommand tipped main()'s match past the Windows stack → `.cargo/config.toml`

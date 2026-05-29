@@ -248,6 +248,52 @@ bool SpawnBulkheadDoor(const FDoorSpec& Spec, FString& Error)
     return true;
 }
 
+struct FPropSpec
+{
+    const TCHAR* Slug;
+    const TCHAR* Label;
+    FVector Location;
+    float Yaw;
+    float Scale;
+};
+
+UStaticMesh* LoadPolyhavenMesh(const FString& Slug)
+{
+    const FString Base = FString::Printf(TEXT("/Game/ThirdParty/Quarantine/polyhaven/models/%s/%s"), *Slug, *Slug);
+    UStaticMesh* Mesh = LoadObject<UStaticMesh>(nullptr, *Base);
+    if (!Mesh)
+    {
+        const FString Alt = Base + TEXT("_1k");
+        Mesh = LoadObject<UStaticMesh>(nullptr, *Alt);
+    }
+    return Mesh;
+}
+
+bool SpawnProp(const FPropSpec& Spec, FString& Error)
+{
+    UStaticMesh* Mesh = LoadPolyhavenMesh(Spec.Slug);
+    if (!Mesh)
+    {
+        // Non-fatal: skip a missing prop so regeneration stays robust if CC0 assets are not imported.
+        UE_LOG(LogAbyssWhiteboxCommandlet, Warning, TEXT("Prop mesh not found for %s; skipping."), Spec.Slug);
+        return true;
+    }
+
+    AStaticMeshActor* Actor = Cast<AStaticMeshActor>(SpawnActor(AStaticMeshActor::StaticClass(), Spec.Label, Spec.Location, FRotator(0.0, Spec.Yaw, 0.0), Error));
+    if (!Actor)
+    {
+        return false;
+    }
+
+    Actor->SetActorScale3D(FVector(Spec.Scale));
+    if (UStaticMeshComponent* MeshComponent = Actor->GetStaticMeshComponent())
+    {
+        MeshComponent->SetStaticMesh(Mesh);
+        MeshComponent->SetMobility(EComponentMobility::Movable);
+    }
+    return true;
+}
+
 bool CreateWhitebox(FString& Error)
 {
     UWorld* World = nullptr;
@@ -388,6 +434,25 @@ bool CreateWhitebox(FString& Error)
     if (USceneComponent* SkyRoot = SkyLight->GetRootComponent())
     {
         SkyRoot->SetMobility(EComponentMobility::Movable);
+    }
+
+    // CC0 prop dressing (Poly Haven, provenanced in docs/asset-ledger-candidates.csv; imported in
+    // cycle 88). Skipped gracefully if not imported. Scale/placement are first-pass — refine after
+    // owner screenshot review (Poly Haven fbx are metric; verify they read at the right size).
+    const TArray<FPropSpec> Props = {
+        {TEXT("Barrel_01"), TEXT("WB_Prop_Barrel_A"), FVector(1500, 480, 5), 20.0f, 1.0f},
+        {TEXT("Barrel_02"), TEXT("WB_Prop_Barrel_B"), FVector(1560, 560, 5), -35.0f, 1.0f},
+        {TEXT("can_rusted"), TEXT("WB_Prop_Can_A"), FVector(1470, 540, 5), 0.0f, 1.0f},
+        {TEXT("cardboard_box_01"), TEXT("WB_Prop_Crate_A"), FVector(-1200, -520, 5), 10.0f, 1.0f},
+        {TEXT("cardboard_box_01"), TEXT("WB_Prop_Crate_B"), FVector(-1270, -560, 5), -25.0f, 1.0f},
+        {TEXT("Lantern_01"), TEXT("WB_Prop_Lantern_A"), FVector(-1180, -450, 5), 0.0f, 1.0f},
+    };
+    for (const FPropSpec& Prop : Props)
+    {
+        if (!SpawnProp(Prop, Error))
+        {
+            return false;
+        }
     }
 
     World->MarkPackageDirty();
