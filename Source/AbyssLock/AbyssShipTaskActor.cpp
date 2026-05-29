@@ -130,7 +130,9 @@ bool AAbyssShipTaskActor::Interact(APawn* InstigatorPawn)
         return false;
     }
 
-    const float SignedDelta = TaskMode == EAbyssShipTaskMode::Repair ? ConditionDelta : -ConditionDelta;
+    // Difficulty scales sabotage severity; repairs are unaffected.
+    const float SabotageMagnitude = ConditionDelta * (TaskMode == EAbyssShipTaskMode::Sabotage ? GetMatchSabotageIntensity() : 1.0f);
+    const float SignedDelta = TaskMode == EAbyssShipTaskMode::Repair ? ConditionDelta : -SabotageMagnitude;
     const float NewCondition = FMath::Clamp(Status.Condition + SignedDelta, 0.0f, 1.0f);
     const float FloodingPressureBefore = TargetSystem == EAbyssShipSystem::Flooding ? FMath::Clamp(1.0f - Status.Condition, 0.0f, 1.0f) : 0.0f;
     bool bNewOffline = Status.bOffline;
@@ -286,6 +288,18 @@ void AAbyssShipTaskActor::ApplyCompletedState()
     {
         SetActorEnableCollision(!bCompleted);
     }
+}
+
+float AAbyssShipTaskActor::GetMatchSabotageIntensity() const
+{
+    if (const UWorld* World = GetWorld())
+    {
+        if (const AAbyssLockGameMode* GameMode = World->GetAuthGameMode<AAbyssLockGameMode>())
+        {
+            return FMath::Max(0.0f, GameMode->GetActiveMatchConfig().SabotageIntensityMultiplier);
+        }
+    }
+    return 1.0f;
 }
 
 void AAbyssShipTaskActor::ApplyTaskConfigState()

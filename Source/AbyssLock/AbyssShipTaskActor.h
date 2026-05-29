@@ -65,4 +65,6 @@ private:
     void ApplyCompletedState();
     void ApplyTaskConfigState();
     static bool ResolveShipSystem(FName SystemName, EAbyssShipSystem& OutSystem);
+    // Difficulty multiplier applied to sabotage severity (1.0 if no match config / not authoritative).
+    float GetMatchSabotageIntensity() const;
 };

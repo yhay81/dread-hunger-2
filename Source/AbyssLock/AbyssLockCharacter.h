@@ -129,6 +129,9 @@ protected:
     // Server-side periodic survival update: food/warmth decay, then health drains when either is empty.
     void UpdateSurvival();
 
+    // Difficulty multiplier applied to food/warmth decay (1.0 if no match config / not authoritative).
+    float GetMatchDecayMultiplier() const;
+
     UFUNCTION(Server, Reliable)
     void ServerTryDropItem();
 

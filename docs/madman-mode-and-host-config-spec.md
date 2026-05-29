@@ -153,9 +153,11 @@ struct FAbyssMatchConfig {
 
 ## 5. 未実装 / 明示的に「データはあるが未消費」
 
-- `SurvivalDecayMultiplier` / `SabotageIntensityMultiplier` は **resolve・保持・ログまで実装済みだが
-  まだ消費していない**。次ステップで生存減少（`AAbyssLockCharacter` の 1s decay）と妨害severity
-  （`AAbyssShipTaskActor`）に乗算する。
+- ~~`SurvivalDecayMultiplier` / `SabotageIntensityMultiplier` は resolve・保持・ログまで実装済みだが
+  まだ消費していない~~ → **cycle 98 で消費開始**。`AAbyssLockCharacter::UpdateSurvival` が空腹/寒さの
+  減少に `SurvivalDecayMultiplier` を、`AAbyssShipTaskActor::Interact` が**妨害時のみ**条件デルタに
+  `SabotageIntensityMultiplier` を乗算（いずれもサーバ権威で GameMode の `ActiveMatchConfig` を参照、
+  取得不可時は 1.0）。修理は難易度の影響を受けない。
 - 狂人本人のHUD役職表示（「あなたは狂人」）は未実装。HUDは現状 `"Role: Crew"` の静的プレースホルダ。
   GP-03 の動的HUD作業＋GP-09 の日本語文字列に合流。
 - ホストUI（モード／難易度／数値のUMGパネル）は未実装（GP-09）。

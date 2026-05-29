@@ -2,6 +2,7 @@
 #include "AbyssInteractionComponent.h"
 #include "AbyssInventoryComponent.h"
 #include "AbyssItemPickupActor.h"
+#include "AbyssLockGameMode.h"
 #include "AbyssLockLog.h"
 #include "AbyssLockPlayerState.h"
 #include "AbyssTelemetrySubsystem.h"
@@ -89,9 +90,10 @@ void AAbyssLockCharacter::UpdateSurvival()
     }
 
     const float DeltaSeconds = 1.0f; // matches the repeating-timer cadence above
+    const float DecayMultiplier = GetMatchDecayMultiplier(); // difficulty preset / host override
 
-    Satiation = FMath::Clamp(Satiation - SatiationDecayPerSecond * DeltaSeconds, 0.0f, MaxSatiation);
-    Warmth = FMath::Clamp(Warmth - WarmthDecayPerSecond * DeltaSeconds, 0.0f, MaxWarmth);
+    Satiation = FMath::Clamp(Satiation - SatiationDecayPerSecond * DecayMultiplier * DeltaSeconds, 0.0f, MaxSatiation);
+    Warmth = FMath::Clamp(Warmth - WarmthDecayPerSecond * DecayMultiplier * DeltaSeconds, 0.0f, MaxWarmth);
 
     float HealthDrain = 0.0f;
     if (Satiation <= 0.0f)
@@ -149,6 +151,18 @@ void AAbyssLockCharacter::MoveForward(float Value)
     {
         AddMovementInput(GetActorForwardVector(), Value);
     }
+}
+
+float AAbyssLockCharacter::GetMatchDecayMultiplier() const
+{
+    if (const UWorld* World = GetWorld())
+    {
+        if (const AAbyssLockGameMode* GameMode = World->GetAuthGameMode<AAbyssLockGameMode>())
+        {
+            return FMath::Max(0.0f, GameMode->GetActiveMatchConfig().SurvivalDecayMultiplier);
+        }
+    }
+    return 1.0f;
 }
 
 bool AAbyssLockCharacter::ApplyServerDamage(float DamageAmount, AActor* DamageSource)
