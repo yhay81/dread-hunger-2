@@ -68,6 +68,32 @@
 - Standard **Slate** UI on **D3D11**, with CEF (embedded Chromium) web views available.
 - Same engine build as the server (UE 4.26.1, compiled 2023-12-20).
 
+## Runtime session observations (live play)
+
+From a real owned play session (joined as a client; ~2 matches). PII-safe structural signal only —
+log-category tallies, engine-standard state names, and event counts; no names/IDs/maps recorded.
+Raw log stays local-only.
+
+- **Online/matchmade play uses EOS sockets, not direct IP:** the client session leaned on the EOS
+  socket subsystem + EOS SDK (relay / P2P) and the online-session API heavily. The dedicated-server
+  build, by contrast, uses stock `IpNetDriver` on UDP:7777 — so they run a **dual transport**: EOS
+  relay/sessions for general online play, IP for dedicated servers.
+- **Match lifecycle is the stock UE `AGameMode` MatchState machine:** EnteringMap → WaitingToStart →
+  InProgress → LeavingMap (observed across two match cycles). No custom phase names at this layer.
+- **Hard travel, not seamless travel** between menu and match (multiple `LoadMap`, zero seamless).
+- **No Replication Graph at runtime** (confirms the static finding).
+- **UI is a first-class subsystem** with its own dedicated log channel (confirms the PDB's UI-heavy
+  weighting); physics + procedural-mesh components are active during gameplay.
+
+### Implications for Frostwake
+- Our stated direction is a **Steam-native server browser + dedicated server**
+  ([ip-boundary.md](ip-boundary.md)); DH instead leans on **EOS relay/P2P + EOS sessions** for
+  general play. Decide deliberately (GP-04): EOS relay buys easy cross-play / NAT traversal but adds
+  an EOS dependency; Steam-native + dedicated keeps us on our stated path. Record the decision —
+  don't mirror theirs.
+- A **stock MatchState lifecycle with hard travel** is sufficient for an 8-player session game; we
+  do not need seamless travel.
+
 ## Native-layer architecture (abstracted from server PDB symbols)
 
 Read from the plaintext server PDB (no decryption, no logic decompilation). Raw type names are
