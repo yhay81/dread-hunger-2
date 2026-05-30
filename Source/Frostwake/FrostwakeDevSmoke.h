@@ -8,7 +8,12 @@ class UWorld;
  * Dedicated home for server-side dev smokes (plan item D / §8: keep behavioral self-tests OUT of the
  * already-overgrown GameMode). Each smoke is a free function taking the World; GameMode only wires a
  * one-line trigger from a -FrostwakeSmoke* command-line flag. New behavioral asserts land here, not as
- * AFrostwakeGameMode methods. (The ~18 legacy RunDevSmoke* still on GameMode migrate here incrementally.)
+ * AFrostwakeGameMode methods.
+ *
+ * Migrated so far (plan item D): the "act on the player + world + subsystems" category — perk resist,
+ * eat, damage type, survival temperature, action effect. The remaining ~13 RunDevSmoke* still on GameMode
+ * are coupled to its private helpers (FindPawnForTeam, match config, role assignment) and migrate as that
+ * coupling is untangled.
  *
  * Each smoke UE_LOGs `dev_smoke_<name> result=pass|fail ...`; run-local-smoke gates on that line.
  * Everything is compiled out of shipping builds.
@@ -23,4 +28,16 @@ namespace FrostwakeDevSmoke
 	 * its design purpose for the first time).
 	 */
 	FROSTWAKE_API void RunPerkResist(UWorld* World);
+
+	/** Data-driven item path (§3.2): a Food item (Ration) is eaten, a Tool item (Lantern) is rejected by data. */
+	FROSTWAKE_API void RunEat(UWorld* World);
+
+	/** Typed, data-driven damage (§3.17): a Slashing hit lowers Health by base * DamageTypeDefinition.DamageMultiplier. */
+	FROSTWAKE_API void RunDamageType(UWorld* World);
+
+	/** §3.22-23 temperature model: net temperature is positive at a heat source, negative far from any source. */
+	FROSTWAKE_API void RunSurvival(UWorld* World);
+
+	/** Action System LIVE (§9.5 step 5): applying/removing a real ActionEffect changes Health + the active count. */
+	FROSTWAKE_API void RunEffect(UWorld* World);
 }

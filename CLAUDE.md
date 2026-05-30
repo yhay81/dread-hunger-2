@@ -38,9 +38,10 @@
   effect modifiers go through Action/ActionEffect, never raw methods. All asserted by `run-local-smoke`
   (`dev_smoke_damage_type`/`down_rescue`/`perk_resist` = cold 10×50% resist→Health−5, plus single-player/host-only green).
   **Next, serially per plan §4/§6:** remaining data-type seed (weapon/recipe/role/perk JSON + re-bake) and the systems
-  that consume them → ship systems → items(55) → recipes(47) …. **Test-harness debt (plan item D):** the ~18
-  `RunDevSmoke*` still on `GameMode` should migrate into `FrostwakeDevSmoke.{h,cpp}` (the new perk smoke already lives
-  there) + ≥1 `AFunctionalTest`.
+  that consume them → ship systems → items(55) → recipes(47) …. **Test-harness debt (plan item D, partial):** the
+  5 player-acting smokes (perk_resist/eat/damage_type/survival/effect) now live in `FrostwakeDevSmoke.{h,cpp}` as free
+  functions (GameMode keeps only a 1-line trigger each), all gated in `run-local-smoke`; the remaining ~13
+  GameMode-coupled `RunDevSmoke*` (FindPawnForTeam/match-config/role helpers) + ≥1 `AFunctionalTest` are still TODO.
 - Design oracle: sibling **`TEST2/dh_re/`** (DH reverse-engineering teardown — read-only; see plan §2 + the
   IP non-negotiable below).
 

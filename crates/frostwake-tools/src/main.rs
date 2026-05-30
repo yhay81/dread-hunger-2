@@ -7837,6 +7837,26 @@ fn run_local_smoke(options: &LocalSmokeOptions) -> Result<(), String> {
                 &["dev_smoke_perk_resist result=pass"][..],
                 "perk resistance smoke",
             ),
+            (
+                options.smoke_eat,
+                &["dev_smoke_eat result=pass"][..],
+                "eat smoke",
+            ),
+            (
+                options.smoke_damage_type,
+                &["dev_smoke_damage_type result=pass"][..],
+                "damage type smoke",
+            ),
+            (
+                options.smoke_survival,
+                &["dev_smoke_survival result=pass"][..],
+                "survival smoke",
+            ),
+            (
+                options.smoke_effect,
+                &["dev_smoke_effect result=pass"][..],
+                "effect smoke",
+            ),
         ];
         for (enabled, needles, label) in smoke_checks {
             if enabled && !wait_for_log(&host_log, needles, options.match_timeout) {
