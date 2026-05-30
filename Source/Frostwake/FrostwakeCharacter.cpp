@@ -199,10 +199,11 @@ float AFrostwakeCharacter::GetMatchDecayMultiplier() const
 float AFrostwakeCharacter::AdjustDamage(float BaseDamage, const FGameplayTag& DamageType, bool& bOutAffectsReservedHealth) const
 {
     // Data-driven (plan §3.2/§3.17): the DamageTypeDefinition's multiplier scales the amount, and its
-    // bAffectsReservedHealth flag (DT_Poison) routes the result into the ReservedHealth reserve. Per-perk
-    // resistances (bAffectedByResistance) arrive with the perk slice. Unknown type = pass through unchanged.
+    // bAffectsReservedHealth flag (DT_Poison) routes the result into the ReservedHealth reserve. Unknown
+    // type = pass through unchanged.
     bOutAffectsReservedHealth = false;
     float Multiplier = 1.0f;
+    bool bAffectedByResistance = false;
     if (const UGameInstance* GameInstance = GetGameInstance())
     {
         if (const UFrostwakeDataSubsystem* DataSubsystem = GameInstance->GetSubsystem<UFrostwakeDataSubsystem>())
@@ -211,8 +212,17 @@ float AFrostwakeCharacter::AdjustDamage(float BaseDamage, const FGameplayTag& Da
             {
                 Multiplier = FMath::Max(0.0f, Definition->DamageMultiplier);
                 bOutAffectsReservedHealth = Definition->bAffectsReservedHealth;
+                bAffectedByResistance = Definition->bAffectedByResistance;
             }
         }
+    }
+
+    // §3.20 perk resistances: if this damage type honours resistance, scale by the character's active
+    // resistance multiplier. Resistances are supplied by perk ActionEffects (§8: no raw methods) and
+    // accumulated on the ActionComponent — so e.g. a cold-resist perk halves incoming Damage.Cold.
+    if (bAffectedByResistance && ActionComponent)
+    {
+        Multiplier *= ActionComponent->GetDamageResistanceMultiplier(DamageType);
     }
     return BaseDamage * Multiplier;
 }

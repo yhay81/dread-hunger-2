@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "GameplayTagContainer.h"
 #include "FrostwakeActionComponent.generated.h"
 
 class UFrostwakeAttributeComponent;
@@ -52,11 +53,36 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Frostwake|Action")
 	int32 GetActiveEffectCount() const { return ActiveEffects.Num(); }
 
+	// ── Damage resistance (plan §3.17 resistance hook / §3.20 perks) ──────────────────────────────
+	// Perks supply resistance through ActionEffects (never raw methods, §8): a worn perk effect calls
+	// AddDamageResistance on apply and RemoveDamageResistancesFrom on removal. AFrostwakeCharacter::
+	// AdjustDamage queries GetDamageResistanceMultiplier so a resisted Damage.* tag lands for less.
+
+	/** Server: register a resistance fraction (0..1) against a Damage.* tag, attributed to Source. */
+	void AddDamageResistance(UFrostwakeActionEffect* Source, FGameplayTag DamageType, float Fraction);
+
+	/** Server: drop every resistance contributed by Source (called from the effect's OnRemoved). */
+	void RemoveDamageResistancesFrom(UFrostwakeActionEffect* Source);
+
+	/** Net incoming-damage multiplier for a damage type: clamp(1 - Σ matching fractions, 0, 1). 1 = none.
+	 *  Combination is additive for this slice; multiplicative/pity stacking (§3.20) is a Phase 2 refinement. */
+	UFUNCTION(BlueprintCallable, Category="Frostwake|Action")
+	float GetDamageResistanceMultiplier(FGameplayTag DamageType) const;
+
 protected:
 	virtual void BeginPlay() override;
 
 private:
 	void FinishEffect(UFrostwakeActionEffect* Effect);
+
+	// One active resistance contribution. Plain (non-UPROPERTY) struct: the contributing effect is kept
+	// alive by ActiveEffects, so a weak ptr suffices to match removals.
+	struct FFrostwakeActiveResistance
+	{
+		FGameplayTag DamageType;
+		float Fraction = 0.f;
+		TWeakObjectPtr<UFrostwakeActionEffect> Source;
+	};
 
 	UPROPERTY(Transient)
 	TObjectPtr<UFrostwakeAttributeComponent> CachedAttributes;
@@ -66,4 +92,6 @@ private:
 
 	UPROPERTY(Transient)
 	TArray<TObjectPtr<UFrostwakeAction>> Actions;
+
+	TArray<FFrostwakeActiveResistance> ActiveResistances;
 };
