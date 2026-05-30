@@ -1,8 +1,11 @@
 # Map Flow
 
+> ⚠ 設定（2026-05-30）: 表現の正典は [`docs/narrative/`](narrative/)（北極 c.1910s 改装捕鯨船＋顕在型超自然 the Pale）。
+> 用語は period に読み替え（無線→信号灯/初期無線、発電→蒸気ダイナモ/油灯、燃料→石炭…）。**機構・座標・ラベルは不変。**
+
 ## Whitebox Map
 
-初期マップは1つだけ。近未来の氷海研究船と、船外に出られる氷上探索エリアを持つ。
+初期マップは1つだけ。北極 c.1910s の改装捕鯨船（[`docs/narrative/the-ship.md`](narrative/the-ship.md)）と、船外に出られる氷上探索エリアを持つ。
 
 ```text
                  [Forward Lookout]
@@ -24,10 +27,10 @@
 | --- | --- |
 | Bridge | 航路進行、船内警報、終盤判断 |
 | Chart Room | 海図、航路図、偽装の疑い |
-| Radio Room | 無線復旧、救難信号、通信ラック |
-| Engine Room | 航行と燃料効率 |
+| Radio Room | 信号/無線復旧、救難、信号機材 |
+| Engine Room | 航行と石炭効率 |
 | Boiler | 暖房、低体温対策 |
-| Fuel Store | 燃料缶、汚染、隠匿 |
+| Fuel Store | 石炭、汚染、隠匿 |
 | Workshop | 工具、修理部品 |
 | Medical | 応急処置、低体温回復 |
 | Mess | 中央会話地点、物資共有 |

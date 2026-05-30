@@ -47,7 +47,67 @@ map-flow / gp08 の区画に対応。系統名（Route/Radio/Engine/Power/Fuel/F
 隔壁越しに減衰する声、機関の鼓動、氷の軋み、**船体下の叩音**、甲板を掻く音（白熊か、kept か）、
 船外で途切れる信号灯。証言は「最後にどこで誰の声を聞いたか」。灯が落ちた区画では声だけが頼り。
 
-## 次の反復
+## Deck-by-deck（物語ピン）
 
-- deck-by-deck の動線詳細（gp08 座標に紐づけた "物語ピン"）。炉（Boiler/Heat）の系統がコード上 Power/Engine の
-  どちらに属するかを GP-03/GP-08 と確認（暖房系統の扱い）。氷圧ゲート演出の最終航行シーケンス詳細。
+gp08 の単層甲板（bow=+X / stern=−X / port=−Y / stbd=+Y）に、区画ごとの **物語ピン**（その場に置く具体の細部）を。
+コードラベルは正典、ピンは演出。
+
+| 区画（gp08 ラベル・位置） | 物語ピン（置く細部） |
+| --- | --- |
+| 船橋 WB_Bridge（前部左） | 海図に **the Bearing へ鉛筆書きされた針路**（誰が引いた?）。航海日誌は去った Commodore Hale の筆で途切れる |
+| 無線室 WB_RadioRoom（前部右） | 雑音を吐く無線。Mercer の「受信記録」に、在るはずのない符号の控え。ケルン書置きの綴り |
+| 中央通路・食堂（spine・中央） | 伝声管、共有の灯。声が通り目撃が集まる十字路。「最後に誰の声を聞いたか」 |
+| 乗員室/庶務倉 WB_Quarters/Quartermaster（中部左） | 寝棚。Sable の **炭・配給の集計板**（合わない数字）。Hale の遺した私物箱 |
+| 医務室 WB_Infirmary（中部右） | 寝台。Aldous の症例帳（誰が "壊血病" で誰が "狂い" か）。霜蝕の標的＝薬箱 |
+| 機関室 WB_EngineRoom（後部左） | 機関の鼓動＝船の心音。Holt の領分、独りになりやすい。止む静寂 |
+| 発電/動力室 WB_BatteryRoom（後部右） | 蒸気ダイナモと油の備え。ここが落ちると **闇が始まる** |
+| 炭庫 WB_FuelBay（最後部） | 減っていく炭。空くほど寒さが這い上がる。盗炭/無駄焚きの跡 |
+| 氷上甲板 WB_Ice_Deck（船首外） | ウインチ、橇。**白熊が来る舷側**。the Blank へ続く一人分の足跡 |
+| 氷圧ゲート WB_IcePressureGate（船首端） | 行く手を阻む氷の壁＝**carve-free のクライマックス点**（下記） |
+
+> 炉/暖房（Boiler/Heat）の系統がコード上 Power/Engine のどちらに属するかは GP-03/GP-08 と要確認。
+
+## 最終航行（氷圧ゲート ＝ carve-free・Belgica の翻案）
+
+クライマックス＝**氷に囚われた船を、暗闇と消耗の中で自力で解き放ち脱出する**（[setting-bible §10](setting-bible.md#10-1試合の物語20分の事件)）。
+多段のチーム作業で、~30分ハードキャップ（結氷/気温急落）が決着を強制する。
+
+1. **水路の見立て**: Bridge/Route で開水面への線を引く（the Bearing でなく脱出/Mercy Point へ）。
+2. **氷の切削・装薬**: 甲板/氷上で線に沿い氷を切り装薬（史実 Belgica の trench/tonite）。痕跡＝作業ログ。
+3. **火を保つ**: Boiler/Engine を熱く保ち推進力を作る（Quench されると停滞）。
+4. **守る**: 白熊と the Claimed の妨害（Mar 操舵・Deliver 作業者を氷へ・Call 白out）を凌ぐ。
+5. **抜ける**: 結氷が船を固定する前に氷圧ゲートを抜け、開水面へ。
+
+the Claimed の勝ち筋＝各段の停滞（明け渡し）。乗員の勝ち筋＝灯と火と人数を保ったままゲート突破。
+
+## 物語ピン配置仕様（GP-08 向け・gp08 座標）
+
+[`docs/gp08-ship-map-spec.md`](../gp08-ship-map-spec.md) の規約に従う build-ready 仕様: `FCubeSpec{Label, Location, Size}`
+（Location=中心 cm／Size=総寸 cm／+X bow・−X stern・+Y starboard・−Y port・+Z up・deck top Z=0）。
+**加算的な `WB_Prop_*`（バリデータ非干渉・gp08「add new cubes alongside＝lowest risk」）**。固定ラベル・TASK_/DOOR_/
+PlayerStart には被せない。値は **目安**（GP-08 がエディタで微調整、後で CC0 メッシュへ差し替え可）。
+
+| WB_Prop_* | Location | Size | 区画 / 物語ピン |
+| --- | --- | --- | --- |
+| `WB_Prop_ChartTable` | {1120,-470,80} | {140,90,80} | 船橋: the Bearing が鉛筆書きされた海図 |
+| `WB_Prop_CaptainLog` | {1180,-560,100} | {40,30,20} | 船橋: Hale の途切れた航海日誌 |
+| `WB_Prop_WirelessSet` | {1120,470,90} | {120,80,80} | 無線室: 雑音を吐く無線（rack 隣） |
+| `WB_Prop_CairnLedger` | {1180,470,95} | {40,50,15} | 無線室: ケルン書置きの綴り |
+| `WB_Prop_TallyBoard` | {200,-470,160} | {15,120,80} | 庶務倉: 合わない炭・配給の集計板（壁） |
+| `WB_Prop_HalesLocker` | {-260,-600,80} | {70,60,80} | 乗員室: Hale の遺した私物箱 |
+| `WB_Prop_Casebook` | {-150,560,95} | {40,30,20} | 医務室: Aldous の症例帳（誰が "狂い" か） |
+| `WB_Prop_MedicineChest` | {-260,600,90} | {80,50,70} | 医務室: Rime の標的＝薬箱 |
+| `WB_Prop_EngineLog` | {-1050,-360,90} | {40,40,20} | 機関室: 油染みの当直記録 |
+| `WB_Prop_DynamoOilStore` | {-1120,560,100} | {90,80,100} | 動力室: 蒸気ダイナモと油の備え（落ちると闇） |
+| `WB_Prop_CoalTally` | {-1850,-200,100} | {40,40,70} | 炭庫: 減っていく残炭の刻み |
+| `WB_Prop_SpeakingTube` | {0,120,150} | {20,20,200} | 中央通路: 伝声管（声の交差点） |
+| `WB_Prop_BearClawRail` | {1750,600,100} | {140,20,70} | 氷上甲板: 舷側の白熊の爪痕 |
+| `WB_Prop_FootprintsBlank` | {1450,-100,-5} | {220,40,10} | 氷上甲板: the Blank へ続く一人分の足跡 |
+
+> **C++ 実配線は GP-08 レーン**: 上記を `FrostwakeWhiteboxCommandlets.cpp` の cubes/props 追加（`SpawnCube`）に落とし、
+> `create-icebreaker-whitebox`→`validate-icebreaker-whitebox`→null-RHI smoke→スクショ で確認（gp08 手順）。固定ラベルは不変。
+> 物語側（本レーン）からの依頼があれば配線まで踏み込む。
+
+## 次の反復
+- GP-08 が `WB_Prop_*` をコマンドレットへ実装（or 物語レーンが依頼を受けて配線＋compile-check）。
+- 最終航行シーケンスの GP-03 仕様化は [`the-pale-and-threats.md`](the-pale-and-threats.md) §6 に提案済み。

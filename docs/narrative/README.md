@@ -4,7 +4,7 @@
 バランスは `docs/game-design.md` / `docs/mechanics-parity-target.md` / `docs/roles.md` が正典で、
 ここはそれらに **意味と手触り** を与える層。
 
-- ステータス: **v0.4**（2026-05-30）。システム・脅威・**史実ベース(北極・Karluk主軸＋Belgica移植)も確定**。肉付けは反復前提。
+- ステータス: **v0.7**（2026-05-30）。物語一式＋案内人設計(self-audit)＋GP-03数値仕様(提案)＋物語ピン仕様＋機構doc period反映＋**トーン文体指針・固有名最終確定**まで整備。残は人間レビュー/GP-03実装値/C++配線。
 - 担当: 物語・設定（このフォルダのオーナー）。
 - 読む順: この README → [`historical-base-options.md`](historical-base-options.md)（土台の選定）→
   [`setting-bible.md`](setting-bible.md)（背骨）→ [`dh-and-franklin-research.md`](dh-and-franklin-research.md)（IP境界・史実）→
@@ -54,21 +54,24 @@
 
 | ファイル | 中身 | 状態 |
 | --- | --- | --- |
-| `README.md` | 索引・確定方向・IPガードレール・整合メモ | v0.4 |
+| `README.md` | 索引・確定方向・IPガードレール・整合メモ | v0.7 |
 | `historical-base-options.md` | 史実ベース候補比較（**決定: 北極・Karluk主軸＋Belgica移植**） | v0.2 |
 | `setting-bible.md` | 背骨: 北極c.1910s/舞台/船/the Claimed/顕在型ルール/テーマ/トーン/1試合 | v0.3 |
 | `dramatis-personae.md` | 乗員8アーキタイプ＋去った指揮役・案内人 | v0.1 |
-| `the-ship.md` | 区画→系統→物語/妨害面/音（map-flow・gp08 と接続） | v0.1 |
-| `the-pale-and-threats.md` | the Claimed の力・白熊PvE・the kept（GP-03 へのフック） | v0.1 |
-| `names-and-glossary.md` | 固有名詞（**確定**）＋用語集（DH由来プレースホルダ置換種） | v0.2 |
+| `the-coast-and-guide.md` | 沿岸の人々・案内人の最終設計（ドラフト）＋self-audit（**人間レビュー前段**） | v0.1 |
+| `cultural-representation.md` | 先住民・他文化の描写方針（架空の人々／sensitivity review 必須） | v0.1 |
+| `the-ship.md` | 区画→系統→物語/妨害面/音・deck-by-deck・最終航行・**物語ピン配置仕様** | v0.1 |
+| `the-pale-and-threats.md` | the Claimed の力・白熊PvE・the kept＋**GP-03 数値/ログ仕様(提案)** | v0.1 |
+| `match-beats.md` | 「20分で語れる事件」テンプレ（種ライブラリ） | v0.1 |
+| `tone-and-voice.md` | トーン・文体指針（較正ダイヤル・話者別・**声のサンプル**） | v0.1 |
+| `names-and-glossary.md` | 固有名詞（**確定**＋乗員フルネーム＋audit）＋用語集 | v0.3 |
 | `dh-and-franklin-research.md` | DH の表現境界・フランクリン史実・差別化マップ（**内部専用**） | v0.1 |
-| `match-beats.md` | 「20分で語れる事件」のテンプレ集 | 未着手 |
 
 ## 既存ドキュメントとの整合（reconciliation）
 
 period 化＋顕在型超自然は **load-bearing な戦略ドキュメントと衝突** していた。衝突点を明示し改訂案を提案、
-**2026-05-30 にオーナー指示（「すべて進めて」）で適用済み**——各 doc 冒頭に設定改訂バナー＋該当節を改訂。
-残りの用語リスキンは別レーンで反映。
+**2026-05-30 にオーナー指示（「すべて進めて」「進めて」）で適用済み**——各 doc 冒頭に設定改訂バナー＋該当節を改訂。
+機構doc にも period バナー＋本文語彙を反映済み（**機構・数値・ラベルは不変**）。
 
 | ドキュメント | 衝突点 | 提案 |
 | --- | --- | --- |
@@ -76,20 +79,28 @@ period 化＋顕在型超自然は **load-bearing な戦略ドキュメントと
 | `docs/art-bible.md` | 「避ける表現」に *木造帆船・魔術/オカルト* を禁止と明記 | ✅ **適用済**: バナー＋方向性/避ける表現/視覚モチーフを改訂（木造帆船 解禁、the Pale 解禁、DH固有オカルトは禁止維持） |
 | `docs/ip-boundary.md` | Product Identity が near-future/diesel/metal | ✅ **適用済**: バナー＋Product Identity を北極改装捕鯨船/the Claimed へ、Reference Boundary の occult 禁止を DH固有に限定 |
 | `docs/competitive-analysis.md` | 「Similarity Risk」が near-future/魔術なしを独自性の根拠に | ✅ **適用済**: Similarity Risk を DH-parity＋Franklin以外の史実土台＋the Pale へ改訂 |
-| `docs/mechanics-parity-target.md` ほか | 用語が近未来寄り（radio/battery 等） | ⬜ 別レーンで用語リスキン（機構ロジックは不変） |
+| 機構doc（map-flow/items/sabotage/roles/game-design/mechanics-parity） | 用語が近未来寄り（radio/battery 等） | ✅ **適用済**: バナー＋本文語彙を period 化（map-flow/items/sabotage/roles）。game-design/mechanics-parity はバナー＋方針ポインタ。**機構・数値・ラベル・コード識別子は不変** |
 
 > 注: `docs/frostwake-modernization-plan.md` の "modernization" は **技術スタック（UE5.7・軽量Action
 > System）** の話で、**物語の年代とは無関係**。本転換と矛盾しない。
 
 ## 次の反復で詰めたい論点
 
-**完了（2026-05-30・「すべて進めて」）**: 史実ベース決定 ／ 乗員アーキタイプ(`dramatis-personae`) ／
-船区画(`the-ship`) ／ the Pale の力・白熊PvE(`the-pale-and-threats`) ／ 固有名詞の確定(`names-and-glossary`) ／
-整合改訂の適用（上表の vision/art-bible/ip-boundary/competitive-analysis）。
+**完了（2026-05-30・「すべて進めて」「進めて」）**: 史実ベース決定 ／ 乗員(`dramatis-personae`) ／
+船区画＋deck-by-deck＋最終航行(`the-ship`) ／ the Pale の力・白熊PvE(`the-pale-and-threats`) ／
+「20分の事件」テンプレ(`match-beats`) ／ 先住民・他文化の描写方針(`cultural-representation`) ／ 固有名詞の確定(`names-and-glossary`) ／
+整合改訂の適用（vision/art-bible/ip-boundary/competitive-analysis）＋機構docへ period 読み替えバナー
+（map-flow/items/sabotage/roles/game-design/mechanics-parity）。
 
-**残**:
-1. `match-beats.md`（「20分で語れる事件」テンプレ）。
-2. **先住民表象の方針確定**（架空の人々を基本／sensitivity review）と案内人の最終設計。
-3. the Pale の力・白熊PvE の **GP-03 統合**（`sabotage.md`/`roles.md`/`game-design.md` の数値・ログ）。
-4. `the-ship` の deck-by-deck（gp08 座標に物語ピン）／最終航行（氷圧ゲート）演出の詳細。
-5. 別レーンの用語リスキン（mechanics-parity 等）の反映。
+**完了（追加・「進めて」）**: 案内人・沿岸の人々の最終設計＋self-audit(`the-coast-and-guide`) ／
+the Pale・白熊・最終航行の **GP-03 数値/ログ仕様(提案)**(`the-pale-and-threats` §6) ／ 物語ピン配置仕様(`the-ship`) ／
+機構doc の period 語彙反映（map-flow/items/sabotage/roles）。
+
+**完了（追加・"b" トーン/固有名）**: トーン・文体指針＋声のサンプル(`tone-and-voice`) ／
+固有名の最終確定＋乗員フルネーム＋現実衝突 audit(`names-and-glossary`)。案内人・沿岸の名は方針どおり保留。
+
+**残（人間ゲート or 他レーン）**:
+1. **案内人・沿岸の人々の人間 sensitivity review**（資格ある reader・公開前必須。self-audit は前段で代用不可）＋固有名の確定。
+2. the Pale 力・白熊・最終航行の **GP-03 実装値の確定**（§6 提案を playtest で 50/50 検証）。
+3. 物語ピンの **C++ 実配線**（GP-08 が `FrostwakeWhiteboxCommandlets.cpp` へ。or 依頼受けて物語レーンが配線＋compile-check）。
+4. `match-beats.md` 各種の頻度・CD の GP-03 調整。
