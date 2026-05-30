@@ -80,6 +80,7 @@ private:
     void RunDevSmokeLifeAction();
     void RunDevSmokeEat();
     void RunDevSmokeDamageType();
+    void RunDevSmokeSurvival();
     void RunDevSmokeQaBot();
     void RunDevSmokeQaPlayerBot();
     void RunDevSmokeQaTaskBot();

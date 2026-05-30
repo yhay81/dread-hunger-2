@@ -464,6 +464,13 @@ bool AFrostwakeCharacter::EatRation(int32 SlotIndex)
         return false;
     }
 
+    // Don't waste a ration when already fully fed (Hunger at 0). Mirrors ApplyWarmth's "already warm"
+    // guard — consume the item only when it can actually do something.
+    if (AttributeComponent->GetAttribute(EFrostwakeAttribute::Hunger) <= 0.0f)
+    {
+        return false;
+    }
+
     FName RemovedId = NAME_None;
     if (!InventoryComponent->TryRemoveItemAt(SlotIndex, RemovedId))
     {

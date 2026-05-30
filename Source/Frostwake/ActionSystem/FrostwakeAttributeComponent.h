@@ -73,7 +73,11 @@ protected:
 	UPROPERTY(ReplicatedUsing=OnRep_Stamina, EditAnywhere, BlueprintReadOnly, Category="Frostwake|Attributes")
 	float Stamina;
 
-	// Maxes are data-config (set from a role/definition; not replicated — identical on server & client).
+	// Maxes are data-config: set ONCE from a role/attribute definition before/at spawn, loaded identically
+	// on server + client (both read the same data) — so they are NOT replicated and MUST NOT be mutated at
+	// runtime. One-way-door decision (plan §8, 2026-05-30): a runtime-variable max would desync the HUD
+	// (GetMaxWarmth etc.) since it is unreplicated; if a runtime-variable max is ever needed, replicate
+	// THAT specific max at that time.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Frostwake|Attributes")
 	float MaxHealth = 100.f;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Frostwake|Attributes")

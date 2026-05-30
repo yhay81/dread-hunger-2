@@ -6,8 +6,10 @@
 #include "FrostwakeCharacter.h"
 #include "FrostwakeGameState.h"
 #include "FrostwakeGameplayTags.h"
+#include "FrostwakeHeatSourceActor.h"
 #include "Data/FrostwakeDataSubsystem.h"
 #include "Data/FrostwakeDamageTypeDefinition.h"
+#include "ActionSystem/FrostwakeTemperatureSubsystem.h"
 #include "FrostwakeLog.h"
 #include "FrostwakePlayerController.h"
 #include "FrostwakePlayerState.h"
@@ -572,6 +574,10 @@ void AFrostwakeGameMode::TryAutoStartMatchForDev()
     if (FParse::Param(FCommandLine::Get(), TEXT("FrostwakeSmokeDamageType")))
     {
         GetWorldTimerManager().SetTimerForNextTick(this, &AFrostwakeGameMode::RunDevSmokeDamageType);
+    }
+    if (FParse::Param(FCommandLine::Get(), TEXT("FrostwakeSmokeSurvival")))
+    {
+        GetWorldTimerManager().SetTimerForNextTick(this, &AFrostwakeGameMode::RunDevSmokeSurvival);
     }
     if (FParse::Param(FCommandLine::Get(), TEXT("FrostwakeSmokeQaBot")))
     {
@@ -1381,6 +1387,48 @@ void AFrostwakeGameMode::RunDevSmokeDamageType()
         TEXT("dev_smoke_damage_type result=%s base=%.1f multiplier=%.2f expectedDelta=%.1f actualDelta=%.1f healthBefore=%.1f healthAfter=%.1f"),
         bPass ? TEXT("pass") : TEXT("fail"),
         BaseDamage, Multiplier, ExpectedDelta, ActualDelta, HealthBefore, HealthAfter);
+#endif
+}
+
+void AFrostwakeGameMode::RunDevSmokeSurvival()
+{
+#if !UE_BUILD_SHIPPING
+    if (!HasAuthority() || !GetWorld())
+    {
+        return;
+    }
+
+    const UFrostwakeTemperatureSubsystem* Temperature = UFrostwakeTemperatureSubsystem::Get(this);
+    AFrostwakeHeatSourceActor* HeatSource = nullptr;
+    for (TActorIterator<AFrostwakeHeatSourceActor> It(GetWorld()); It; ++It)
+    {
+        HeatSource = *It;
+        break;
+    }
+
+    // Behavioral assertion for the §3.22-23 temperature model that drives Warmth: at a heat source the
+    // net temperature is positive (Warmth would rise), far from any source it is negative (Warmth falls).
+    // This guards the "near fire = warm up / out in the cold = freeze" mechanic, not just compile/no-crash.
+    const bool bHasModel = (Temperature != nullptr) && (HeatSource != nullptr);
+    float TempAtSource = 0.0f;
+    float TempFar = 0.0f;
+    if (bHasModel)
+    {
+        const FVector SourceLocation = HeatSource->GetActorLocation();
+        const FVector FarLocation = SourceLocation + FVector(100000.0f, 0.0f, 0.0f);
+        TempAtSource = Temperature->ComputeTemperatureAt(SourceLocation);
+        TempFar = Temperature->ComputeTemperatureAt(FarLocation);
+    }
+
+    const bool bPass = bHasModel && TempAtSource > 0.0f && TempFar < 0.0f && TempAtSource > TempFar;
+
+    UE_LOG(
+        LogFrostwakeGameplay,
+        Log,
+        TEXT("dev_smoke_survival result=%s heatSource=%s tempAtSource=%.3f tempFar=%.3f"),
+        bPass ? TEXT("pass") : TEXT("fail"),
+        *GetNameSafe(HeatSource),
+        TempAtSource, TempFar);
 #endif
 }
 
@@ -2423,6 +2471,10 @@ bool AFrostwakeGameMode::TryStartMatchFromReady()
     if (FParse::Param(FCommandLine::Get(), TEXT("FrostwakeSmokeDamageType")))
     {
         GetWorldTimerManager().SetTimerForNextTick(this, &AFrostwakeGameMode::RunDevSmokeDamageType);
+    }
+    if (FParse::Param(FCommandLine::Get(), TEXT("FrostwakeSmokeSurvival")))
+    {
+        GetWorldTimerManager().SetTimerForNextTick(this, &AFrostwakeGameMode::RunDevSmokeSurvival);
     }
     if (FParse::Param(FCommandLine::Get(), TEXT("FrostwakeSmokeQaBot")))
     {
