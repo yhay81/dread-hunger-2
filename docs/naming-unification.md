@@ -1,6 +1,6 @@
 # Naming Unification — AbyssLock → Frostwake
 
-- Status: **COMPLETE** (2026-05-30). Code + config + toolchain + docs + content (maps baked, localization re-gathered/compiled) all renamed to Frostwake; CoreRedirects retired. `cargo test`, `quality-gate`, `unreal-gate` all green. Only deferred items remain (build-ID flip, repo rename).
+- Status: **COMPLETE** (2026-05-30). Code + config + toolchain + docs + content (maps baked, localization re-gathered/compiled) all renamed to Frostwake; CoreRedirects retired. `cargo test`, `quality-gate`, `unreal-gate` all green. Only deferred items remain (repo rename; the build-ID **value** stays pinned in the immutable test fixture until the first real Frostwake build — toolchain defaults + contracts already flipped, see leave-list).
 - Owner lane: **GP-06** (Product Services & Tools) — primary; GP-07 (Windows/Server) secondary; GP-04 (Steam lobby) sign-off
 - Supersedes the cycle-0 deferral: *"defer | Full UE module rename | Revisit after first successful UE compile"*
   ([docs/cycles/2026-05-25-cycle-0.md](cycles/2026-05-25-cycle-0.md)). First compile milestone has passed.
@@ -115,10 +115,13 @@ Done and verified green (all three gates above):
 ## Intentionally NOT renamed (verified leave-list)
 
 - `docs/cycles/**` (234) and `docs/issue-import/phase1-issues.csv` — historical evidence.
-- The build-ID **value** `AbyssLock-Win64-Development-local` in
-  `tests/fixtures/p1_024_human_events.jsonl`, `apps/backend/tests/server.rs`,
-  `Tools/ops/lobby_metadata.example.json`, and tooling defaults — tied to the immutable fixture;
-  flips to `Frostwake-…` when the first real Frostwake-named build is produced.
+- The build-ID **value** `AbyssLock-Win64-Development-local` now survives **only** in the immutable
+  recording `tests/fixtures/p1_024_human_events.jsonl` and the two `crates/frostwake-tools/src/main.rs`
+  assertions that read it — tied to that fixture; it flips to `Frostwake-…` when the first real
+  Frostwake-named build is produced.
+  **Updated 2026-05-30:** the build-ID lockstep flipped the *tooling defaults*,
+  `apps/backend/tests/server.rs`, and `Tools/ops/lobby_metadata.example.json` to
+  `Frostwake-Win64-Development-local`; they no longer hold the old value.
 - lowercase `abyss` in `docs/localization-glossary.md` and `GP-09.state.md` — forbidden-terms list.
 - `Content/Localization/Game/Game.manifest` + `*.archive` — generated; regenerate via re-gather.
 
