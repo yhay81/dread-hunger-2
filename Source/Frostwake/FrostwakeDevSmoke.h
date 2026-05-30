@@ -11,9 +11,9 @@ class UWorld;
  * AFrostwakeGameMode methods.
  *
  * Migrated so far (plan item D): the "act on the player + world + subsystems" category — perk resist,
- * eat, damage type, survival temperature, action effect. The remaining ~13 RunDevSmoke* still on GameMode
- * are coupled to its private helpers (FindPawnForTeam, match config, role assignment) and migrate as that
- * coupling is untangled.
+ * eat, damage type, survival temperature, action effect, ability. The remaining ~13 RunDevSmoke* still on
+ * GameMode are coupled to its private helpers (FindPawnForTeam, match config, role assignment) and migrate
+ * as that coupling is untangled.
  *
  * Each smoke UE_LOGs `dev_smoke_<name> result=pass|fail ...`; run-local-smoke gates on that line.
  * Everything is compiled out of shipping builds.
@@ -40,4 +40,12 @@ namespace FrostwakeDevSmoke
 
 	/** Action System LIVE (§9.5 step 5): applying/removing a real ActionEffect changes Health + the active count. */
 	FROSTWAKE_API void RunEffect(UWorld* World);
+
+	/**
+	 * §3.20/§3.21 ability framework (review #1): activate the first concrete UFrostwakeAction (Fog) through
+	 * AddAction/StartAction and assert the thickened lifecycle — Stamina cost is consumed, the action is
+	 * running + on cooldown, and an immediate re-activation is refused (cooldown/running gate). Proves the
+	 * Action half of the system is LIVE and expressive enough for the planned spells.
+	 */
+	FROSTWAKE_API void RunAbility(UWorld* World);
 }

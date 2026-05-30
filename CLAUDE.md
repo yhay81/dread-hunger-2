@@ -30,8 +30,10 @@
   Attribute/Action/ActionEffect/ActionComponent + MatchSubsystem; `Data/` 5 Definition types + DataSubsystem).
   **Foundation is now LIVE, not just merged (plan §9.5 holds the per-step LIVE/SCAFFOLD truth, kept accurate):**
   the **§3.15 5-attribute consolidation is complete** (Warmth=temperature-driven §3.22-23 / Hunger / Health on
-  `UFrostwakeAttributeComponent`; the character holds no hand-written vitals floats); the **Action System runs**
-  (`UFrostwakeColdExposureEffect` debuff + now `UFrostwakeColdResistPerkEffect` perk); the **match spine has a
+  `UFrostwakeAttributeComponent`; the character holds no hand-written vitals floats); the **Action System runs
+  on both halves** — Effect (`UFrostwakeColdExposureEffect` debuff + `UFrostwakeColdResistPerkEffect` perk) AND
+  Action (`UFrostwakeFogAbility`, the first ability: the base now carries cooldown/cost/duration/instigator, with
+  Stamina as its first consumer; `dev_smoke_ability`); the **match spine has a
   subscriber** (`GameMode` listens to `OnPlayerDied`→`EvaluateMatchEnd`); the **data path is editor-baked**
   (JSON→`.uasset`→AssetManager, cook-safe). **§3.17 typed damage is LIVE** (DamageMultiplier + ReservedHealth/poison
   routing + carcass→revive) and **perk damage-resistance now lands via an ActionEffect** — §8 rule: combat/perk/

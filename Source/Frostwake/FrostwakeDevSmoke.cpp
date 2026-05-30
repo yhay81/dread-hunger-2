@@ -5,11 +5,13 @@
 #include "FrostwakeHeatSourceActor.h"
 #include "FrostwakeInventoryComponent.h"
 #include "FrostwakeLog.h"
+#include "ActionSystem/FrostwakeAction.h"
 #include "ActionSystem/FrostwakeActionComponent.h"
 #include "ActionSystem/FrostwakeActionEffect.h"
 #include "ActionSystem/FrostwakeAttributeComponent.h"
 #include "ActionSystem/FrostwakeColdExposureEffect.h"
 #include "ActionSystem/FrostwakeColdResistPerkEffect.h"
+#include "ActionSystem/FrostwakeFogAbility.h"
 #include "ActionSystem/FrostwakeTemperatureSubsystem.h"
 #include "Data/FrostwakeDamageTypeDefinition.h"
 #include "Data/FrostwakeDataSubsystem.h"
@@ -285,5 +287,60 @@ void FrostwakeDevSmoke::RunEffect(UWorld* World)
 		TEXT("dev_smoke_effect result=%s activeBefore=%d activeAfterApply=%d activeAfterRemove=%d healthBefore=%.1f healthAfterApply=%.1f"),
 		bPass ? TEXT("pass") : TEXT("fail"),
 		ActiveBefore, ActiveAfterApply, ActiveAfterRemove, HealthBefore, HealthAfterApply);
+#endif
+}
+
+void FrostwakeDevSmoke::RunAbility(UWorld* World)
+{
+#if !UE_BUILD_SHIPPING
+	if (!World || World->GetNetMode() == NM_Client)
+	{
+		return;
+	}
+
+	AFrostwakeCharacter* Character = FindFirstPlayerCharacter(World);
+	UFrostwakeActionComponent* Action = Character ? Character->FindComponentByClass<UFrostwakeActionComponent>() : nullptr;
+	UFrostwakeAttributeComponent* Attributes = Character ? Character->FindComponentByClass<UFrostwakeAttributeComponent>() : nullptr;
+
+	// Proof the Action (ability) half is LIVE (review #1): grant + activate the first concrete action through
+	// the component, then assert the thickened base lifecycle: the Stamina cost is consumed, the action is
+	// running and on cooldown, and an immediate re-activation is refused. Read the expected cost off the CDO
+	// so the assertion tracks the ability's own data.
+	const float ExpectedCost = GetDefault<UFrostwakeFogAbility>()->Cost;
+
+	bool bStarted = false;
+	bool bSecondRefused = false;
+	bool bRunning = false;
+	bool bOnCooldown = false;
+	float StaminaBefore = -1.0f;
+	float StaminaAfter = -1.0f;
+	if (Action && Attributes)
+	{
+		UFrostwakeAction* Fog = Action->AddAction(UFrostwakeFogAbility::StaticClass());
+		StaminaBefore = Attributes->GetAttribute(EFrostwakeAttribute::Stamina);
+		bStarted = Action->StartAction(Fog);                  // off cooldown + enough Stamina -> starts
+		StaminaAfter = Attributes->GetAttribute(EFrostwakeAttribute::Stamina);
+		bRunning = Fog && Fog->IsRunning();
+		bOnCooldown = Fog && Fog->IsOnCooldown();
+		bSecondRefused = !Action->StartAction(Fog);           // running + on cooldown -> must be refused
+	}
+
+	const float StaminaSpent = StaminaBefore - StaminaAfter;
+	const bool bPass = bStarted
+		&& bSecondRefused
+		&& bRunning
+		&& bOnCooldown
+		&& FMath::IsNearlyEqual(StaminaSpent, ExpectedCost, 0.01f);
+
+	UE_LOG(
+		LogFrostwakeGameplay,
+		Log,
+		TEXT("dev_smoke_ability result=%s started=%s secondRefused=%s running=%s onCooldown=%s cost=%.1f staminaBefore=%.1f staminaAfter=%.1f"),
+		bPass ? TEXT("pass") : TEXT("fail"),
+		bStarted ? TEXT("true") : TEXT("false"),
+		bSecondRefused ? TEXT("true") : TEXT("false"),
+		bRunning ? TEXT("true") : TEXT("false"),
+		bOnCooldown ? TEXT("true") : TEXT("false"),
+		StaminaSpent, StaminaBefore, StaminaAfter);
 #endif
 }

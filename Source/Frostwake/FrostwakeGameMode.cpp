@@ -614,6 +614,10 @@ void AFrostwakeGameMode::TryAutoStartMatchForDev()
         // GameMode method (§8 anti-bloat). GameMode only schedules the trigger.
         GetWorldTimerManager().SetTimerForNextTick(FTimerDelegate::CreateStatic(&FrostwakeDevSmoke::RunPerkResist, GetWorld()));
     }
+    if (FParse::Param(FCommandLine::Get(), TEXT("FrostwakeSmokeAbility")))
+    {
+        GetWorldTimerManager().SetTimerForNextTick(FTimerDelegate::CreateStatic(&FrostwakeDevSmoke::RunAbility, GetWorld()));
+    }
     if (FParse::Param(FCommandLine::Get(), TEXT("FrostwakeSmokeQaBot")))
     {
         GetWorldTimerManager().SetTimerForNextTick(this, &AFrostwakeGameMode::RunDevSmokeQaBot);
@@ -2387,6 +2391,10 @@ bool AFrostwakeGameMode::TryStartMatchFromReady()
         // Extracted dev smoke (plan item D): the perk-resistance assert lives in FrostwakeDevSmoke, NOT as a
         // GameMode method (§8 anti-bloat). GameMode only schedules the trigger.
         GetWorldTimerManager().SetTimerForNextTick(FTimerDelegate::CreateStatic(&FrostwakeDevSmoke::RunPerkResist, GetWorld()));
+    }
+    if (FParse::Param(FCommandLine::Get(), TEXT("FrostwakeSmokeAbility")))
+    {
+        GetWorldTimerManager().SetTimerForNextTick(FTimerDelegate::CreateStatic(&FrostwakeDevSmoke::RunAbility, GetWorld()));
     }
     if (FParse::Param(FCommandLine::Get(), TEXT("FrostwakeSmokeQaBot")))
     {
