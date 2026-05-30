@@ -174,10 +174,14 @@ float AFrostwakeGameState::AddRouteProgress(float Delta)
 
 void AFrostwakeGameState::OnRep_MatchPhase()
 {
+    // Intentionally empty: the HUD reads the phase by polling each tick (UFrostwakeHudWidget::NativeTick),
+    // so no event-driven client work is needed here. If a one-shot client reaction is ever wanted (a sound
+    // or transition on phase change), fire it from here.
 }
 
 void AFrostwakeGameState::OnRep_ShipSystems()
 {
+    // Intentionally empty: the ship-system gauges are polled by the HUD each tick (see OnRep_MatchPhase).
 }
 
 void AFrostwakeGameState::InitializeShipSystems()

@@ -96,4 +96,9 @@ private:
     // Voyage tick (called each second): while underway (fueled), burn fuel and advance the route;
     // flip to FinalApproach when the route is complete. This is the ~30-min objective arc.
     void TickVoyage(class AFrostwakeGameState& FrostwakeGameState);
+
+    // Decoupling-spine subscriber (plan §9.1 step 7): the match hub's OnPlayerDied calls this so a player
+    // going down re-evaluates the match end immediately (event-driven), not only on the next 1s timer poll.
+    UFUNCTION()
+    void HandleSpinePlayerDied(AController* Player);
 };

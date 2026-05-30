@@ -10,6 +10,7 @@
 #include "Data/FrostwakeDataSubsystem.h"
 #include "Data/FrostwakeDamageTypeDefinition.h"
 #include "ActionSystem/FrostwakeTemperatureSubsystem.h"
+#include "ActionSystem/FrostwakeMatchSubsystem.h"
 #include "ActionSystem/FrostwakeAttributeComponent.h"
 #include "ActionSystem/FrostwakeActionComponent.h"
 #include "ActionSystem/FrostwakeColdExposureEffect.h"
@@ -205,7 +206,27 @@ void AFrostwakeGameMode::BeginPlay()
         }
     }
 
+    // Subscribe the GameMode to the decoupling spine (plan §9.1 step 7): the first real listener on the
+    // match hub. A player going down now triggers an immediate match-end evaluation (event-driven).
+    if (UFrostwakeMatchSubsystem* MatchSubsystem = UFrostwakeMatchSubsystem::Get(this))
+    {
+        MatchSubsystem->OnPlayerDied.AddDynamic(this, &AFrostwakeGameMode::HandleSpinePlayerDied);
+    }
+
     TryAutoStartMatchForDev();
+}
+
+void AFrostwakeGameMode::HandleSpinePlayerDied(AController* Player)
+{
+    if (!HasAuthority())
+    {
+        return;
+    }
+
+    UE_LOG(LogFrostwakeGameplay, Log, TEXT("spine_player_died_handled player=%s"), *GetNameSafe(Player ? Player->PlayerState : nullptr));
+    // Event-driven: a down can be the thing that incapacitates the crew, so resolve win/lose now rather
+    // than waiting up to ~1s for the next HandleMatchTimerTick poll.
+    EvaluateMatchEnd();
 }
 
 void AFrostwakeGameMode::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
