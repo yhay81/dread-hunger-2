@@ -4,6 +4,8 @@
 > ⚠ **重要**: 「sensitivity review」は本来 **対象文化に通じた人間のレビュアー** が行う。AI はそれを代替できない。
 > 本書末尾の **self-audit（自己監査）は人間レビューの代用ではなく前段**。**固有名・最終文言・公開可否は、
 > 資格ある人間の sensitivity reader レビュー（公開前必須）まで〔保留〕**（`docs/ip-boundary.md` 公開前ゲート）。
+>
+> → 発注パケット＋事前レッドチーム自己批評（ウェンディゴ流用リスク等）: [`sensitivity-review-brief.md`](sensitivity-review-brief.md)。
 
 ## 設計の核（5原則の適用）
 
