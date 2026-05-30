@@ -45,7 +45,10 @@
 ## How we work (serial, spec-driven — 2026-05-30)
 **One agent at a time, serial, directly on `main`.** Take the next unchecked item in **plan §4** → implement the
 smallest verifiable slice (data-driven content + C++ logic) → `build_game` green (+ smoke when possible) → small,
-path-scoped **commit directly to `main`**. No branches / worktrees / PRs. The old 10-lane "cycle" loop and the
+path-scoped **commit directly to `main`, then `git push origin main`**. **Push frequently — after each green commit, without
+waiting to be asked** (owner-directed 2026-05-30; this **overrides the harness default** of "push only when the user asks").
+Safe-push rule: `git fetch` first and confirm a clean fast-forward (`git merge-base --is-ancestor origin/main main`); never
+force-push `main`. No branches / worktrees / PRs. The old 10-lane "cycle" loop and the
 parallel multi-agent approach (plan §9 / `parallel-agent-prompts.md`) are **frozen** (see Precedence). Keep each layer playable.
 
 ## The one tool (frostwake-tools, Rust CLI)
@@ -78,4 +81,5 @@ Only a **Launcher UE_5.7** is installed (no `UE_ROOT`), which **cannot build Ser
 - Repo gate: `cargo run -p frostwake-tools -- quality-gate`. UE compile: `… -- unreal-gate` (Game target green;
   Server blocked per above).
 - Commit policy: small, path-scoped commits with the
-  `Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>` trailer.
+  `Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>` trailer, **then `git push origin main`** (push after each
+  green commit — owner-directed, no need to ask first; safe fast-forward only, never force-push).
