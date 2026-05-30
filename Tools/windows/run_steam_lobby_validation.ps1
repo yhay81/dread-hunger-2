@@ -1,7 +1,7 @@
 param(
     [string]$SteamConfig = "",
     [string]$LobbyMetadata = "Tools\ops\lobby_metadata.example.json",
-    [string]$ExpectedBuildId = "AbyssLock-Win64-Development-local",
+    [string]$ExpectedBuildId = "Frostwake-Win64-Development-local",
     [string]$ExpectedMapId = "L_IcebreakerWhitebox",
     [string]$RunId = "",
     [switch]$RequireSteamConfig,

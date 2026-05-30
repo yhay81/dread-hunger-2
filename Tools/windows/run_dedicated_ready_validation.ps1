@@ -11,7 +11,7 @@ param(
     [int]$ClientLaunchSpacingSeconds = 2,
     [int]$MatchTimeoutSeconds = 90,
     [string]$RunId = "",
-    [string]$BuildId = "AbyssLock-Win64-Development-local",
+    [string]$BuildId = "Frostwake-Win64-Development-local",
     [string]$Profile = "dedicated-ready8"
 )
 

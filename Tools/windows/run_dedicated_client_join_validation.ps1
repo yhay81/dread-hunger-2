@@ -7,7 +7,7 @@ param(
     [int]$StartupDelaySeconds = 8,
     [int]$ClientDurationSeconds = 15,
     [string]$RunId = "",
-    [string]$BuildId = "AbyssLock-Win64-Development-local",
+    [string]$BuildId = "Frostwake-Win64-Development-local",
     [string]$Profile = "dedicated-client-join"
 )
 

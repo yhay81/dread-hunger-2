@@ -12,7 +12,7 @@ param(
     [int]$ExpectedSaboteurs = 2,
     [int]$ClientLaunchSpacingSeconds = 2,
     [int]$MatchTimeoutSeconds = 90,
-    [string]$BuildId = "AbyssLock-Win64-Development-local",
+    [string]$BuildId = "Frostwake-Win64-Development-local",
     [string]$RunId = "",
     [switch]$SkipGenerate,
     [switch]$IncludeSmoke,

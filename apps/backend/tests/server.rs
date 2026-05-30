@@ -74,7 +74,7 @@ async fn accepts_anonymized_playtest_reports() {
             "/v1/playtest-reports",
             json!({
                 "runId": "P1-024-run-01",
-                "buildId": "AbyssLock-Win64-Development-local",
+                "buildId": "Frostwake-Win64-Development-local",
                 "mapId": "/Game/Maps/L_IcebreakerWhitebox",
                 "playerCount": 6,
                 "winner": "crew",
@@ -98,7 +98,7 @@ async fn rejects_playtest_reports_with_risky_identity_data() {
             "/v1/playtest-reports",
             json!({
                 "runId": "P1-024-run-01",
-                "buildId": "AbyssLock-Win64-Development-local",
+                "buildId": "Frostwake-Win64-Development-local",
                 "mapId": "/Game/Maps/L_IcebreakerWhitebox",
                 "playerCount": 6,
                 "summary": "Host was 192.168.0.12 and should be redacted."
@@ -121,7 +121,7 @@ async fn rejects_playtest_reports_with_risky_identity_fields() {
             "/v1/playtest-reports",
             json!({
                 "runId": "P1-024-76561190000000000",
-                "buildId": "AbyssLock-Win64-Development-local",
+                "buildId": "Frostwake-Win64-Development-local",
                 "mapId": "C:\\Users\\tester\\PrivateMap.umap",
                 "playerCount": 6,
                 "summary": "Six players connected, roles assigned, repair and sabotage happened."
@@ -170,7 +170,7 @@ async fn accepts_voice_moderation_report_with_structured_evidence() {
             json!({
                 "runId": "P2-voice-run-01",
                 "matchId": "match-local-001",
-                "buildId": "AbyssLock-Win64-Development-local",
+                "buildId": "Frostwake-Win64-Development-local",
                 "mapId": "L_IcebreakerWhitebox",
                 "reporterLocalId": "player-2",
                 "reportedLocalId": "player-5",
@@ -386,7 +386,7 @@ async fn returns_request_too_large_for_oversized_json_bodies() {
             "/v1/playtest-reports",
             json!({
                 "runId": "P1-024-run-01",
-                "buildId": "AbyssLock-Win64-Development-local",
+                "buildId": "Frostwake-Win64-Development-local",
                 "mapId": "/Game/Maps/L_IcebreakerWhitebox",
                 "playerCount": 6,
                 "summary": "x".repeat(40000)
@@ -412,7 +412,7 @@ async fn creates_and_lists_casual_matchmaking_lobbies() {
                 "lobbyType": "casual",
                 "hostLocalId": "host-1",
                 "hostCompletedMatches": 3,
-                "buildId": "AbyssLock-Win64-Development-local",
+                "buildId": "Frostwake-Win64-Development-local",
                 "mapId": "L_IcebreakerWhitebox",
                 "endpointToken": "local-lobby-token-001"
             }),
@@ -462,7 +462,7 @@ async fn standard_lobbies_require_fifty_completed_matches_and_become_ready_at_ei
                 "lobbyType": "standard",
                 "hostLocalId": "host-1",
                 "hostCompletedMatches": 49,
-                "buildId": "AbyssLock-Win64-Development-local",
+                "buildId": "Frostwake-Win64-Development-local",
                 "mapId": "L_IcebreakerWhitebox",
                 "endpointToken": "standard-token-001"
             }),
@@ -484,7 +484,7 @@ async fn standard_lobbies_require_fifty_completed_matches_and_become_ready_at_ei
                 "lobbyType": "standard",
                 "hostLocalId": "host-1",
                 "hostCompletedMatches": 50,
-                "buildId": "AbyssLock-Win64-Development-local",
+                "buildId": "Frostwake-Win64-Development-local",
                 "mapId": "L_IcebreakerWhitebox",
                 "endpointToken": "standard-token-001"
             }),
@@ -540,7 +540,7 @@ async fn leaving_matchmaking_lobbies_updates_readiness_and_removes_empty_lobbies
                 "lobbyType": "casual",
                 "hostLocalId": "host-1",
                 "hostCompletedMatches": 0,
-                "buildId": "AbyssLock-Win64-Development-local",
+                "buildId": "Frostwake-Win64-Development-local",
                 "mapId": "L_IcebreakerWhitebox",
                 "endpointToken": "leave-token-001"
             }),
@@ -663,7 +663,7 @@ async fn joining_a_full_lobby_returns_conflict() {
                 "lobbyType": "casual",
                 "hostLocalId": "host-1",
                 "hostCompletedMatches": 0,
-                "buildId": "AbyssLock-Win64-Development-local",
+                "buildId": "Frostwake-Win64-Development-local",
                 "mapId": "L_IcebreakerWhitebox",
                 "endpointToken": "full-token-001"
             }),

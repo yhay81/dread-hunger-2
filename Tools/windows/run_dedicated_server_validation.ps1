@@ -5,7 +5,7 @@ param(
     [int]$Port = 7777,
     [int]$DurationSeconds = 20,
     [string]$RunId = "",
-    [string]$BuildId = "AbyssLock-Win64-Development-local",
+    [string]$BuildId = "Frostwake-Win64-Development-local",
     [string]$Profile = "dedicated-private-test"
 )
 

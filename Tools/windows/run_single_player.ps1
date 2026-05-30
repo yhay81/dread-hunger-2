@@ -5,7 +5,7 @@ param(
     [int]$ResX = 1280,
     [int]$ResY = 720,
     [string]$RunId = "",
-    [string]$BuildId = "AbyssLock-Win64-Development-local",
+    [string]$BuildId = "Frostwake-Win64-Development-local",
     [string]$Profile = "single-player"
 )
 

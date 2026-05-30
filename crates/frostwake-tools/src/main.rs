@@ -213,7 +213,7 @@ enum Command {
         res_x: i64,
         #[arg(long, default_value_t = 720)]
         res_y: i64,
-        #[arg(long, default_value = "AbyssLock-Win64-Development-local")]
+        #[arg(long, default_value = "Frostwake-Win64-Development-local")]
         build_id: String,
         #[arg(long, default_value = "/Game/Maps/L_IcebreakerWhitebox")]
         map_id: String,
@@ -8254,7 +8254,7 @@ mod tests {
             validate_lobby_metadata(
                 &schema,
                 &example,
-                Some("AbyssLock-Win64-Development-local"),
+                Some("Frostwake-Win64-Development-local"),
                 Some("L_IcebreakerWhitebox")
             ),
             Vec::<String>::new()
@@ -8351,7 +8351,7 @@ mod tests {
         let decision = decide_lobby_join(
             &schema,
             &example,
-            Some("AbyssLock-Win64-Development-local"),
+            Some("Frostwake-Win64-Development-local"),
             Some("L_IcebreakerWhitebox"),
         );
 
@@ -8785,6 +8785,7 @@ mod tests {
             .expect("summary");
 
         assert_eq!(summary["run_id"], json!("P1-024-run-01"));
+        // p1_024 is an immutable pre-rename recording — build_id stays "AbyssLock-..." (do not rename).
         assert_eq!(
             summary["build_id"],
             json!("AbyssLock-Win64-Development-local")
@@ -8890,6 +8891,7 @@ mod tests {
                 .expect("payload");
 
         assert_eq!(payload["runId"], json!("P1-024-run-01"));
+        // p1_024 is an immutable pre-rename recording — buildId stays "AbyssLock-..." (do not rename).
         assert_eq!(
             payload["buildId"],
             json!("AbyssLock-Win64-Development-local")
@@ -9199,7 +9201,7 @@ mod tests {
         let host = scaffold_file(&scaffold, "host.ps1");
 
         assert!(host.contains("-FrostwakeRunId=P1-024-run-01"));
-        assert!(host.contains("-FrostwakeBuildId=AbyssLock-Win64-Development-local"));
+        assert!(host.contains("-FrostwakeBuildId=Frostwake-Win64-Development-local"));
         assert!(host.contains("-FrostwakeMapId=/Game/Maps/L_IcebreakerWhitebox"));
         assert!(host.contains("-FrostwakeProfile=human-p1-024"));
         assert!(host.contains(
@@ -9433,7 +9435,7 @@ Next backlog item: P1-025
             port: 7777,
             res_x: 1280,
             res_y: 720,
-            build_id: "AbyssLock-Win64-Development-local",
+            build_id: "Frostwake-Win64-Development-local",
             map_id: "/Game/Maps/L_IcebreakerWhitebox",
             profile: "human-p1-024",
             ue_root: r"C:\Program Files\Epic Games\UE_5.7",
