@@ -1,4 +1,8 @@
-# Frostwake Lane Status — Global Snapshot
+> ⛔ **FROZEN (2026-05-30) — superseded by [`docs/frostwake-modernization-plan.md`](../frostwake-modernization-plan.md).**
+> The 10-lane "GP-01…GP-10" status below is **historical only — do NOT act on it.** Start at `CLAUDE.md` →
+> the modernization plan. Current phase/next step lives in plan §4.
+
+# Frostwake Lane Status — Global Snapshot (FROZEN — see banner)
 
 Updated: 2026-05-29 · Phase 1 (local-automation milestone reached) · 10 parallel lanes
 

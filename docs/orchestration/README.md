@@ -1,4 +1,9 @@
-# Frostwake Orchestration — Start Here
+> ⛔ **FROZEN (2026-05-30) — superseded by [`docs/frostwake-modernization-plan.md`](../frostwake-modernization-plan.md).**
+> The 10-lane "GP-01…GP-10" process here is **historical only — do NOT act on it.** A context-less agent must
+> start at repo-root **`CLAUDE.md`** → the modernization plan (see `CLAUDE.md` §START HERE / §Precedence).
+> Kept for reference, not action.
+
+# Frostwake Orchestration — Start Here (FROZEN — see banner)
 
 This directory turns Frostwake's work into **10 parallel lanes** that autonomous agents can
 advance one small, verifiable step at a time, **even with no memory of previous runs**.

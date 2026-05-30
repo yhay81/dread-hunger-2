@@ -1,61 +1,66 @@
-# CLAUDE.md — Frostwake (formerly codename AbyssLock)
+# CLAUDE.md — Frostwake
 
-8-player cooperative betrayal survival game. UE 5.7 (C++ server-authoritative) + Rust tools
-& non-authoritative backend + Steam/dedicated-server target. Public name: **Frostwake**.
-The repo path may still say `dread-hunger-2` internally (rename deferred); the UE module and C++ classes were renamed `AbyssLock`->`Frostwake` on 2026-05-30 — see `docs/naming-unification.md`.
+> **🎯 North Star (never lose this).** Frostwake is an **original** 8-player cooperative-betrayal
+> survival game with **Dread-Hunger-class mechanics**: UE 5.7 (C++, **server-authoritative**) + off-engine
+> Rust tools/backend, Steam/dedicated-server target. **Goal: reproduce DH's mechanics & data in full**
+> (from the verified teardown spec in the sibling `TEST2/` folder) **with fully original expression**
+> — our names/art/audio/theme; *mechanics* may match DH freely. Public name **Frostwake**; repo path may
+> still read `dread-hunger-2` (folder rename deferred). UE module + C++ classes were renamed
+> `AbyssLock`→`Frostwake` (2026-05-30); **treat any remaining `AbyssLock` text as stale.**
 
-## How this project is driven
+> **🧭 START HERE — every session, including a context-less agent.**
+> 1. **This file** — non-negotiables + how we work.
+> 2. **[`docs/frostwake-modernization-plan.md`](docs/frostwake-modernization-plan.md) — THE driving plan
+>    and single source of truth (SSOT)**: goal (§1), IP guardrail (§2), architecture (§3), phases + the
+>    exact next step (§4), the verified DH spec map (§6), and the **conventions you MUST follow** (§8).
+>
+> Those two are enough to start working toward the goal the *same way every time*. Everything else is reference.
 
-Work is organized as **10 continuous parallel lanes (GP-01…GP-10)** advanced one small,
-verifiable step at a time. **If you are starting work, read
-[`docs/orchestration/README.md`](docs/orchestration/README.md) first**, then
-[`docs/orchestration/DISPATCH.md`](docs/orchestration/DISPATCH.md) (the launch instruction),
-[`STATUS.md`](docs/orchestration/STATUS.md), and the relevant
-`docs/orchestration/lanes/GP-0X.state.md`.
+> **⚖️ Precedence — so contradictions never lose the goal.**
+> Order: **CLAUDE.md non-negotiables → the modernization plan → everything else.**
+> If any doc conflicts with the plan, **the plan wins**: follow it and flag the conflict — do **not** guess.
+> **`docs/orchestration/**` is FROZEN** (the former 10-lane "GP-01…GP-10" process; historical, do **not**
+> act on it). **`docs/cycles/**` is historical evidence**, not active instructions.
 
-The iteration loop and its cadence are in [`docs/iteration-loop.md`](docs/iteration-loop.md);
-agent roles/handoff gates in [`docs/agent-operating-model.md`](docs/agent-operating-model.md).
+## Current state (keep this current — it's the agent's "where am I")
+- **Phase 1** — modern foundation + convention (one-way-door) locks. The exact next step lives in plan §4.
+- Work on branch **`frostwake/phase1-foundation`**; merge to `main` at verified checkpoints.
+- Design oracle: sibling **`TEST2/dh_re/`** (DH reverse-engineering teardown — read-only; see plan §2 + the
+  IP non-negotiable below).
 
-## The one tool that drives everything
+## How we work (lightweight, spec-driven)
+Take the next unchecked item in **plan §4** → implement the smallest verifiable slice (data-driven content +
+C++ logic) → build/smoke green → small, path-scoped commit on the feature branch. The old 10-lane "cycle" loop
+and `/frostwake-loop` are **frozen** (see Precedence). Keep each layer playable.
 
-`frostwake-tools` (Rust CLI). Run from repo root:
-
-```
-cargo run -p frostwake-tools -- <verb> [args]
-```
-
-Key verbs: `quality-gate [--require-ue]`, `unreal-gate [--include-server] [--platform Win64]`,
-`run-local-smoke`, `run-smoke-suite`, `new-cycle`, `log-summary`, `playtest-preflight`,
-`playtest-run-scaffold`, `lobby-metadata-check`, `lobby-join-decision`, `asset-ledger-check`,
-`secret-scan`, `create-frostwake-visual-poc`, `validate-frostwake-visual-poc`.
+## The one tool (frostwake-tools, Rust CLI)
+From repo root: `cargo run -p frostwake-tools -- <verb>`. Core verbs: `quality-gate [--require-ue]`,
+`unreal-gate [--include-server] [--platform Win64]`, `run-local-smoke`, `run-smoke-suite`, `log-summary`,
+`secret-scan`, `asset-ledger-check`. (Some verbs predate the lightweight plan — cross-check the plan if unsure.)
 
 ## Non-negotiables
-
-- **Match authority stays in Unreal C++ / dedicated server.** Rust backend is
-  non-authoritative (reports, stats, fleet metadata, lobby directory).
-- **Evidence over memory.** Every claim links a command + artifact (`docs/cycles/`,
-  `Saved/SmokeSuites/…`, manifests). Distinguish pass / fail / blocked / not-run.
+- **Match authority stays in Unreal C++ / dedicated server.** Rust is **off-engine only** (tools, CI,
+  non-authoritative backend, shared schema/codegen) — in-engine Rust is not production-ready (plan §3.5).
+- **IP / DRM (hard line).** The sibling `TEST2/` is a DH teardown. **Never commit its `aes_key.txt`,
+  `extracted/`, `decompiled/`, locres text, or any DH file/text into this repo.** Use only abstract
+  mechanics/numbers/structure. **Expression is phase-gated**: DH-near placeholders OK while prototyping,
+  **originalized before any public exposure**; mechanics may match DH freely. Never circumvent DRM in any
+  phase. (`docs/ip-boundary.md`, plan §2.)
+- **Evidence over memory.** Every claim links a command + artifact; distinguish pass / fail / blocked / not-run.
 - **Never commit** secrets, SteamIDs, IPs, raw voice/chat, PII, or private reference files.
-- **No unverified public claims** (store copy, features). IP/rights gates apply before any
-  third-party asset adoption. **Expression is phase-gated** (`docs/ip-boundary.md` Development
-  Phase Policy): DH-near placeholders are allowed during prototyping and originalized before any
-  public exposure; mechanics may match DH freely. Never commit/distribute DH files or circumvent
-  DRM in any phase.
 - **PowerShell is launch-wrappers only**; durable logic lives in Rust or UE C++.
-- `docs/cycles/` is historical evidence — old command names there are not active instructions.
+- **Keep docs coherent (this is how the mechanism stays true).** When a decision changes: update the **plan
+  (SSOT) first**, then add a one-line supersession pointer to any doc it makes stale. Don't leave silent
+  contradictions. Don't add new "driving" docs — extend the plan.
 
 ## Current hard blocker (verify, don't assume)
-
-Only a **Launcher UE_5.7** is installed locally (no `UE_ROOT`), which **cannot build Server
-targets**, so `Binaries/Win64/FrostwakeServer.exe` does not exist. This blocks the
-*implementation* of GP-02 (dedicated server) and GP-04 (Steam lobby spike) and the live
-GP-01 human run. All other lanes (and the design/config/blocker-evidence parts of the gated
-ones) are workable now.
+Only a **Launcher UE_5.7** is installed (no `UE_ROOT`), which **cannot build Server targets**, so
+`Binaries/Win64/FrostwakeServer.exe` does not exist. This gates the dedicated-server build and the real
+8-player multiplayer run. **Game/Editor targets build fine** (solo/PIE works); all non-MP work proceeds now.
 
 ## Build/verify quickly
-
-- Rust: `cargo test --workspace` (use `CARGO_TARGET_DIR=target/loop-gpNN` to avoid lock
-  contention with another running build).
-- Repo gate: `cargo run -p frostwake-tools -- quality-gate`.
-- Commit policy for the autonomous loop: small, path-scoped commits to `main` with the
+- Rust: `cargo test --workspace` (use `CARGO_TARGET_DIR=target/loop-gpNN` to avoid lock contention).
+- Repo gate: `cargo run -p frostwake-tools -- quality-gate`. UE compile: `… -- unreal-gate` (Game target green;
+  Server blocked per above).
+- Commit policy: small, path-scoped commits with the
   `Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>` trailer.

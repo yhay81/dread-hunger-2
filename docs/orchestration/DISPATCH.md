@@ -1,4 +1,8 @@
-# Frostwake Autonomous Dispatch — Launch Instruction
+> ⛔ **FROZEN (2026-05-30) — superseded by [`docs/frostwake-modernization-plan.md`](../frostwake-modernization-plan.md).**
+> This autonomous 10-lane dispatch loop is **frozen — do NOT act on it.** A context-less agent must start at
+> repo-root **`CLAUDE.md`** → the modernization plan (`CLAUDE.md` §START HERE). Kept for reference, not action.
+
+# Frostwake Autonomous Dispatch — Launch Instruction (FROZEN — see banner)
 
 You are **one iteration** of the Frostwake build loop. You may have **no memory** of
 previous iterations. Everything you need is in the repository. Read this file, then do
