@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Engine/TimerHandle.h"
 #include "GameFramework/Character.h"
+#include "GameplayTagContainer.h"
 #include "FrostwakeCharacter.generated.h"
 
 class UFrostwakeInteractionComponent;
@@ -35,8 +36,10 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Frostwake|Inventory")
     void TryDropItem();
 
+    // Server-authoritative typed damage (§3.17): DamageType is a Damage.* tag; the amount is run through
+    // AdjustDamage (data-driven DamageTypeDefinition modifiers) before it hits Health.
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Frostwake|Life")
-    bool ApplyServerDamage(float DamageAmount, AActor* DamageSource);
+    bool ApplyServerDamage(float DamageAmount, FGameplayTag DamageType, AActor* DamageSource);
 
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Frostwake|Life")
     bool RescueFromDowned(APawn* RescuerPawn);
@@ -117,6 +120,10 @@ protected:
 
     // Difficulty multiplier applied to food/warmth decay (1.0 if no match config / not authoritative).
     float GetMatchDecayMultiplier() const;
+
+    // §3.17 AdjustDamage: apply the DamageType's data-driven modifiers (DamageTypeDefinition.DamageMultiplier;
+    // resistances later) to a base amount. Falls back to the base amount for an unknown/invalid type.
+    float AdjustDamage(float BaseDamage, const FGameplayTag& DamageType) const;
 
     UFUNCTION(Server, Reliable)
     void ServerTryDropItem();

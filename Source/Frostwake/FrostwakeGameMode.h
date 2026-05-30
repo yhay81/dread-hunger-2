@@ -79,6 +79,7 @@ private:
     void RunDevSmokeCombinedSystems();
     void RunDevSmokeLifeAction();
     void RunDevSmokeEat();
+    void RunDevSmokeDamageType();
     void RunDevSmokeQaBot();
     void RunDevSmokeQaPlayerBot();
     void RunDevSmokeQaTaskBot();

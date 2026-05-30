@@ -5,6 +5,9 @@
 #include "FrostwakeLifeActionActor.h"
 #include "FrostwakeCharacter.h"
 #include "FrostwakeGameState.h"
+#include "FrostwakeGameplayTags.h"
+#include "Data/FrostwakeDataSubsystem.h"
+#include "Data/FrostwakeDamageTypeDefinition.h"
 #include "FrostwakeLog.h"
 #include "FrostwakePlayerController.h"
 #include "FrostwakePlayerState.h"
@@ -566,6 +569,10 @@ void AFrostwakeGameMode::TryAutoStartMatchForDev()
     {
         GetWorldTimerManager().SetTimerForNextTick(this, &AFrostwakeGameMode::RunDevSmokeEat);
     }
+    if (FParse::Param(FCommandLine::Get(), TEXT("FrostwakeSmokeDamageType")))
+    {
+        GetWorldTimerManager().SetTimerForNextTick(this, &AFrostwakeGameMode::RunDevSmokeDamageType);
+    }
     if (FParse::Param(FCommandLine::Get(), TEXT("FrostwakeSmokeQaBot")))
     {
         GetWorldTimerManager().SetTimerForNextTick(this, &AFrostwakeGameMode::RunDevSmokeQaBot);
@@ -780,7 +787,7 @@ void AFrostwakeGameMode::RunDevSmokeDownRescue()
         RescuerPawn = TargetCharacter;
     }
 
-    const bool bDowned = TargetCharacter ? TargetCharacter->ApplyServerDamage(999.0f, RescuerPawn) : false;
+    const bool bDowned = TargetCharacter ? TargetCharacter->ApplyServerDamage(999.0f, FrostwakeTags::Damage_Piercing, RescuerPawn) : false;
     const bool bRescued = TargetCharacter ? TargetCharacter->RescueFromDowned(RescuerPawn) : false;
     UE_LOG(
         LogFrostwakeGameplay,
@@ -1319,6 +1326,64 @@ void AFrostwakeGameMode::RunDevSmokeEat()
 #endif
 }
 
+void AFrostwakeGameMode::RunDevSmokeDamageType()
+{
+#if !UE_BUILD_SHIPPING
+    if (!HasAuthority() || !GetWorld())
+    {
+        return;
+    }
+
+    AFrostwakeCharacter* Character = nullptr;
+    for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+    {
+        const APlayerController* PlayerController = It->Get();
+        if (AFrostwakeCharacter* Candidate = PlayerController ? Cast<AFrostwakeCharacter>(PlayerController->GetPawn()) : nullptr)
+        {
+            Character = Candidate;
+            break;
+        }
+    }
+
+    // Behavioral proof of typed, data-driven damage (§3.17): apply a sub-lethal Slashing hit and confirm
+    // Health fell by base * DamageTypeDefinition.DamageMultiplier (read from the loaded data). Proves
+    // AdjustDamage consumes the damage-type data (a 2nd data-driven consumer beyond items).
+    const float BaseDamage = 20.0f;
+    float Multiplier = -1.0f;
+    if (const UGameInstance* GameInstance = GetGameInstance())
+    {
+        if (const UFrostwakeDataSubsystem* DataSubsystem = GameInstance->GetSubsystem<UFrostwakeDataSubsystem>())
+        {
+            if (const UFrostwakeDamageTypeDefinition* Def = DataSubsystem->GetDamageTypeDefinitionForTag(FrostwakeTags::Damage_Slashing))
+            {
+                Multiplier = Def->DamageMultiplier;
+            }
+        }
+    }
+
+    float HealthBefore = -1.0f;
+    float HealthAfter = -1.0f;
+    bool bApplied = false;
+    if (Character)
+    {
+        HealthBefore = Character->GetHealth();
+        bApplied = Character->ApplyServerDamage(BaseDamage, FrostwakeTags::Damage_Slashing, this);
+        HealthAfter = Character->GetHealth();
+    }
+
+    const float ActualDelta = HealthBefore - HealthAfter;
+    const float ExpectedDelta = (Multiplier >= 0.0f) ? BaseDamage * Multiplier : BaseDamage;
+    const bool bPass = bApplied && Multiplier > 0.0f && FMath::IsNearlyEqual(ActualDelta, ExpectedDelta, 0.01f);
+
+    UE_LOG(
+        LogFrostwakeGameplay,
+        Log,
+        TEXT("dev_smoke_damage_type result=%s base=%.1f multiplier=%.2f expectedDelta=%.1f actualDelta=%.1f healthBefore=%.1f healthAfter=%.1f"),
+        bPass ? TEXT("pass") : TEXT("fail"),
+        BaseDamage, Multiplier, ExpectedDelta, ActualDelta, HealthBefore, HealthAfter);
+#endif
+}
+
 void AFrostwakeGameMode::RunDevSmokeCombinedSystems()
 {
 #if !UE_BUILD_SHIPPING
@@ -1402,7 +1467,7 @@ void AFrostwakeGameMode::RunDevSmokeCombinedSystems()
         InventoryComponent->HasItem(SmokeItemId) &&
         CountAfterItemPickup == CountBeforeItem + 1;
 
-    const bool bDowned = LifeTargetCharacter ? LifeTargetCharacter->ApplyServerDamage(999.0f, SaboteurCharacter) : false;
+    const bool bDowned = LifeTargetCharacter ? LifeTargetCharacter->ApplyServerDamage(999.0f, FrostwakeTags::Damage_Piercing, SaboteurCharacter) : false;
     const bool bRescued = LifeTargetCharacter ? LifeTargetCharacter->RescueFromDowned(CrewCharacter) : false;
     const AFrostwakePlayerState* LifeTargetState = LifeTargetCharacter ? LifeTargetCharacter->GetPlayerState<AFrostwakePlayerState>() : nullptr;
     const bool bDownRescuePassed = bDowned && bRescued && LifeTargetState && LifeTargetState->GetLifeState() == EFrostwakeLifeState::Alive;
@@ -1579,7 +1644,7 @@ void AFrostwakeGameMode::RunDevSmokeLifeAction()
             FRotator::ZeroRotator);
     }
 
-    const bool bDamaged = TargetCharacter ? TargetCharacter->ApplyServerDamage(999.0f, InstigatorCharacter) : false;
+    const bool bDamaged = TargetCharacter ? TargetCharacter->ApplyServerDamage(999.0f, FrostwakeTags::Damage_Piercing, InstigatorCharacter) : false;
     bool bCanRescue = false;
     bool bRescued = false;
     bool bCanContain = false;
@@ -2354,6 +2419,10 @@ bool AFrostwakeGameMode::TryStartMatchFromReady()
     if (FParse::Param(FCommandLine::Get(), TEXT("FrostwakeSmokeEat")))
     {
         GetWorldTimerManager().SetTimerForNextTick(this, &AFrostwakeGameMode::RunDevSmokeEat);
+    }
+    if (FParse::Param(FCommandLine::Get(), TEXT("FrostwakeSmokeDamageType")))
+    {
+        GetWorldTimerManager().SetTimerForNextTick(this, &AFrostwakeGameMode::RunDevSmokeDamageType);
     }
     if (FParse::Param(FCommandLine::Get(), TEXT("FrostwakeSmokeQaBot")))
     {

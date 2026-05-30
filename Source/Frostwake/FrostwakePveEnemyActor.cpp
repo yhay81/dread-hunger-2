@@ -1,6 +1,7 @@
 #include "FrostwakePveEnemyActor.h"
 #include "FrostwakeCharacter.h"
 #include "FrostwakeGameState.h"
+#include "FrostwakeGameplayTags.h"
 #include "FrostwakeLog.h"
 #include "FrostwakePlayerState.h"
 #include "FrostwakeTelemetrySubsystem.h"
@@ -65,7 +66,7 @@ bool AFrostwakePveEnemyActor::AttackCharacter(AFrostwakeCharacter* TargetCharact
         return false;
     }
 
-    const bool bAppliedDamage = TargetCharacter->ApplyServerDamage(DamageAmount, this);
+    const bool bAppliedDamage = TargetCharacter->ApplyServerDamage(DamageAmount, FrostwakeTags::Damage_Slashing, this);
     if (!bAppliedDamage)
     {
         return false;

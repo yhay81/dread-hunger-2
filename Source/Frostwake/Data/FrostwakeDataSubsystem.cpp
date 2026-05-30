@@ -1,6 +1,7 @@
 #include "Data/FrostwakeDataSubsystem.h"
 
 #include "Data/FrostwakeItemDefinition.h"
+#include "Data/FrostwakeDamageTypeDefinition.h"
 #include "JsonObjectConverter.h"
 #include "Serialization/JsonReader.h"
 #include "Serialization/JsonSerializer.h"
@@ -19,7 +20,20 @@ void UFrostwakeDataSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 void UFrostwakeDataSubsystem::ReloadAllDefinitions()
 {
 	LoadItemDefinitions();
-	// Wave 1 extends this with weapons/recipes/roles/perks/damage-types using the same parse path.
+	LoadDamageTypeDefinitions();
+	// Wave 1 extends this further (weapons/recipes/roles/perks) using the same parse path.
+}
+
+const UFrostwakeDamageTypeDefinition* UFrostwakeDataSubsystem::GetDamageTypeDefinitionForTag(const FGameplayTag& DamageTag) const
+{
+	if (!DamageTag.IsValid())
+	{
+		return nullptr;
+	}
+	// DamageTypeId is the full tag name (e.g. "Damage.Cold"), so the lookup is O(1) and avoids any
+	// FGameplayTagContainer JSON binding.
+	const TObjectPtr<UFrostwakeDamageTypeDefinition>* Found = DamageTypeDefinitions.Find(DamageTag.GetTagName());
+	return Found ? Found->Get() : nullptr;
 }
 
 UFrostwakeItemDefinition* UFrostwakeDataSubsystem::GetItemDefinition(FName ItemId) const
@@ -94,4 +108,68 @@ void UFrostwakeDataSubsystem::LoadItemDefinitions()
 
 	UE_LOG(LogFrostwakeData, Log, TEXT("[DataSubsystem] Loaded %d item definition(s) from %s"),
 		ItemDefinitions.Num(), *SourceDir);
+}
+
+void UFrostwakeDataSubsystem::LoadDamageTypeDefinitions()
+{
+	DamageTypeDefinitions.Reset();
+
+	const FString SourceDir = FPaths::ProjectContentDir() / TEXT("Data/DamageTypes/source");
+
+	TArray<FString> JsonFileNames;
+	IFileManager::Get().FindFiles(JsonFileNames, *(SourceDir / TEXT("*.json")), /*Files*/ true, /*Directories*/ false);
+
+	if (JsonFileNames.Num() == 0)
+	{
+		UE_LOG(LogFrostwakeData, Warning, TEXT("[DataSubsystem] No damage-type JSON found under %s"), *SourceDir);
+		return;
+	}
+
+	for (const FString& FileName : JsonFileNames)
+	{
+		const FString FullPath = SourceDir / FileName;
+
+		FString Raw;
+		if (!FFileHelper::LoadFileToString(Raw, *FullPath))
+		{
+			UE_LOG(LogFrostwakeData, Warning, TEXT("[DataSubsystem] Failed to read %s"), *FullPath);
+			continue;
+		}
+
+		TArray<TSharedPtr<FJsonValue>> JsonArray;
+		const TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(Raw);
+		if (!FJsonSerializer::Deserialize(Reader, JsonArray))
+		{
+			UE_LOG(LogFrostwakeData, Warning, TEXT("[DataSubsystem] Failed to parse JSON array in %s"), *FullPath);
+			continue;
+		}
+
+		for (const TSharedPtr<FJsonValue>& Value : JsonArray)
+		{
+			const TSharedPtr<FJsonObject>* TypeObj = nullptr;
+			if (!Value.IsValid() || !Value->TryGetObject(TypeObj) || !TypeObj->IsValid())
+			{
+				continue;
+			}
+
+			UFrostwakeDamageTypeDefinition* Def = NewObject<UFrostwakeDamageTypeDefinition>(this);
+			if (!FJsonObjectConverter::JsonObjectToUStruct(
+					TypeObj->ToSharedRef(), UFrostwakeDamageTypeDefinition::StaticClass(), Def, /*CheckFlags*/ 0, /*SkipFlags*/ 0))
+			{
+				UE_LOG(LogFrostwakeData, Warning, TEXT("[DataSubsystem] Field binding failed for an entry in %s"), *FullPath);
+				continue;
+			}
+
+			if (Def->DamageTypeId.IsNone())
+			{
+				UE_LOG(LogFrostwakeData, Warning, TEXT("[DataSubsystem] Skipping damage type with no DamageTypeId in %s"), *FullPath);
+				continue;
+			}
+
+			DamageTypeDefinitions.Add(Def->DamageTypeId, Def);
+		}
+	}
+
+	UE_LOG(LogFrostwakeData, Log, TEXT("[DataSubsystem] Loaded %d damage type definition(s) from %s"),
+		DamageTypeDefinitions.Num(), *SourceDir);
 }

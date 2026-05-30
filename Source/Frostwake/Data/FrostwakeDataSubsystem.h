@@ -2,9 +2,11 @@
 
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
+#include "GameplayTagContainer.h"
 #include "FrostwakeDataSubsystem.generated.h"
 
 class UFrostwakeItemDefinition;
+class UFrostwakeDamageTypeDefinition;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogFrostwakeData, Log, All);
 
@@ -47,11 +49,25 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Frostwake|Data")
 	int32 GetNumItemDefinitions() const { return ItemDefinitions.Num(); }
 
+	/** Resolve a damage type by a Damage.* gameplay tag (linear over the small set). nullptr if unknown. */
+	const UFrostwakeDamageTypeDefinition* GetDamageTypeDefinitionForTag(const FGameplayTag& DamageTag) const;
+
+	/** Number of loaded damage type definitions (connectivity smoke). */
+	UFUNCTION(BlueprintCallable, Category="Frostwake|Data")
+	int32 GetNumDamageTypeDefinitions() const { return DamageTypeDefinitions.Num(); }
+
 private:
 	/** Parse Content/Data/Items/source/*.json into ItemDefinitions. */
 	void LoadItemDefinitions();
 
+	/** Parse Content/Data/DamageTypes/source/*.json into DamageTypeDefinitions. */
+	void LoadDamageTypeDefinitions();
+
 	/** ItemId -> definition. Owns the instances (UPROPERTY keeps them referenced). */
 	UPROPERTY(Transient)
 	TMap<FName, TObjectPtr<UFrostwakeItemDefinition>> ItemDefinitions;
+
+	/** DamageTypeId -> definition. */
+	UPROPERTY(Transient)
+	TMap<FName, TObjectPtr<UFrostwakeDamageTypeDefinition>> DamageTypeDefinitions;
 };

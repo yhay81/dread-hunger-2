@@ -11,6 +11,8 @@
 #include "ActionSystem/FrostwakeTemperatureSubsystem.h"
 #include "Data/FrostwakeDataSubsystem.h"
 #include "Data/FrostwakeItemDefinition.h"
+#include "Data/FrostwakeDamageTypeDefinition.h"
+#include "FrostwakeGameplayTags.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
@@ -113,21 +115,16 @@ void AFrostwakeCharacter::UpdateSurvival()
         }
     }
 
-    float HealthDrain = 0.0f;
+    // Starvation and cold each apply as their own typed world-damage (§3.17), through the normal damage
+    // path (so they down the player + emit telemetry). If the first downs the player the second no-ops.
     if (AttributeComponent
         && AttributeComponent->GetAttribute(EFrostwakeAttribute::Hunger) >= AttributeComponent->GetMaxAttribute(EFrostwakeAttribute::Hunger))
     {
-        HealthDrain += StarvationDamagePerSecond * DeltaSeconds; // starving (Hunger maxed)
+        ApplyServerDamage(StarvationDamagePerSecond * DeltaSeconds, FrostwakeTags::Damage_Starvation, this);
     }
     if (AttributeComponent && AttributeComponent->GetAttribute(EFrostwakeAttribute::Warmth) <= 0.0f)
     {
-        HealthDrain += HypothermiaDamagePerSecond * DeltaSeconds;
-    }
-
-    if (HealthDrain > 0.0f)
-    {
-        // Reuse the damage path so starvation/exposure also downs the player and emits telemetry.
-        ApplyServerDamage(HealthDrain, this);
+        ApplyServerDamage(HypothermiaDamagePerSecond * DeltaSeconds, FrostwakeTags::Damage_Cold, this);
     }
 }
 
@@ -184,7 +181,26 @@ float AFrostwakeCharacter::GetMatchDecayMultiplier() const
     return 1.0f;
 }
 
-bool AFrostwakeCharacter::ApplyServerDamage(float DamageAmount, AActor* DamageSource)
+float AFrostwakeCharacter::AdjustDamage(float BaseDamage, const FGameplayTag& DamageType) const
+{
+    // Data-driven (plan §3.2/§3.17): the DamageTypeDefinition's multiplier scales the amount. Per-perk
+    // resistances (bAffectedByResistance) and ReservedHealth routing (bAffectsReservedHealth) land in
+    // later §3.17 increments. Unknown/invalid type = pass the base amount through unchanged.
+    float Multiplier = 1.0f;
+    if (const UGameInstance* GameInstance = GetGameInstance())
+    {
+        if (const UFrostwakeDataSubsystem* DataSubsystem = GameInstance->GetSubsystem<UFrostwakeDataSubsystem>())
+        {
+            if (const UFrostwakeDamageTypeDefinition* Definition = DataSubsystem->GetDamageTypeDefinitionForTag(DamageType))
+            {
+                Multiplier = FMath::Max(0.0f, Definition->DamageMultiplier);
+            }
+        }
+    }
+    return BaseDamage * Multiplier;
+}
+
+bool AFrostwakeCharacter::ApplyServerDamage(float DamageAmount, FGameplayTag DamageType, AActor* DamageSource)
 {
     if (!HasAuthority() || DamageAmount <= 0.0f || !AttributeComponent)
     {
@@ -197,8 +213,16 @@ bool AFrostwakeCharacter::ApplyServerDamage(float DamageAmount, AActor* DamageSo
         return false;
     }
 
-    const float NewHealth = AttributeComponent->ModifyAttribute(EFrostwakeAttribute::Health, -DamageAmount);
-    UE_LOG(LogFrostwakeGameplay, Log, TEXT("player_damaged player=%s health=%.1f damage=%.1f source=%s"), *GetNameSafe(FrostwakePlayerState), NewHealth, DamageAmount, *GetNameSafe(DamageSource));
+    // §3.17: scale the incoming amount by the data-driven damage type before it hits Health.
+    const float FinalDamage = AdjustDamage(DamageAmount, DamageType);
+    if (FinalDamage <= 0.0f)
+    {
+        return false;
+    }
+
+    const float NewHealth = AttributeComponent->ModifyAttribute(EFrostwakeAttribute::Health, -FinalDamage);
+    const FString DamageTypeName = DamageType.IsValid() ? DamageType.GetTagName().ToString() : FString(TEXT("Untyped"));
+    UE_LOG(LogFrostwakeGameplay, Log, TEXT("player_damaged player=%s health=%.1f damage=%.1f type=%s source=%s"), *GetNameSafe(FrostwakePlayerState), NewHealth, FinalDamage, *DamageTypeName, *GetNameSafe(DamageSource));
     if (UGameInstance* GameInstance = GetGameInstance())
     {
         if (UFrostwakeTelemetrySubsystem* TelemetrySubsystem = GameInstance->GetSubsystem<UFrostwakeTelemetrySubsystem>())
@@ -206,10 +230,11 @@ bool AFrostwakeCharacter::ApplyServerDamage(float DamageAmount, AActor* DamageSo
             TelemetrySubsystem->LogEvent(
                 TEXT("player_damaged"),
                 FString::Printf(
-                    TEXT("{\"player\":\"%s\",\"health\":%.1f,\"damage\":%.1f,\"source\":\"%s\"}"),
+                    TEXT("{\"player\":\"%s\",\"health\":%.1f,\"damage\":%.1f,\"type\":\"%s\",\"source\":\"%s\"}"),
                     *GetNameSafe(FrostwakePlayerState),
                     NewHealth,
-                    DamageAmount,
+                    FinalDamage,
+                    *DamageTypeName,
                     *GetNameSafe(DamageSource)));
         }
     }

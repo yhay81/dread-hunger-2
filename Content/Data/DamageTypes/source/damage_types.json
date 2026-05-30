@@ -1,0 +1,37 @@
+[
+	{
+		"DamageTypeId": "Damage.Cold",
+		"DisplayName": "Cold / Exposure",
+		"bAffectedByResistance": true,
+		"bAffectsReservedHealth": false,
+		"DamageMultiplier": 1.0
+	},
+	{
+		"DamageTypeId": "Damage.Starvation",
+		"DisplayName": "Starvation",
+		"bAffectedByResistance": false,
+		"bAffectsReservedHealth": false,
+		"DamageMultiplier": 1.0
+	},
+	{
+		"DamageTypeId": "Damage.Piercing",
+		"DisplayName": "Piercing",
+		"bAffectedByResistance": true,
+		"bAffectsReservedHealth": false,
+		"DamageMultiplier": 1.0
+	},
+	{
+		"DamageTypeId": "Damage.Slashing",
+		"DisplayName": "Slashing",
+		"bAffectedByResistance": true,
+		"bAffectsReservedHealth": false,
+		"DamageMultiplier": 1.5
+	},
+	{
+		"DamageTypeId": "Damage.Poison",
+		"DisplayName": "Poison",
+		"bAffectedByResistance": true,
+		"bAffectsReservedHealth": true,
+		"DamageMultiplier": 1.0
+	}
+]
