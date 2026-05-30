@@ -10,6 +10,7 @@
 #include "Data/FrostwakeDataSubsystem.h"
 #include "Data/FrostwakeDamageTypeDefinition.h"
 #include "ActionSystem/FrostwakeTemperatureSubsystem.h"
+#include "ActionSystem/FrostwakeAttributeComponent.h"
 #include "ActionSystem/FrostwakeActionComponent.h"
 #include "ActionSystem/FrostwakeColdExposureEffect.h"
 #include "FrostwakeLog.h"
@@ -799,16 +800,37 @@ void AFrostwakeGameMode::RunDevSmokeDownRescue()
         RescuerPawn = TargetCharacter;
     }
 
+    // §3.17 ReservedHealth: DT_Poison drains the reserve (not living Health); revive draws Health back out
+    // of it (a rescue after the reserve was poisoned restores less). Proven inline here.
+    UFrostwakeAttributeComponent* Attributes = TargetCharacter ? TargetCharacter->FindComponentByClass<UFrostwakeAttributeComponent>() : nullptr;
+    const float ReserveBefore = Attributes ? Attributes->GetAttribute(EFrostwakeAttribute::ReservedHealth) : -1.0f;
+    const float HealthBeforePoison = TargetCharacter ? TargetCharacter->GetHealth() : -1.0f;
+    const bool bPoisoned = TargetCharacter ? TargetCharacter->ApplyServerDamage(60.0f, FrostwakeTags::Damage_Poison, RescuerPawn) : false;
+    const float ReserveAfterPoison = Attributes ? Attributes->GetAttribute(EFrostwakeAttribute::ReservedHealth) : -1.0f;
+    const float HealthAfterPoison = TargetCharacter ? TargetCharacter->GetHealth() : -1.0f;
+    const bool bPoisonToReserve = bPoisoned && ReserveAfterPoison < ReserveBefore && FMath::IsNearlyEqual(HealthAfterPoison, HealthBeforePoison, 0.01f);
+
     const bool bDowned = TargetCharacter ? TargetCharacter->ApplyServerDamage(999.0f, FrostwakeTags::Damage_Piercing, RescuerPawn) : false;
+    const float ReserveAtDown = Attributes ? Attributes->GetAttribute(EFrostwakeAttribute::ReservedHealth) : -1.0f;
     const bool bRescued = TargetCharacter ? TargetCharacter->RescueFromDowned(RescuerPawn) : false;
+    const float HealthAfterRevive = TargetCharacter ? TargetCharacter->GetHealth() : -1.0f;
+    const float ExpectedRevive = TargetCharacter
+        ? FMath::Clamp(FMath::Min(TargetCharacter->GetMaxHealth() * 0.5f, ReserveAtDown), 1.0f, TargetCharacter->GetMaxHealth())
+        : -1.0f;
+    const bool bReviveFromReserve = bRescued && FMath::IsNearlyEqual(HealthAfterRevive, ExpectedRevive, 0.01f);
+
+    const bool bPass = bDowned && bRescued && bPoisonToReserve && bReviveFromReserve;
     UE_LOG(
         LogFrostwakeGameplay,
         Log,
-        TEXT("dev_smoke_down_rescue downed=%s rescued=%s target=%s rescuer=%s"),
+        TEXT("dev_smoke_down_rescue result=%s downed=%s rescued=%s poisonToReserve=%s reviveFromReserve=%s reserveBefore=%.1f reserveAfterPoison=%.1f healthAfterRevive=%.1f target=%s"),
+        bPass ? TEXT("pass") : TEXT("fail"),
         bDowned ? TEXT("true") : TEXT("false"),
         bRescued ? TEXT("true") : TEXT("false"),
-        *GetNameSafe(TargetCharacter),
-        *GetNameSafe(RescuerPawn));
+        bPoisonToReserve ? TEXT("true") : TEXT("false"),
+        bReviveFromReserve ? TEXT("true") : TEXT("false"),
+        ReserveBefore, ReserveAfterPoison, HealthAfterRevive,
+        *GetNameSafe(TargetCharacter));
 #endif
 }
 

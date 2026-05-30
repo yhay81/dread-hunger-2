@@ -196,11 +196,12 @@ float AFrostwakeCharacter::GetMatchDecayMultiplier() const
     return 1.0f;
 }
 
-float AFrostwakeCharacter::AdjustDamage(float BaseDamage, const FGameplayTag& DamageType) const
+float AFrostwakeCharacter::AdjustDamage(float BaseDamage, const FGameplayTag& DamageType, bool& bOutAffectsReservedHealth) const
 {
-    // Data-driven (plan §3.2/§3.17): the DamageTypeDefinition's multiplier scales the amount. Per-perk
-    // resistances (bAffectedByResistance) and ReservedHealth routing (bAffectsReservedHealth) land in
-    // later §3.17 increments. Unknown/invalid type = pass the base amount through unchanged.
+    // Data-driven (plan §3.2/§3.17): the DamageTypeDefinition's multiplier scales the amount, and its
+    // bAffectsReservedHealth flag (DT_Poison) routes the result into the ReservedHealth reserve. Per-perk
+    // resistances (bAffectedByResistance) arrive with the perk slice. Unknown type = pass through unchanged.
+    bOutAffectsReservedHealth = false;
     float Multiplier = 1.0f;
     if (const UGameInstance* GameInstance = GetGameInstance())
     {
@@ -209,6 +210,7 @@ float AFrostwakeCharacter::AdjustDamage(float BaseDamage, const FGameplayTag& Da
             if (const UFrostwakeDamageTypeDefinition* Definition = DataSubsystem->GetDamageTypeDefinitionForTag(DamageType))
             {
                 Multiplier = FMath::Max(0.0f, Definition->DamageMultiplier);
+                bOutAffectsReservedHealth = Definition->bAffectsReservedHealth;
             }
         }
     }
@@ -229,13 +231,28 @@ bool AFrostwakeCharacter::ApplyServerDamage(float DamageAmount, FGameplayTag Dam
     }
 
     // §3.17: scale the incoming amount by the data-driven damage type before it hits Health.
-    const float FinalDamage = AdjustDamage(DamageAmount, DamageType);
+    bool bAffectsReservedHealth = false;
+    const float FinalDamage = AdjustDamage(DamageAmount, DamageType, bAffectsReservedHealth);
     if (FinalDamage <= 0.0f)
     {
         return false;
     }
 
-    const float NewHealth = AttributeComponent->ModifyAttribute(EFrostwakeAttribute::Health, -FinalDamage);
+    // ReservedHealth routing (DH §3.17: 毒は reserve health). A reserve-draining type (DT_Poison) is
+    // absorbed by ReservedHealth first; only the overflow reaches living Health (so poison can't down you
+    // directly until the reserve is gone).
+    float HealthDamage = FinalDamage;
+    if (bAffectsReservedHealth)
+    {
+        const float Reserve = AttributeComponent->GetAttribute(EFrostwakeAttribute::ReservedHealth);
+        const float Absorbed = FMath::Min(Reserve, FinalDamage);
+        AttributeComponent->ModifyAttribute(EFrostwakeAttribute::ReservedHealth, -Absorbed);
+        HealthDamage = FinalDamage - Absorbed;
+    }
+
+    const float NewHealth = (HealthDamage > 0.0f)
+        ? AttributeComponent->ModifyAttribute(EFrostwakeAttribute::Health, -HealthDamage)
+        : AttributeComponent->GetAttribute(EFrostwakeAttribute::Health);
     const FString DamageTypeName = DamageType.IsValid() ? DamageType.GetTagName().ToString() : FString(TEXT("Untyped"));
     UE_LOG(LogFrostwakeGameplay, Log, TEXT("player_damaged player=%s health=%.1f damage=%.1f type=%s source=%s"), *GetNameSafe(FrostwakePlayerState), NewHealth, FinalDamage, *DamageTypeName, *GetNameSafe(DamageSource));
     if (UGameInstance* GameInstance = GetGameInstance())
@@ -291,9 +308,15 @@ bool AFrostwakeCharacter::RescueFromDowned(APawn* RescuerPawn)
         return false;
     }
 
-    // Revive to a fraction of max (DH revives partial; full ReservedHealth/poison model lands with §3.17).
-    const float ReviveHealth = FMath::Max(AttributeComponent->GetMaxAttribute(EFrostwakeAttribute::Health) * 0.35f, 1.0f);
+    // DH revive (KNOWLEDGE §3.x: 50% HP / 25% Warmth), drawn from the down "reserve" (ReservedHealth) so a
+    // rescue after the reserve was drained (e.g. poisoned while down) restores less. Reserve = the body's
+    // revivable buffer (ALIVE→CARCASS→DEAD model). Reserve refill (rest/regen) is a later mechanic.
+    const float MaxH = AttributeComponent->GetMaxAttribute(EFrostwakeAttribute::Health);
+    const float Reserve = AttributeComponent->GetAttribute(EFrostwakeAttribute::ReservedHealth);
+    const float ReviveHealth = FMath::Clamp(FMath::Min(MaxH * 0.5f, Reserve), 1.0f, MaxH);
     AttributeComponent->SetAttribute(EFrostwakeAttribute::Health, ReviveHealth);
+    AttributeComponent->ModifyAttribute(EFrostwakeAttribute::ReservedHealth, -ReviveHealth); // consume the reserve used
+    AttributeComponent->SetAttribute(EFrostwakeAttribute::Warmth, AttributeComponent->GetMaxAttribute(EFrostwakeAttribute::Warmth) * 0.25f);
     FrostwakePlayerState->SetLifeState(EFrostwakeLifeState::Alive);
     UE_LOG(LogFrostwakeGameplay, Log, TEXT("player_rescued player=%s rescuer=%s health=%.1f"), *GetNameSafe(FrostwakePlayerState), *GetNameSafe(RescuerPawn), ReviveHealth);
 

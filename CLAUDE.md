@@ -37,7 +37,7 @@
   **Hunger** (DH-semantic, §3.15: rises while unfed; `GetSatiation()` = a `Max−Hunger` HUD adapter) and **Health** are migrated
   there too — the **§3.15 5-attribute consolidation is complete** and the character holds no hand-written vitals floats; (b) GameState↔MatchSubsystem
   spine **emit-side** wired (phase/ended/playerDied) — note: no subscribers yet; (c) `build_game: Succeeded` + `run-local-smoke` green
-  (single-player + host-only down-rescue: health 0→downed→rescued 35) — green here = compiles + no-crash, NOT behavioral assertion. **Next, serially per plan §6:** the **§3.17 damage system** (DT_* damage types + resistances +
+  (single-player + host-only down-rescue now a behavioral assertion: poison→ReservedHealth, 0→downed→revive-from-reserve 50/40). **Next, serially per plan §6:** the **§3.17 damage system** (DT_* damage types + resistances +
   ReservedHealth/poison + revive, plus the §3.15 Warmth-boost term) → ship → items(55) → recipes(47) ….
 - Design oracle: sibling **`TEST2/dh_re/`** (DH reverse-engineering teardown — read-only; see plan §2 + the
   IP non-negotiable below).

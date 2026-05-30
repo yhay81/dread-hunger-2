@@ -129,9 +129,9 @@ protected:
     // Difficulty multiplier applied to food/warmth decay (1.0 if no match config / not authoritative).
     float GetMatchDecayMultiplier() const;
 
-    // §3.17 AdjustDamage: apply the DamageType's data-driven modifiers (DamageTypeDefinition.DamageMultiplier;
-    // resistances later) to a base amount. Falls back to the base amount for an unknown/invalid type.
-    float AdjustDamage(float BaseDamage, const FGameplayTag& DamageType) const;
+    // §3.17 AdjustDamage: apply the DamageType's data-driven DamageMultiplier to a base amount, and report
+    // (out) whether the type drains ReservedHealth (DT_Poison). Per-perk resistances arrive with perks.
+    float AdjustDamage(float BaseDamage, const FGameplayTag& DamageType, bool& bOutAffectsReservedHealth) const;
 
     UFUNCTION(Server, Reliable)
     void ServerTryDropItem();
