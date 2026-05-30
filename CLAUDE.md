@@ -30,10 +30,11 @@
   Attribute/Action/ActionEffect/ActionComponent + MatchSubsystem; `Data/` 5 Definition types + DataSubsystem).
   **Wave-0 items (a)-(c) are DONE (2026-05-30):** (a) shared `UFrostwakeHeatSourceComponent` + `UFrostwakeTemperatureSubsystem`
   (`CurrentTemperature = GlobalTemperature + Σ nearby heat/falloff`, §3.22-23) drives **Warmth via the AttributeComponent**;
-  **Hunger** is also migrated there (DH-semantic, §3.15: rises while unfed; `GetSatiation()` = a `Max−Hunger` HUD adapter).
-  Only the **Health** float stays on the character, migrating with the damage/death slice (§3.17); (b) GameState↔MatchSubsystem
-  spine wired (phase/ended/playerDied); (c) `build_game: Succeeded` + single-player `run-local-smoke` green. **Next, serially
-  per plan §6:** finish §3.15 (Health attr + Warmth-boost term) with damage/death/revive (§3.17) → ship → items(55) → recipes(47) ….
+  **Hunger** (DH-semantic, §3.15: rises while unfed; `GetSatiation()` = a `Max−Hunger` HUD adapter) and **Health** are migrated
+  there too — the **§3.15 5-attribute consolidation is complete** and the character holds no hand-written vitals floats; (b) GameState↔MatchSubsystem
+  spine wired (phase/ended/playerDied); (c) `build_game: Succeeded` + `run-local-smoke` green (single-player + host-only down-rescue:
+  health 0→downed→rescued 35). **Next, serially per plan §6:** the **§3.17 damage system** (DT_* damage types + resistances +
+  ReservedHealth/poison + revive, plus the §3.15 Warmth-boost term) → ship → items(55) → recipes(47) ….
 - Design oracle: sibling **`TEST2/dh_re/`** (DH reverse-engineering teardown — read-only; see plan §2 + the
   IP non-negotiable below).
 

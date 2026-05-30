@@ -24,9 +24,6 @@ AFrostwakeCharacter::AFrostwakeCharacter()
     bUseControllerRotationYaw = true;
     bUseControllerRotationRoll = false;
 
-    MaxHealth = 100.0f;
-    Health = MaxHealth;
-
     // Survival meters: warmth starts full and Hunger starts at 0 (fed), both moving slowly so the gauges
     // read as changing without killing a debug session quickly. Rates are tunable in defaults; health
     // only drains once a meter bottoms out (Hunger maxes out / warmth hits zero).
@@ -38,8 +35,8 @@ AFrostwakeCharacter::AFrostwakeCharacter()
 
     InteractionComponent = CreateDefaultSubobject<UFrostwakeInteractionComponent>(TEXT("InteractionComponent"));
     InventoryComponent = CreateDefaultSubobject<UFrostwakeInventoryComponent>(TEXT("InventoryComponent"));
-    // Warmth is driven through this component by the shared temperature model (plan §3.22-23); it starts
-    // full (MaxWarmth) from the component's own constructor and replicates push-model to clients.
+    // The Action System attribute component owns the vitals: Health + Warmth start full, Hunger starts at
+    // 0 (fed). Warmth is temperature-driven (plan §3.22-23). All replicate push-model to clients.
     AttributeComponent = CreateDefaultSubobject<UFrostwakeAttributeComponent>(TEXT("AttributeComponent"));
 
     FirstPersonCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
@@ -60,8 +57,7 @@ void AFrostwakeCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-    DOREPLIFETIME(AFrostwakeCharacter, Health);
-    // Warmth + Hunger replicate via the AttributeComponent (push-model), not the character.
+    // Vitals (Health/Warmth/Hunger) replicate via the AttributeComponent (push-model), not the character.
 }
 
 void AFrostwakeCharacter::BeginPlay()
@@ -188,7 +184,7 @@ float AFrostwakeCharacter::GetMatchDecayMultiplier() const
 
 bool AFrostwakeCharacter::ApplyServerDamage(float DamageAmount, AActor* DamageSource)
 {
-    if (!HasAuthority() || DamageAmount <= 0.0f)
+    if (!HasAuthority() || DamageAmount <= 0.0f || !AttributeComponent)
     {
         return false;
     }
@@ -199,8 +195,8 @@ bool AFrostwakeCharacter::ApplyServerDamage(float DamageAmount, AActor* DamageSo
         return false;
     }
 
-    Health = FMath::Clamp(Health - DamageAmount, 0.0f, MaxHealth);
-    UE_LOG(LogFrostwakeGameplay, Log, TEXT("player_damaged player=%s health=%.1f damage=%.1f source=%s"), *GetNameSafe(FrostwakePlayerState), Health, DamageAmount, *GetNameSafe(DamageSource));
+    const float NewHealth = AttributeComponent->ModifyAttribute(EFrostwakeAttribute::Health, -DamageAmount);
+    UE_LOG(LogFrostwakeGameplay, Log, TEXT("player_damaged player=%s health=%.1f damage=%.1f source=%s"), *GetNameSafe(FrostwakePlayerState), NewHealth, DamageAmount, *GetNameSafe(DamageSource));
     if (UGameInstance* GameInstance = GetGameInstance())
     {
         if (UFrostwakeTelemetrySubsystem* TelemetrySubsystem = GameInstance->GetSubsystem<UFrostwakeTelemetrySubsystem>())
@@ -210,13 +206,13 @@ bool AFrostwakeCharacter::ApplyServerDamage(float DamageAmount, AActor* DamageSo
                 FString::Printf(
                     TEXT("{\"player\":\"%s\",\"health\":%.1f,\"damage\":%.1f,\"source\":\"%s\"}"),
                     *GetNameSafe(FrostwakePlayerState),
-                    Health,
+                    NewHealth,
                     DamageAmount,
                     *GetNameSafe(DamageSource)));
         }
     }
 
-    if (Health <= 0.0f)
+    if (NewHealth <= 0.0f)
     {
         FrostwakePlayerState->SetLifeState(EFrostwakeLifeState::Downed);
         // Decoupling spine (plan §9.1 step 7): notify the match hub so systems can react to a player
@@ -242,7 +238,7 @@ bool AFrostwakeCharacter::ApplyServerDamage(float DamageAmount, AActor* DamageSo
 
 bool AFrostwakeCharacter::RescueFromDowned(APawn* RescuerPawn)
 {
-    if (!HasAuthority())
+    if (!HasAuthority() || !AttributeComponent)
     {
         return false;
     }
@@ -253,9 +249,11 @@ bool AFrostwakeCharacter::RescueFromDowned(APawn* RescuerPawn)
         return false;
     }
 
-    Health = FMath::Max(MaxHealth * 0.35f, 1.0f);
+    // Revive to a fraction of max (DH revives partial; full ReservedHealth/poison model lands with §3.17).
+    const float ReviveHealth = FMath::Max(AttributeComponent->GetMaxAttribute(EFrostwakeAttribute::Health) * 0.35f, 1.0f);
+    AttributeComponent->SetAttribute(EFrostwakeAttribute::Health, ReviveHealth);
     FrostwakePlayerState->SetLifeState(EFrostwakeLifeState::Alive);
-    UE_LOG(LogFrostwakeGameplay, Log, TEXT("player_rescued player=%s rescuer=%s health=%.1f"), *GetNameSafe(FrostwakePlayerState), *GetNameSafe(RescuerPawn), Health);
+    UE_LOG(LogFrostwakeGameplay, Log, TEXT("player_rescued player=%s rescuer=%s health=%.1f"), *GetNameSafe(FrostwakePlayerState), *GetNameSafe(RescuerPawn), ReviveHealth);
 
     if (UGameInstance* GameInstance = GetGameInstance())
     {
@@ -263,7 +261,7 @@ bool AFrostwakeCharacter::RescueFromDowned(APawn* RescuerPawn)
         {
             TelemetrySubsystem->LogEvent(
                 TEXT("player_rescued"),
-                FString::Printf(TEXT("{\"player\":\"%s\",\"rescuer\":\"%s\",\"health\":%.1f}"), *GetNameSafe(FrostwakePlayerState), *GetNameSafe(RescuerPawn), Health));
+                FString::Printf(TEXT("{\"player\":\"%s\",\"rescuer\":\"%s\",\"health\":%.1f}"), *GetNameSafe(FrostwakePlayerState), *GetNameSafe(RescuerPawn), ReviveHealth));
         }
     }
 
@@ -326,10 +324,6 @@ bool AFrostwakeCharacter::ReleaseFromContainment(APawn* InstigatorPawn)
     }
 
     return true;
-}
-
-void AFrostwakeCharacter::OnRep_Health()
-{
 }
 
 void AFrostwakeCharacter::MoveRight(float Value)
@@ -453,6 +447,16 @@ bool AFrostwakeCharacter::EatRation(int32 SlotIndex)
     }
 
     return true;
+}
+
+float AFrostwakeCharacter::GetHealth() const
+{
+    return AttributeComponent ? AttributeComponent->GetAttribute(EFrostwakeAttribute::Health) : 0.0f;
+}
+
+float AFrostwakeCharacter::GetMaxHealth() const
+{
+    return AttributeComponent ? AttributeComponent->GetMaxAttribute(EFrostwakeAttribute::Health) : 0.0f;
 }
 
 float AFrostwakeCharacter::GetSatiation() const

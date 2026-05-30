@@ -47,11 +47,13 @@ public:
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Frostwake|Life")
     bool ReleaseFromContainment(APawn* InstigatorPawn);
 
+    // Health lives in the Action System attribute component (its designated home, plan §3.15); these
+    // accessors read it so the HUD / damage callers keep working unchanged.
     UFUNCTION(BlueprintCallable, Category = "Frostwake|Life")
-    float GetHealth() const { return Health; }
+    float GetHealth() const;
 
     UFUNCTION(BlueprintCallable, Category = "Frostwake|Life")
-    float GetMaxHealth() const { return MaxHealth; }
+    float GetMaxHealth() const;
 
     // Survival gauges (original near-future expedition framing): food + warmth deplete over time and
     // drain health when empty. Functional parity with the genre's survival meters; styling is original.
@@ -94,15 +96,6 @@ protected:
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Frostwake|Camera")
     TObjectPtr<UCameraComponent> FirstPersonCameraComponent;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Frostwake|Life")
-    float MaxHealth;
-
-    UPROPERTY(ReplicatedUsing = OnRep_Health, BlueprintReadOnly, Category = "Frostwake|Life")
-    float Health;
-
-    UFUNCTION()
-    void OnRep_Health();
 
     // Hunger (DH-semantic, §3.15) rises by this much per second; difficulty scales it. Starvation
     // damage applies once Hunger reaches its max.
