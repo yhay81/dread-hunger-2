@@ -7,6 +7,8 @@
 #include "FrostwakePlayerState.h"
 #include "FrostwakeTelemetrySubsystem.h"
 #include "ActionSystem/FrostwakeAttributeComponent.h"
+#include "ActionSystem/FrostwakeActionComponent.h"
+#include "ActionSystem/FrostwakeColdExposureEffect.h"
 #include "ActionSystem/FrostwakeMatchSubsystem.h"
 #include "ActionSystem/FrostwakeTemperatureSubsystem.h"
 #include "Data/FrostwakeDataSubsystem.h"
@@ -33,7 +35,6 @@ AFrostwakeCharacter::AFrostwakeCharacter()
     // only drains once a meter bottoms out (Hunger maxes out / warmth hits zero).
     HungerIncreasePerSecond = 0.20f;    // ~8.3 min from fed to starving
     StarvationDamagePerSecond = 1.0f;   // health drain once Hunger maxes out
-    HypothermiaDamagePerSecond = 1.0f;  // health drain once warmth hits zero
     // Whether an item is food, and how much hunger it removes, now comes from its ItemDefinition
     // (data-driven, §3.2) — no hardcoded item list on the character.
 
@@ -42,6 +43,8 @@ AFrostwakeCharacter::AFrostwakeCharacter()
     // The Action System attribute component owns the vitals: Health + Warmth start full, Hunger starts at
     // 0 (fed). Warmth is temperature-driven (plan §3.22-23). All replicate push-model to clients.
     AttributeComponent = CreateDefaultSubobject<UFrostwakeAttributeComponent>(TEXT("AttributeComponent"));
+    // Action System host for buffs/debuffs/abilities (plan §3.2 Tier 2); finds the AttributeComponent sibling.
+    ActionComponent = CreateDefaultSubobject<UFrostwakeActionComponent>(TEXT("ActionComponent"));
 
     FirstPersonCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
     FirstPersonCameraComponent->SetupAttachment(GetCapsuleComponent());
@@ -122,9 +125,21 @@ void AFrostwakeCharacter::UpdateSurvival()
     {
         ApplyServerDamage(StarvationDamagePerSecond * DeltaSeconds, FrostwakeTags::Damage_Starvation, this);
     }
-    if (AttributeComponent && AttributeComponent->GetAttribute(EFrostwakeAttribute::Warmth) <= 0.0f)
+    // Cold exposure is an Action System effect (Bundle A / §9.5 step 5): apply it while Warmth is bottomed
+    // out (the effect inflicts periodic DT_Cold through the damage path), remove it when Warmth recovers —
+    // the debuff runs through the ability framework, not a raw per-tick ApplyServerDamage here.
+    if (ActionComponent)
     {
-        ApplyServerDamage(HypothermiaDamagePerSecond * DeltaSeconds, FrostwakeTags::Damage_Cold, this);
+        const bool bFreezing = AttributeComponent && AttributeComponent->GetAttribute(EFrostwakeAttribute::Warmth) <= 0.0f;
+        if (bFreezing && !ActiveColdEffect)
+        {
+            ActiveColdEffect = ActionComponent->ApplyEffect(UFrostwakeColdExposureEffect::StaticClass());
+        }
+        else if (!bFreezing && ActiveColdEffect)
+        {
+            ActionComponent->RemoveEffect(ActiveColdEffect);
+            ActiveColdEffect = nullptr;
+        }
     }
 }
 

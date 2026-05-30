@@ -81,6 +81,7 @@ private:
     void RunDevSmokeEat();
     void RunDevSmokeDamageType();
     void RunDevSmokeSurvival();
+    void RunDevSmokeEffect();
     void RunDevSmokeQaBot();
     void RunDevSmokeQaPlayerBot();
     void RunDevSmokeQaTaskBot();

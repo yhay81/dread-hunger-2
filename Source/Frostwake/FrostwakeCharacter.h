@@ -9,6 +9,8 @@
 class UFrostwakeInteractionComponent;
 class UFrostwakeInventoryComponent;
 class UFrostwakeAttributeComponent;
+class UFrostwakeActionComponent;
+class UFrostwakeActionEffect;
 class UCameraComponent;
 class AFrostwakeItemPickupActor;
 
@@ -99,6 +101,14 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Frostwake|Attributes")
     TObjectPtr<UFrostwakeAttributeComponent> AttributeComponent;
 
+    // Action System host (plan §3.2 Tier 2): buffs/debuffs/abilities run through this, not raw methods.
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Frostwake|Action")
+    TObjectPtr<UFrostwakeActionComponent> ActionComponent;
+
+    // The live cold-exposure effect while Warmth is bottomed out (server-only handle; nullptr otherwise).
+    UPROPERTY(Transient)
+    TObjectPtr<UFrostwakeActionEffect> ActiveColdEffect;
+
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Frostwake|Camera")
     TObjectPtr<UCameraComponent> FirstPersonCameraComponent;
 
@@ -109,9 +119,7 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Frostwake|Survival")
     float StarvationDamagePerSecond;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Frostwake|Survival")
-    float HypothermiaDamagePerSecond;
+    // (Cold/hypothermia drain now lives in UFrostwakeColdExposureEffect, applied while Warmth is at 0.)
 
     FTimerHandle SurvivalTimerHandle;
 

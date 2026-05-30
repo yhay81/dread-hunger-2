@@ -10,6 +10,8 @@
 #include "Data/FrostwakeDataSubsystem.h"
 #include "Data/FrostwakeDamageTypeDefinition.h"
 #include "ActionSystem/FrostwakeTemperatureSubsystem.h"
+#include "ActionSystem/FrostwakeActionComponent.h"
+#include "ActionSystem/FrostwakeColdExposureEffect.h"
 #include "FrostwakeLog.h"
 #include "FrostwakePlayerController.h"
 #include "FrostwakePlayerState.h"
@@ -578,6 +580,10 @@ void AFrostwakeGameMode::TryAutoStartMatchForDev()
     if (FParse::Param(FCommandLine::Get(), TEXT("FrostwakeSmokeSurvival")))
     {
         GetWorldTimerManager().SetTimerForNextTick(this, &AFrostwakeGameMode::RunDevSmokeSurvival);
+    }
+    if (FParse::Param(FCommandLine::Get(), TEXT("FrostwakeSmokeEffect")))
+    {
+        GetWorldTimerManager().SetTimerForNextTick(this, &AFrostwakeGameMode::RunDevSmokeEffect);
     }
     if (FParse::Param(FCommandLine::Get(), TEXT("FrostwakeSmokeQaBot")))
     {
@@ -1429,6 +1435,64 @@ void AFrostwakeGameMode::RunDevSmokeSurvival()
         bPass ? TEXT("pass") : TEXT("fail"),
         *GetNameSafe(HeatSource),
         TempAtSource, TempFar);
+#endif
+}
+
+void AFrostwakeGameMode::RunDevSmokeEffect()
+{
+#if !UE_BUILD_SHIPPING
+    if (!HasAuthority() || !GetWorld())
+    {
+        return;
+    }
+
+    AFrostwakeCharacter* Character = nullptr;
+    for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+    {
+        const APlayerController* PlayerController = It->Get();
+        if (AFrostwakeCharacter* Candidate = PlayerController ? Cast<AFrostwakeCharacter>(PlayerController->GetPawn()) : nullptr)
+        {
+            Character = Candidate;
+            break;
+        }
+    }
+
+    // Proof that the Action System is LIVE (plan §9.5 step 5): applying a real ActionEffect through the
+    // ActionComponent changes an attribute (the cold effect's first DT_Cold bite lowers Health), and
+    // removing it returns the active-effect count to zero. No raw method path.
+    UFrostwakeActionComponent* Action = Character ? Character->FindComponentByClass<UFrostwakeActionComponent>() : nullptr;
+    bool bApplied = false;
+    int32 ActiveBefore = -1;
+    int32 ActiveAfterApply = -1;
+    int32 ActiveAfterRemove = -1;
+    float HealthBefore = -1.0f;
+    float HealthAfterApply = -1.0f;
+    if (Action && Character)
+    {
+        ActiveBefore = Action->GetActiveEffectCount();
+        HealthBefore = Character->GetHealth();
+        UFrostwakeActionEffect* Effect = Action->ApplyEffect(UFrostwakeColdExposureEffect::StaticClass());
+        bApplied = Effect != nullptr;
+        ActiveAfterApply = Action->GetActiveEffectCount();
+        HealthAfterApply = Character->GetHealth();
+        if (Effect)
+        {
+            Action->RemoveEffect(Effect);
+        }
+        ActiveAfterRemove = Action->GetActiveEffectCount();
+    }
+
+    const bool bPass = bApplied
+        && ActiveAfterApply == ActiveBefore + 1
+        && ActiveAfterRemove == ActiveBefore
+        && HealthAfterApply < HealthBefore;
+
+    UE_LOG(
+        LogFrostwakeGameplay,
+        Log,
+        TEXT("dev_smoke_effect result=%s activeBefore=%d activeAfterApply=%d activeAfterRemove=%d healthBefore=%.1f healthAfterApply=%.1f"),
+        bPass ? TEXT("pass") : TEXT("fail"),
+        ActiveBefore, ActiveAfterApply, ActiveAfterRemove, HealthBefore, HealthAfterApply);
 #endif
 }
 
@@ -2475,6 +2539,10 @@ bool AFrostwakeGameMode::TryStartMatchFromReady()
     if (FParse::Param(FCommandLine::Get(), TEXT("FrostwakeSmokeSurvival")))
     {
         GetWorldTimerManager().SetTimerForNextTick(this, &AFrostwakeGameMode::RunDevSmokeSurvival);
+    }
+    if (FParse::Param(FCommandLine::Get(), TEXT("FrostwakeSmokeEffect")))
+    {
+        GetWorldTimerManager().SetTimerForNextTick(this, &AFrostwakeGameMode::RunDevSmokeEffect);
     }
     if (FParse::Param(FCommandLine::Get(), TEXT("FrostwakeSmokeQaBot")))
     {
