@@ -23,15 +23,22 @@
 > act on it). **`docs/cycles/**` is historical evidence**, not active instructions.
 
 ## Current state (keep this current — it's the agent's "where am I")
-- **Phase 1** — modern foundation + convention (one-way-door) locks. The exact next step lives in plan §4.
-- Work on branch **`frostwake/phase1-foundation`**; merge to `main` at verified checkpoints.
+- **Serial development on `main` (2026-05-30 pivot, plan §1-6).** One agent at a time; commit **directly to
+  `main`**. No worktrees / feature branches / PRs. The parallel approach (plan §9 / `parallel-agent-prompts.md`)
+  is **frozen** — design reference only.
+- **Phase 1 foundation is merged to `main`** (Gameplay Tags `FrostwakeGameplayTags.*`; build modules; `ActionSystem/`
+  Attribute/Action/ActionEffect/ActionComponent + MatchSubsystem; `Data/` 5 Definition types + DataSubsystem).
+  **Finish these open Wave-0 items first:** (a) a shared `HeatSourceComponent` + temperature aggregation
+  (plan §3.22-23 model: CurrentTemperature = GlobalTemperature + Σ nearby heat sources), (b) GameMode↔MatchSubsystem
+  wiring, (c) a PIE / `run-local-smoke` end-to-end pass. Then build the systems + seed the data **serially** (plan §6 spec map).
 - Design oracle: sibling **`TEST2/dh_re/`** (DH reverse-engineering teardown — read-only; see plan §2 + the
   IP non-negotiable below).
 
-## How we work (lightweight, spec-driven)
-Take the next unchecked item in **plan §4** → implement the smallest verifiable slice (data-driven content +
-C++ logic) → build/smoke green → small, path-scoped commit on the feature branch. The old 10-lane "cycle" loop
-and `/frostwake-loop` are **frozen** (see Precedence). Keep each layer playable.
+## How we work (serial, spec-driven — 2026-05-30)
+**One agent at a time, serial, directly on `main`.** Take the next unchecked item in **plan §4** → implement the
+smallest verifiable slice (data-driven content + C++ logic) → `build_game` green (+ smoke when possible) → small,
+path-scoped **commit directly to `main`**. No branches / worktrees / PRs. The old 10-lane "cycle" loop and the
+parallel multi-agent approach (plan §9 / `parallel-agent-prompts.md`) are **frozen** (see Precedence). Keep each layer playable.
 
 ## The one tool (frostwake-tools, Rust CLI)
 From repo root: `cargo run -p frostwake-tools -- <verb>`. Core verbs: `quality-gate [--require-ue]`,
