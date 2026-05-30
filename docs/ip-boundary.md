@@ -1,5 +1,9 @@
 # IP Boundary
 
+> ⚠ **設定改訂（2026-05-30）**: Product Identity を near-future → **北極 c.1910年代・改装捕鯨船 ＋ 顕在型の独自
+> 超自然 the Pale** に更新。**system=DH（機構コピー）／IP壁=物語・キャラ・表現の完全オリジナル化**。設定の正典は
+> [`docs/narrative/`](narrative/)。下の二本の絶対線（DHファイル不配布／DRM不回避）と Development Phase Policy は不変。
+
 ## Development Phase Policy (expression timing)
 
 Frostwake ships in two phases, and the expression rules below are **gated by phase**:
@@ -36,7 +40,7 @@ Reference only the emotional structure and broad genre:
 Do not **ship** protected expression (originalize before the pre-public gate — see Development Phase Policy above):
 
 - names, logos, UI, characters, roles, item names, map layouts
-- occult systems, blood rituals, totems, cannibalism, human meat
+- **DH-specific** occult expression: blood rituals, Thralls, totems, cannibalism / human meat — but our **original** supernatural "the Pale" (cold / ice / dark / surrender, not blood-magic) is fine to ship once originalized
 - same ship silhouette, same room composition, same final objective
 - store copy or marketing that implies affiliation
 
@@ -44,10 +48,11 @@ Do not **ship** protected expression (originalize before the pre-public gate —
 
 Frostwake is:
 
-- near-future fictional icebound research and response vessel
-- diesel-electric / battery-assisted metal ship
-- agents/saboteurs rather than magical traitors
-- fuel, hull, radio, route, power, heat, hypothermia
+- a period Arctic (c.1910s) expedition ship — a **refitted whaler** under auxiliary steam + sail
+- ice-strengthened wooden hull, coal/boiler, oil-lamp + fragile steam-dynamo light
+- **the Claimed** (crew taken by an original supernatural, "the Pale") rather than DH's blood-magic Thralls
+- coal, hull, signal, route, power, heat, hypothermia, the polar bear, the dark
+- a different public-domain historical base than DH (Karluk / Belgica-inspired, **not** the Franklin expedition)
 - Steam-native server browser and dedicated server hosting
 
 Frostwake is not:
