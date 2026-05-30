@@ -21,7 +21,40 @@ void UFrostwakeInventoryComponent::GetLifetimeReplicatedProps(TArray<FLifetimePr
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
+    // The backpack stays private to its owner; the held item is public so others can see what you carry.
     DOREPLIFETIME_CONDITION(UFrostwakeInventoryComponent, Items, COND_OwnerOnly);
+    DOREPLIFETIME_CONDITION(UFrostwakeInventoryComponent, HeldItemId, COND_None);
+}
+
+void UFrostwakeInventoryComponent::SetServerSelectedSlot(int32 SlotIndex)
+{
+    const AActor* OwnerActor = GetOwner();
+    if (!OwnerActor || !OwnerActor->HasAuthority())
+    {
+        return;
+    }
+    SelectedSlot = (Items.Num() > 0) ? FMath::Clamp(SlotIndex, 0, Items.Num() - 1) : 0;
+    RefreshHeldItem();
+}
+
+void UFrostwakeInventoryComponent::RefreshHeldItem()
+{
+    AActor* OwnerActor = GetOwner();
+    if (!OwnerActor || !OwnerActor->HasAuthority())
+    {
+        return;
+    }
+    const FName NewHeld = Items.IsValidIndex(SelectedSlot) ? Items[SelectedSlot].ItemId : NAME_None;
+    if (NewHeld != HeldItemId)
+    {
+        HeldItemId = NewHeld;
+        OwnerActor->ForceNetUpdate();
+    }
+}
+
+void UFrostwakeInventoryComponent::OnRep_HeldItemId()
+{
+    // Clients observe HeldItemId via this OnRep (and GetHeldItemId); a held-item nameplate/display reads it.
 }
 
 int32 UFrostwakeInventoryComponent::GetMaxStackFor(FName ItemId) const
@@ -60,6 +93,7 @@ bool UFrostwakeInventoryComponent::TryAddItem(FName ItemId)
             ++Entry.Count;
             OwnerActor->ForceNetUpdate();
             UE_LOG(LogFrostwakeGameplay, Log, TEXT("item_added owner=%s item=%s count=%d stack=%d"), *GetNameSafe(OwnerActor), *ItemId.ToString(), GetItemCount(), Entry.Count);
+            RefreshHeldItem();
             return true;
         }
     }
@@ -72,6 +106,7 @@ bool UFrostwakeInventoryComponent::TryAddItem(FName ItemId)
     Items.Add(FFrostwakeInventoryEntry{ ItemId, 1 });
     OwnerActor->ForceNetUpdate();
     UE_LOG(LogFrostwakeGameplay, Log, TEXT("item_added owner=%s item=%s count=%d stack=%d"), *GetNameSafe(OwnerActor), *ItemId.ToString(), GetItemCount(), 1);
+    RefreshHeldItem();
     return true;
 }
 
@@ -93,6 +128,7 @@ bool UFrostwakeInventoryComponent::TryRemoveItem(FName ItemId)
             }
             OwnerActor->ForceNetUpdate();
             UE_LOG(LogFrostwakeGameplay, Log, TEXT("item_removed owner=%s item=%s count=%d"), *GetNameSafe(OwnerActor), *ItemId.ToString(), GetItemCount());
+            RefreshHeldItem();
             return true;
         }
     }
@@ -115,6 +151,7 @@ bool UFrostwakeInventoryComponent::TryRemoveFirstItem(FName& OutItemId)
     }
     OwnerActor->ForceNetUpdate();
     UE_LOG(LogFrostwakeGameplay, Log, TEXT("item_removed owner=%s item=%s count=%d source=drop"), *GetNameSafe(OwnerActor), *OutItemId.ToString(), GetItemCount());
+    RefreshHeldItem();
     return true;
 }
 
@@ -135,6 +172,7 @@ bool UFrostwakeInventoryComponent::TryRemoveItemAt(int32 SlotIndex, FName& OutIt
     SelectedSlot = (Items.Num() > 0) ? FMath::Min(SelectedSlot, Items.Num() - 1) : 0;
     OwnerActor->ForceNetUpdate();
     UE_LOG(LogFrostwakeGameplay, Log, TEXT("item_removed owner=%s item=%s count=%d source=use"), *GetNameSafe(OwnerActor), *OutItemId.ToString(), GetItemCount());
+    RefreshHeldItem();
     return true;
 }
 

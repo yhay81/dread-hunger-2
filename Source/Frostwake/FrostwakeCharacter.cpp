@@ -165,6 +165,7 @@ void AFrostwakeCharacter::SelectNextItem()
     if (InventoryComponent)
     {
         InventoryComponent->CycleSelectedSlot(1);
+        PublishSelectedSlot();
     }
 }
 
@@ -173,6 +174,26 @@ void AFrostwakeCharacter::SelectPrevItem()
     if (InventoryComponent)
     {
         InventoryComponent->CycleSelectedSlot(-1);
+        PublishSelectedSlot();
+    }
+}
+
+void AFrostwakeCharacter::PublishSelectedSlot()
+{
+    if (!InventoryComponent)
+    {
+        return;
+    }
+    // The held item is server-authoritative; the locally-cycled slot is sent up so the server publishes
+    // the visible-to-all HeldItemId (review #2b). On a listen host this resolves on authority directly.
+    const int32 SlotIndex = InventoryComponent->GetSelectedSlot();
+    if (HasAuthority())
+    {
+        InventoryComponent->SetServerSelectedSlot(SlotIndex);
+    }
+    else
+    {
+        ServerSetSelectedSlot(SlotIndex);
     }
 }
 
@@ -475,6 +496,14 @@ void AFrostwakeCharacter::UseSelectedItem()
 void AFrostwakeCharacter::ServerUseSelectedItem_Implementation(int32 SlotIndex)
 {
     EatRation(SlotIndex);
+}
+
+void AFrostwakeCharacter::ServerSetSelectedSlot_Implementation(int32 SlotIndex)
+{
+    if (InventoryComponent)
+    {
+        InventoryComponent->SetServerSelectedSlot(SlotIndex);
+    }
 }
 
 bool AFrostwakeCharacter::EatRation(int32 SlotIndex)

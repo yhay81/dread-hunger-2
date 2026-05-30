@@ -87,12 +87,25 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Frostwake|Inventory")
     FName GetSelectedItemId() const;
 
+    // The item this player is currently holding/equipped (= the selected slot's item, server-authoritative).
+    // Replicated to ALL players (unlike the owner-only backpack) so others can read "who carries the Nitro"
+    // (DH social read, review #2b). NAME_None when the hands are empty.
+    UFUNCTION(BlueprintCallable, Category = "Frostwake|Inventory")
+    FName GetHeldItemId() const { return HeldItemId; }
+
+    // Server-authoritative: set which slot is held (the owning client forwards its local selection here via
+    // an RPC) and refresh the replicated HeldItemId. No-op off authority.
+    void SetServerSelectedSlot(int32 SlotIndex);
+
 protected:
-    // Per-slot stacks. NOTE (review #2 follow-up): still COND_OwnerOnly — the full backpack is private.
-    // Making the *held/equipped* item visible to other players (DH social read: "who carries the Nitro")
-    // is the paired next slice and needs a selection->server path + a separate replicated held-item field.
+    // Per-slot stacks. COND_OwnerOnly by design — the full backpack is private; only the *held* item
+    // (HeldItemId below) is public.
     UPROPERTY(ReplicatedUsing = OnRep_Items, BlueprintReadOnly, Category = "Frostwake|Inventory")
     TArray<FFrostwakeInventoryEntry> Items;
+
+    // The held/equipped item, replicated to everyone (COND_None) so other players can see it.
+    UPROPERTY(ReplicatedUsing = OnRep_HeldItemId, BlueprintReadOnly, Category = "Frostwake|Inventory")
+    FName HeldItemId = NAME_None;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Frostwake|Inventory")
     int32 MaxSlots;
@@ -106,7 +119,13 @@ protected:
     UFUNCTION()
     void OnRep_Items();
 
+    UFUNCTION()
+    void OnRep_HeldItemId();
+
 private:
     // MaxStack for an item from its ItemDefinition (data); 1 (no stacking) if unknown.
     int32 GetMaxStackFor(FName ItemId) const;
+
+    // Server: re-derive HeldItemId from the current selected slot and replicate it if it changed.
+    void RefreshHeldItem();
 };

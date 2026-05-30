@@ -407,3 +407,54 @@ void FrostwakeDevSmoke::RunInventory(UWorld* World)
 		MaxStack, SlotsBefore, SlotsAfterStack, UnitsAfterStack, SlotsAfterOverflow, UnitsAfterOverflow);
 #endif
 }
+
+void FrostwakeDevSmoke::RunHeldItem(UWorld* World)
+{
+#if !UE_BUILD_SHIPPING
+	if (!World || World->GetNetMode() == NM_Client)
+	{
+		return;
+	}
+
+	AFrostwakeCharacter* Character = FindFirstPlayerCharacter(World);
+	UFrostwakeInventoryComponent* Inventory = Character ? Character->GetInventoryComponent() : nullptr;
+
+	// Server-authoritative held-item derivation (review #2b). HeldItemId replicates to ALL players (COND_None),
+	// unlike the owner-only backpack, so this is the foundation others read to see what you carry. Run alone
+	// (fresh bag) so slot 0 = the first item added.
+	const FName ItemA(TEXT("Ration"));
+	const FName ItemB(TEXT("Lantern"));
+	FName HeldEmpty = FName(TEXT("UNSET"));
+	FName HeldAfterAdd = FName(TEXT("UNSET"));
+	FName HeldAfterSelect = FName(TEXT("UNSET"));
+	FName HeldAfterRemove = FName(TEXT("UNSET"));
+	if (Inventory)
+	{
+		HeldEmpty = Inventory->GetHeldItemId();          // empty hands -> None
+		Inventory->TryAddItem(ItemA);                    // slot 0 = ItemA
+		Inventory->SetServerSelectedSlot(0);
+		HeldAfterAdd = Inventory->GetHeldItemId();        // -> ItemA
+
+		Inventory->TryAddItem(ItemB);                    // slot 1 = ItemB (Lantern, its own slot)
+		Inventory->SetServerSelectedSlot(1);             // hold slot 1
+		HeldAfterSelect = Inventory->GetHeldItemId();     // -> ItemB
+
+		FName Removed = NAME_None;
+		Inventory->TryRemoveItemAt(1, Removed);           // drop the held slot; selection re-clamps to 0
+		HeldAfterRemove = Inventory->GetHeldItemId();     // re-derived -> ItemA
+	}
+
+	const bool bPass = (Inventory != nullptr)
+		&& HeldEmpty.IsNone()
+		&& HeldAfterAdd == ItemA
+		&& HeldAfterSelect == ItemB
+		&& HeldAfterRemove == ItemA;
+
+	UE_LOG(
+		LogFrostwakeGameplay,
+		Log,
+		TEXT("dev_smoke_held_item result=%s heldEmpty=%s heldAfterAdd=%s heldAfterSelect=%s heldAfterRemove=%s"),
+		bPass ? TEXT("pass") : TEXT("fail"),
+		*HeldEmpty.ToString(), *HeldAfterAdd.ToString(), *HeldAfterSelect.ToString(), *HeldAfterRemove.ToString());
+#endif
+}

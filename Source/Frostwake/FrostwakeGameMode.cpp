@@ -622,6 +622,10 @@ void AFrostwakeGameMode::TryAutoStartMatchForDev()
     {
         GetWorldTimerManager().SetTimerForNextTick(FTimerDelegate::CreateStatic(&FrostwakeDevSmoke::RunInventory, GetWorld()));
     }
+    if (FParse::Param(FCommandLine::Get(), TEXT("FrostwakeSmokeHeldItem")))
+    {
+        GetWorldTimerManager().SetTimerForNextTick(FTimerDelegate::CreateStatic(&FrostwakeDevSmoke::RunHeldItem, GetWorld()));
+    }
     if (FParse::Param(FCommandLine::Get(), TEXT("FrostwakeSmokeQaBot")))
     {
         GetWorldTimerManager().SetTimerForNextTick(this, &AFrostwakeGameMode::RunDevSmokeQaBot);
@@ -2403,6 +2407,10 @@ bool AFrostwakeGameMode::TryStartMatchFromReady()
     if (FParse::Param(FCommandLine::Get(), TEXT("FrostwakeSmokeInventory")))
     {
         GetWorldTimerManager().SetTimerForNextTick(FTimerDelegate::CreateStatic(&FrostwakeDevSmoke::RunInventory, GetWorld()));
+    }
+    if (FParse::Param(FCommandLine::Get(), TEXT("FrostwakeSmokeHeldItem")))
+    {
+        GetWorldTimerManager().SetTimerForNextTick(FTimerDelegate::CreateStatic(&FrostwakeDevSmoke::RunHeldItem, GetWorld()));
     }
     if (FParse::Param(FCommandLine::Get(), TEXT("FrostwakeSmokeQaBot")))
     {

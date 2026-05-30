@@ -143,10 +143,17 @@ protected:
     UFUNCTION(Server, Reliable)
     void ServerUseSelectedItem(int32 SlotIndex);
 
+    // Forward the locally-cycled hotbar selection to the server so it can publish the held item (the
+    // visible-to-all HeldItemId) — SelectedSlot is client-local, so the server must be told (review #2b).
+    UFUNCTION(Server, Reliable)
+    void ServerSetSelectedSlot(int32 SlotIndex);
+
     AFrostwakeItemPickupActor* DropFirstInventoryItem();
 
     void SelectNextItem();
     void SelectPrevItem();
+    // Send the local hotbar selection to the server (so it can publish the visible-to-all held item).
+    void PublishSelectedSlot();
 
     void MoveForward(float Value);
     void MoveRight(float Value);

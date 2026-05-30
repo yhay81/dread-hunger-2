@@ -11,9 +11,9 @@ class UWorld;
  * AFrostwakeGameMode methods.
  *
  * Migrated so far (plan item D): the "act on the player + world + subsystems" category — perk resist,
- * eat, damage type, survival temperature, action effect, ability, inventory. The remaining ~13 RunDevSmoke*
- * still on GameMode are coupled to its private helpers (FindPawnForTeam, match config, role assignment) and
- * migrate as that coupling is untangled.
+ * eat, damage type, survival temperature, action effect, ability, inventory, held item. The remaining ~13
+ * RunDevSmoke* still on GameMode are coupled to its private helpers (FindPawnForTeam, match config, role
+ * assignment) and migrate as that coupling is untangled.
  *
  * Each smoke UE_LOGs `dev_smoke_<name> result=pass|fail ...`; run-local-smoke gates on that line.
  * Everything is compiled out of shipping builds.
@@ -55,4 +55,12 @@ namespace FrostwakeDevSmoke
 	 * container honours ItemDefinition.MaxStack (the structural fix items(55) needs). Run alone (fresh bag).
 	 */
 	FROSTWAKE_API void RunInventory(UWorld* World);
+
+	/**
+	 * Held-item publication (review #2b): assert the server-authoritative, replicated-to-all HeldItemId
+	 * tracks the held slot — empty hands read None; adding/selecting an item publishes it; removing the held
+	 * item re-derives it. Proves the foundation for "others see what you carry" (the field replicates
+	 * COND_None, unlike the owner-only backpack). Run alone (fresh bag).
+	 */
+	FROSTWAKE_API void RunHeldItem(UWorld* World);
 }
