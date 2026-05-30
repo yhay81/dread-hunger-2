@@ -1,4 +1,4 @@
-# Names & Glossary — Frostwake（v0.2）
+# Names & Glossary — Frostwake（v0.3）
 
 固有名詞の **候補** と用語集（**確定ベース: 北極・c.1910年代・改装捕鯨船** — [`historical-base-options.md`](historical-base-options.md)）。目的は2つ:
 
@@ -34,6 +34,44 @@
 | 案内人／先住民 | 〔保留〕 | 架空の人々を基本／sensitivity review まで個人名・民族名は保留 |
 
 > 下の各節は **代替案（considered）** と経緯。実在の船・隊・人物名は使わない（凡例）。
+
+## 乗員フルネーム（v0.2 詰め）
+
+period・多国籍（捕鯨船の常）・実在探検隊員名と非衝突。人物像は [`dramatis-personae.md`](dramatis-personae.md)。
+
+| 役 | フルネーム | 一言 |
+| --- | --- | --- |
+| 船長 | **Elias Crale** | 見捨てられた後、船を束ねる疲れた男 |
+| 機関長 | **Reuben Holt** | 機関と蒸気ダイナモを生かす寡黙な職人 |
+| 通信手 | **Silas Mercer** | the Bearing を「聞く」神経質な男 |
+| 船医 | **Peter Aldous** | 「ただの壊血病だ」——安心か否認か |
+| 庶務長 | **Walter Sable** | 炭・配給・鍵を握る現実主義者 |
+| 斥候 | **Anders Renke** | 氷を読む一匹狼 |
+| 甲板長 | **Bram Voss** | 索具・ハッチ・ポンプの叩き上げ |
+| 火夫 | **Cole Pike** | 炉と火を守る若手 |
+| 去った指揮役 | **Commodore Erasmus Hale** | 助けを連れ戻ると去り、戻らない（不在） |
+
+> キャストの性別/多様性は創作判断の余地（例: 沿岸の女性の助力者・密航者）。現状は period 既定で男性中心だが固定ではない。
+
+## 追加の固有名（world）
+
+| 種別 | 名 | 備考 |
+| --- | --- | --- |
+| 遠征の正式名 | **the Northern Relief Expedition**（通称「the relief」） | Meridian Society の救援遠征という建前 |
+| the Bearing の先の領域 | **the Stillward** | 蒼が待つ、海図の縁の先。「Stillward へ向かう船は航跡を残さない」 |
+| 脱出の目標 | **the Open Water** | carve-free（最終航行）で切り開く開水面 |
+| 無線符号 | **F W K**（Morse） | 雑音の中の自他識別。偽符号の疑い |
+| 母港（出航地・任意） | 〔候補〕**Gravenset** / Hollowmouth | 北の艤装港。未確定 |
+
+## 固有名 audit（2026-05-30）
+
+- **非衝突（知識ベース）**: DH（船名・Thrall/Explorer 等）・The Terror・北氷洋・デメテル の固有名、および実在探検
+  （Erebus/Terror/Franklin/Belgica/Karluk/Jeannette/de Gerlache/Stefansson/Bartlett 等）の船・隊・人物名を **再利用していない**。
+- **軽微な実在エコー（許容・要 final check）**: "the Pale"（一般句）/ "Meridian Society"（一般語）/ "Perdita"
+  （Shakespeare の人物名・公有）/ "Vesper"（一般語）。固有性を強めたい場合は各節の alt を参照。
+- **法的確認は公開前ゲート**: 商標・実在地名・人物の最終クリアランスは IP Review / 公開前ゲートで実施（`docs/ip-boundary.md`）。
+- **保留（人間ゲート）**: 案内人・沿岸の人々の固有名・民族表象は **人間 sensitivity review まで確定しない**
+  （[`cultural-representation.md`](cultural-representation.md) / [`the-coast-and-guide.md`](the-coast-and-guide.md)）。
 
 ---
 

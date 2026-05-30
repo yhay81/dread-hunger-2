@@ -4,7 +4,7 @@
 バランスは `docs/game-design.md` / `docs/mechanics-parity-target.md` / `docs/roles.md` が正典で、
 ここはそれらに **意味と手触り** を与える層。
 
-- ステータス: **v0.6**（2026-05-30）。物語一式＋案内人最終設計(self-audit)＋GP-03 数値仕様(提案)＋物語ピン仕様＋機構docへの period 反映まで整備。残は人間レビュー/GP-03実装値/C++配線。
+- ステータス: **v0.7**（2026-05-30）。物語一式＋案内人設計(self-audit)＋GP-03数値仕様(提案)＋物語ピン仕様＋機構doc period反映＋**トーン文体指針・固有名最終確定**まで整備。残は人間レビュー/GP-03実装値/C++配線。
 - 担当: 物語・設定（このフォルダのオーナー）。
 - 読む順: この README → [`historical-base-options.md`](historical-base-options.md)（土台の選定）→
   [`setting-bible.md`](setting-bible.md)（背骨）→ [`dh-and-franklin-research.md`](dh-and-franklin-research.md)（IP境界・史実）→
@@ -54,7 +54,7 @@
 
 | ファイル | 中身 | 状態 |
 | --- | --- | --- |
-| `README.md` | 索引・確定方向・IPガードレール・整合メモ | v0.6 |
+| `README.md` | 索引・確定方向・IPガードレール・整合メモ | v0.7 |
 | `historical-base-options.md` | 史実ベース候補比較（**決定: 北極・Karluk主軸＋Belgica移植**） | v0.2 |
 | `setting-bible.md` | 背骨: 北極c.1910s/舞台/船/the Claimed/顕在型ルール/テーマ/トーン/1試合 | v0.3 |
 | `dramatis-personae.md` | 乗員8アーキタイプ＋去った指揮役・案内人 | v0.1 |
@@ -63,7 +63,8 @@
 | `the-ship.md` | 区画→系統→物語/妨害面/音・deck-by-deck・最終航行・**物語ピン配置仕様** | v0.1 |
 | `the-pale-and-threats.md` | the Claimed の力・白熊PvE・the kept＋**GP-03 数値/ログ仕様(提案)** | v0.1 |
 | `match-beats.md` | 「20分で語れる事件」テンプレ（種ライブラリ） | v0.1 |
-| `names-and-glossary.md` | 固有名詞（**確定**）＋用語集（DH由来プレースホルダ置換種） | v0.2 |
+| `tone-and-voice.md` | トーン・文体指針（較正ダイヤル・話者別・**声のサンプル**） | v0.1 |
+| `names-and-glossary.md` | 固有名詞（**確定**＋乗員フルネーム＋audit）＋用語集 | v0.3 |
 | `dh-and-franklin-research.md` | DH の表現境界・フランクリン史実・差別化マップ（**内部専用**） | v0.1 |
 
 ## 既存ドキュメントとの整合（reconciliation）
@@ -94,6 +95,9 @@ period 化＋顕在型超自然は **load-bearing な戦略ドキュメントと
 **完了（追加・「進めて」）**: 案内人・沿岸の人々の最終設計＋self-audit(`the-coast-and-guide`) ／
 the Pale・白熊・最終航行の **GP-03 数値/ログ仕様(提案)**(`the-pale-and-threats` §6) ／ 物語ピン配置仕様(`the-ship`) ／
 機構doc の period 語彙反映（map-flow/items/sabotage/roles）。
+
+**完了（追加・"b" トーン/固有名）**: トーン・文体指針＋声のサンプル(`tone-and-voice`) ／
+固有名の最終確定＋乗員フルネーム＋現実衝突 audit(`names-and-glossary`)。案内人・沿岸の名は方針どおり保留。
 
 **残（人間ゲート or 他レーン）**:
 1. **案内人・沿岸の人々の人間 sensitivity review**（資格ある reader・公開前必須。self-audit は前段で代用不可）＋固有名の確定。
