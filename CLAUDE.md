@@ -71,10 +71,20 @@ From repo root: `cargo run -p frostwake-tools -- <verb>`. Core verbs: `quality-g
   (SSOT) first**, then add a one-line supersession pointer to any doc it makes stale. Don't leave silent
   contradictions. Don't add new "driving" docs — extend the plan.
 
-## Current hard blocker (verify, don't assume)
-Only a **Launcher UE_5.7** is installed (no `UE_ROOT`), which **cannot build Server targets**, so
-`Binaries/Win64/FrostwakeServer.exe` does not exist. This gates the dedicated-server build and the real
-8-player multiplayer run. **Game/Editor targets build fine** (solo/PIE works); all non-MP work proceeds now.
+## Current hard blocker + engine-distribution decision (C / hybrid, owner-confirmed 2026-05-30)
+Only a **Launcher UE_5.7** (precompiled binary) is installed (no `UE_ROOT`). It **cannot build the dedicated
+Server target** (`Binaries/Win64/FrostwakeServer.exe` doesn't exist) and **cannot enable Push Model**
+(`bWithPushModel`: the Game/Server targets share the precompiled `UnrealGame` build env where it is `False`;
+UBT rejects the override — verified `e828b31`). Both require a **source-built engine** (UE compiled from
+GitHub: Epic↔GitHub account link, ~100GB download, multi-hour first build, slower iteration after).
+
+**Decision = C / hybrid:** keep building **systems + data on the launcher engine** (most of plan §6 needs no
+dedicated server); **defer the source-engine switch to the MP-hardening / pre-ship phase**, where it unblocks
+the dedicated Server target + Push Model activation in one move. Meanwhile **8-player MP regression is covered by
+a LISTEN server** (`run-local-smoke --profile ready8` = host + 7 clients) — multiplayer AND remote-client
+replication ARE testable now on the launcher engine (just heavy locally); only the *dedicated headless server*
+(the Steam production target) and push-model *optimization* are gated. **Game/Editor build fine; solo / PIE /
+listen-MP work proceeds now.**
 
 ## Build/verify quickly
 - Rust: `cargo test --workspace` (use `CARGO_TARGET_DIR=target/loop-gpNN` to avoid lock contention).

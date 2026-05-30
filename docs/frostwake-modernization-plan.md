@@ -25,6 +25,12 @@
 6. **直列・main直接コミットへ転換(2026-05-30, 並列§9を凍結)** — 並列マルチエージェント方式(§9/`parallel-agent-prompts.md`)は
    調整オーバーヘッドが大きく**中止**。**全エージェント停止 → 1人が `main` へ直接・直列にコミット**して進める。各スライスは
    build_game 緑 + 可能なら smoke。worktree/feature branch/PR は使わない。§9 と指示書は設計参考として残すが**現行プロセスではない**。
+7. **エンジン配布 = C/ハイブリッド(2026-05-30 オーナー確定)** — 当面 **Launcher エンジン**で systems/data を量産する。
+   **出荷用の専用サーバ target(`FrostwakeServer.exe`=常駐ヘッドレスサーバ)と Push Model 有効化は source-built engine 必須**
+   (Game/Server は precompiled `UnrealGame` と build 環境を共有し `bWithPushModel=False` 固定、UBT が override 拒否＝`e828b31`実証)。
+   よって **ソースエンジン化は MPハードニング/出荷準備フェーズまで遅延**(その時点で専用サーバ＋push をまとめて unblock)。
+   それまでの **8人MP回帰はリッスンサーバ**(`run-local-smoke --profile ready8` = host+7client)で担保＝MP/リモート複製は Launcher でも
+   検証可(局所的に重いだけ)、Launcher で真に不可なのは*専用サーバ*と push*最適化*のみ。現状の push 注釈は legacy 比較複製へ fallback(機能はする)。
 
 ## 2. IP/DRM ガードレール（必須・違反不可）
 
