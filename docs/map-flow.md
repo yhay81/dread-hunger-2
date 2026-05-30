@@ -27,10 +27,10 @@
 | --- | --- |
 | Bridge | 航路進行、船内警報、終盤判断 |
 | Chart Room | 海図、航路図、偽装の疑い |
-| Radio Room | 無線復旧、救難信号、通信ラック |
-| Engine Room | 航行と燃料効率 |
+| Radio Room | 信号/無線復旧、救難、信号機材 |
+| Engine Room | 航行と石炭効率 |
 | Boiler | 暖房、低体温対策 |
-| Fuel Store | 燃料缶、汚染、隠匿 |
+| Fuel Store | 石炭、汚染、隠匿 |
 | Workshop | 工具、修理部品 |
 | Medical | 応急処置、低体温回復 |
 | Mess | 中央会話地点、物資共有 |
