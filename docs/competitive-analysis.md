@@ -14,13 +14,13 @@ Current snapshot: 2026-05-24 JST. Re-check Steam pages before public positioning
 
 ## Similarity Risk
 
-The project must not be sold as a clone or direct successor. The distinct expression is:
+The project must not be **sold/marketed** as a clone or successor. Gameplay/systems intentionally match Dread Hunger (legal — `docs/mechanics-parity-target.md`); the IP wall is **fully original story, characters, and expression**. Updated 2026-05-30 (setting: Arctic c.1910s refitted whaler + original supernatural; canon in `docs/narrative/`). The distinct expression is:
 
-- Near-future fictional metal research vessel instead of 19th century expedition ship.
-- Hull, fuel, radio, route, power, heat, flooding, and ice pressure instead of occult survival horror.
-- Agents/saboteurs instead of magical traitors.
-- Final navigation and rescue route instead of copied final objective structure.
-- Duty records, radio logs, chart notes, and tool marks instead of only social accusation.
+- **A different public-domain historical base than DH** — DH uses the 1845 Franklin expedition; we use the Arctic c.1910s (Karluk/Belgica-inspired), deliberately **not** Franklin.
+- **An original supernatural system ("the Pale")** instead of DH's blood-magic / Thralls / totems / cannibalism.
+- Original ship, crew, role identities, item names, map, UI, audio, and lore.
+- Final navigation / carve-the-ship-free escape instead of DH's specific final-objective expression.
+- Duty records, signal logs, chart notes, cairn notes, and tool marks as inspectable evidence.
 
 ## Market Assumptions To Validate
 

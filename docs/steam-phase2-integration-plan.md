@@ -1,5 +1,7 @@
 # Steam Phase 2 Integration Plan
 
+> 🧭 **Superseded where it conflicts with [`docs/frostwake-modernization-plan.md`](frostwake-modernization-plan.md) (SSOT, 2026-05-30).** Target is now full DH-class reproduction, not a "playable vertical slice" (plan §4); hosting/monetization is owned by `docs/business-model.md`. The Steam integration sequence below remains valid reference.
+
 Phase 2 adds Steam-facing systems after Windows dedicated-server evidence exists. The goal is still a playable vertical slice, not a public operations stack.
 
 ## Non-Negotiables

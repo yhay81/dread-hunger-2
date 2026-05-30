@@ -1,5 +1,7 @@
 # Continuous Goal Portfolios
 
+> ⛔ **Frozen — superseded by [`docs/frostwake-modernization-plan.md`](../frostwake-modernization-plan.md) (SSOT, 2026-05-30).** The 10-lane "GP-01…GP-10" portfolio process below is historical — do not act on it or assign work by portfolio. Start at `CLAUDE.md` → the plan (current phase / next step = plan §4). Mirrors the freeze banner on `docs/orchestration/`.
+
 Date: 2026-05-25
 
 ## Purpose

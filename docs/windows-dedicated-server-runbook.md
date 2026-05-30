@@ -88,7 +88,7 @@ $ServerExe = ".\Binaries\Win64\FrostwakeServer.exe"
   -nop4 `
   "-ServerConfig=$PWD\Saved\Config\server_config.local.json" `
   -FrostwakeRunId=windows-dedicated-local `
-  "-FrostwakeBuildId=AbyssLock-Win64-Development-local" `
+  "-FrostwakeBuildId=Frostwake-Win64-Development-local" `
   "-FrostwakeMapId=/Game/Maps/L_IcebreakerWhitebox" `
   -FrostwakeProfile=dedicated-private-test
 ```

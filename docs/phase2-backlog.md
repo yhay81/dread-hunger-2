@@ -1,5 +1,7 @@
 # Phase 2 Backlog
 
+> 🧭 **Superseded where it conflicts with [`docs/frostwake-modernization-plan.md`](frostwake-modernization-plan.md) (SSOT, 2026-05-30).** The goal is now full DH-class reproduction, not a "vertical slice" (plan §4), and the GP-lane framing is frozen; the Steam / server / voice work items below remain useful reference for the plan's later phases.
+
 This backlog turns the validated greybox prototype into a Steam-facing vertical slice foundation. It assumes Phase 1 local gameplay authority remains in Unreal C++ and that Windows is the production development platform.
 
 Do not start public server browser work until the Windows dedicated server can boot, accept clients, assign roles, and start a ready-lobby match with evidence.

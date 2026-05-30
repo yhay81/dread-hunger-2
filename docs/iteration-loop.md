@@ -1,5 +1,7 @@
 # Iteration Loop
 
+> ⛔ **Frozen — superseded by [`docs/frostwake-modernization-plan.md`](frostwake-modernization-plan.md) (SSOT, 2026-05-30).** The cycle loop + `docs/cycles/` cadence below is historical; do not start new cycles. Current process: take the next unchecked plan §4 item → smallest verifiable slice → build/smoke green → small path-scoped commit.
+
 This project cannot reach commercial multiplayer quality by one long plan. It needs a repeated loop that turns each build into evidence, then turns evidence into the next smaller set of changes.
 
 ## Loop Shape
