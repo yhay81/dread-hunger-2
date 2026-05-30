@@ -4,7 +4,7 @@
 バランスは `docs/game-design.md` / `docs/mechanics-parity-target.md` / `docs/roles.md` が正典で、
 ここはそれらに **意味と手触り** を与える層。
 
-- ステータス: **v0.8**（2026-05-30）。上記＋**teardown 機能パリティ cross-check**（裏切り者の欠落スロット補完 Smother/Slip/Mirage・混成cast・船区画・意図的divergence 確認）。残は人間レビュー/GP-03実装値/C++配線。
+- ステータス: **v0.9**（2026-05-30）。上記＋**sensitivity review 発注パケット**（事前レッドチーム自己批評・ウェンディゴ流用リスク等を明示）。残は**人間レビューの実施**/GP-03実装値/C++配線。
 - 担当: 物語・設定（このフォルダのオーナー）。
 - 読む順: この README → [`historical-base-options.md`](historical-base-options.md)（土台の選定）→
   [`setting-bible.md`](setting-bible.md)（背骨）→ [`dh-and-franklin-research.md`](dh-and-franklin-research.md)（IP境界・史実）→
@@ -54,12 +54,13 @@
 
 | ファイル | 中身 | 状態 |
 | --- | --- | --- |
-| `README.md` | 索引・確定方向・IPガードレール・整合メモ | v0.8 |
+| `README.md` | 索引・確定方向・IPガードレール・整合メモ | v0.9 |
 | `historical-base-options.md` | 史実ベース候補比較（**決定: 北極・Karluk主軸＋Belgica移植**） | v0.2 |
 | `setting-bible.md` | 背骨: 北極c.1910s/舞台/船/the Claimed/顕在型ルール/テーマ/トーン/1試合 | v0.3 |
 | `dramatis-personae.md` | 乗員8アーキタイプ＋去った指揮役・案内人 | v0.1 |
 | `the-coast-and-guide.md` | 沿岸の人々・案内人の最終設計（ドラフト）＋self-audit（**人間レビュー前段**） | v0.1 |
 | `cultural-representation.md` | 先住民・他文化の描写方針（架空の人々／sensitivity review 必須） | v0.1 |
+| `sensitivity-review-brief.md` | 人間レビュー発注パケット＋事前レッドチーム自己批評（**内部専用**） | v0.1 |
 | `the-ship.md` | 区画→系統→物語/妨害面/音・deck-by-deck・最終航行・**物語ピン配置仕様** | v0.1 |
 | `the-pale-and-threats.md` | the Claimed の力・白熊PvE・the kept＋**GP-03 数値/ログ仕様(提案)** | v0.1 |
 | `match-beats.md` | 「20分で語れる事件」テンプレ（種ライブラリ） | v0.1 |
@@ -105,7 +106,7 @@ the Pale・白熊・最終航行の **GP-03 数値/ログ仕様(提案)**(`the-p
 **抽象構造のみ・TEST2 から commit なし。**
 
 **残（人間ゲート or 他レーン）**:
-1. **案内人・沿岸の人々の人間 sensitivity review**（資格ある reader・公開前必須。self-audit は前段で代用不可）＋固有名の確定。
+1. **案内人の人間 sensitivity review の実施**（発注パケット [`sensitivity-review-brief.md`](sensitivity-review-brief.md) 準備済み／私は代行不可。資格ある reader へ・公開前必須）＋固有名確定。
 2. the Pale 力・白熊・最終航行の **GP-03 実装値の確定**（§6 提案を playtest で 50/50 検証）。
 3. 物語ピンの **C++ 実配線**（GP-08 が `FrostwakeWhiteboxCommandlets.cpp` へ。or 依頼受けて物語レーンが配線＋compile-check）。
 4. `match-beats.md` 各種の頻度・CD の GP-03 調整。
