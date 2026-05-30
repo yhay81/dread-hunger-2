@@ -562,6 +562,10 @@ void AFrostwakeGameMode::TryAutoStartMatchForDev()
     {
         GetWorldTimerManager().SetTimerForNextTick(this, &AFrostwakeGameMode::RunDevSmokeLifeAction);
     }
+    if (FParse::Param(FCommandLine::Get(), TEXT("FrostwakeSmokeEat")))
+    {
+        GetWorldTimerManager().SetTimerForNextTick(this, &AFrostwakeGameMode::RunDevSmokeEat);
+    }
     if (FParse::Param(FCommandLine::Get(), TEXT("FrostwakeSmokeQaBot")))
     {
         GetWorldTimerManager().SetTimerForNextTick(this, &AFrostwakeGameMode::RunDevSmokeQaBot);
@@ -1258,6 +1262,60 @@ void AFrostwakeGameMode::RunDevSmokeItemDrop()
                     *GetNameSafe(InstigatorCharacter)));
         }
     }
+#endif
+}
+
+void AFrostwakeGameMode::RunDevSmokeEat()
+{
+#if !UE_BUILD_SHIPPING
+    if (!HasAuthority() || !GetWorld())
+    {
+        return;
+    }
+
+    AFrostwakeCharacter* Character = nullptr;
+    for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+    {
+        const APlayerController* PlayerController = It->Get();
+        if (AFrostwakeCharacter* Candidate = PlayerController ? Cast<AFrostwakeCharacter>(PlayerController->GetPawn()) : nullptr)
+        {
+            Character = Candidate;
+            break;
+        }
+    }
+
+    // Behavioral proof of the data-driven item path (plan §3.2): EatRation resolves the held item's
+    // ItemDefinition by its canonical FName. Positive = a Food item (Ration) is eaten; negative = a Tool
+    // item (Lantern) is rejected BY THE DATA (Category != Food). Both succeeding proves the consumer is
+    // wired AND the §8 identifier convention (inventory FName == definition ItemId) holds at runtime.
+    bool bAteFood = false;
+    bool bRejectedTool = false;
+    if (UFrostwakeInventoryComponent* Inventory = Character ? Character->GetInventoryComponent() : nullptr)
+    {
+        Inventory->TryAddItem(FName(TEXT("Ration")));
+        const int32 RationSlot = Inventory->GetItems().IndexOfByKey(FName(TEXT("Ration")));
+        if (RationSlot != INDEX_NONE)
+        {
+            bAteFood = Character->EatRation(RationSlot);
+        }
+
+        Inventory->TryAddItem(FName(TEXT("Lantern")));
+        const int32 LanternSlot = Inventory->GetItems().IndexOfByKey(FName(TEXT("Lantern")));
+        if (LanternSlot != INDEX_NONE)
+        {
+            bRejectedTool = !Character->EatRation(LanternSlot);
+        }
+    }
+
+    const bool bPass = bAteFood && bRejectedTool;
+    UE_LOG(
+        LogFrostwakeGameplay,
+        Log,
+        TEXT("dev_smoke_eat result=%s ateFood=%s rejectedTool=%s character=%s"),
+        bPass ? TEXT("pass") : TEXT("fail"),
+        bAteFood ? TEXT("true") : TEXT("false"),
+        bRejectedTool ? TEXT("true") : TEXT("false"),
+        *GetNameSafe(Character));
 #endif
 }
 
@@ -2292,6 +2350,10 @@ bool AFrostwakeGameMode::TryStartMatchFromReady()
     if (FParse::Param(FCommandLine::Get(), TEXT("FrostwakeSmokeLifeAction")))
     {
         GetWorldTimerManager().SetTimerForNextTick(this, &AFrostwakeGameMode::RunDevSmokeLifeAction);
+    }
+    if (FParse::Param(FCommandLine::Get(), TEXT("FrostwakeSmokeEat")))
+    {
+        GetWorldTimerManager().SetTimerForNextTick(this, &AFrostwakeGameMode::RunDevSmokeEat);
     }
     if (FParse::Param(FCommandLine::Get(), TEXT("FrostwakeSmokeQaBot")))
     {

@@ -110,13 +110,6 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Frostwake|Survival")
     float HypothermiaDamagePerSecond;
 
-    // Hunger removed by eating one ration, and the set of item ids that count as food.
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Frostwake|Survival")
-    float RationHungerRestore;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Frostwake|Survival")
-    TSet<FName> FoodItemIds;
-
     FTimerHandle SurvivalTimerHandle;
 
     // Server-side periodic survival update: food/warmth decay, then health drains when either is empty.

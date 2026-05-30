@@ -1,13 +1,14 @@
 [
 	{
-		"ItemId": "Item_Ration",
+		"ItemId": "Ration",
 		"DisplayName": "Field Ration",
 		"Category": "Food",
 		"MaxStack": 5,
-		"Weight": 0.5
+		"Weight": 0.5,
+		"HungerRestore": 40.0
 	},
 	{
-		"ItemId": "Item_Lantern",
+		"ItemId": "Lantern",
 		"DisplayName": "Oil Lantern",
 		"Category": "Tool",
 		"MaxStack": 1,

@@ -9,6 +9,8 @@
 #include "ActionSystem/FrostwakeAttributeComponent.h"
 #include "ActionSystem/FrostwakeMatchSubsystem.h"
 #include "ActionSystem/FrostwakeTemperatureSubsystem.h"
+#include "Data/FrostwakeDataSubsystem.h"
+#include "Data/FrostwakeItemDefinition.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
@@ -30,8 +32,8 @@ AFrostwakeCharacter::AFrostwakeCharacter()
     HungerIncreasePerSecond = 0.20f;    // ~8.3 min from fed to starving
     StarvationDamagePerSecond = 1.0f;   // health drain once Hunger maxes out
     HypothermiaDamagePerSecond = 1.0f;  // health drain once warmth hits zero
-    RationHungerRestore = 40.0f;        // one ration removes ~40% of max hunger
-    FoodItemIds = { FName(TEXT("Ration")) };
+    // Whether an item is food, and how much hunger it removes, now comes from its ItemDefinition
+    // (data-driven, §3.2) — no hardcoded item list on the character.
 
     InteractionComponent = CreateDefaultSubobject<UFrostwakeInteractionComponent>(TEXT("InteractionComponent"));
     InventoryComponent = CreateDefaultSubobject<UFrostwakeInventoryComponent>(TEXT("InventoryComponent"));
@@ -416,7 +418,23 @@ bool AFrostwakeCharacter::EatRation(int32 SlotIndex)
     }
 
     const FName ItemId = InventoryComponent->GetItemIdAt(SlotIndex);
-    if (ItemId.IsNone() || !FoodItemIds.Contains(ItemId))
+    if (ItemId.IsNone())
+    {
+        return false;
+    }
+
+    // Data-driven (plan §3.2 "logic in C++, data in assets"): resolve the held item's definition by its
+    // canonical FName and let the DATA decide whether it is edible and how much hunger it removes — no
+    // hardcoded food list. The inventory FName == the definition's ItemId (§8 identifier convention).
+    const UFrostwakeItemDefinition* Definition = nullptr;
+    if (const UGameInstance* GameInstance = GetGameInstance())
+    {
+        if (const UFrostwakeDataSubsystem* DataSubsystem = GameInstance->GetSubsystem<UFrostwakeDataSubsystem>())
+        {
+            Definition = DataSubsystem->GetItemDefinition(ItemId);
+        }
+    }
+    if (!Definition || Definition->Category != EFrostwakeItemCategory::Food)
     {
         return false;
     }
@@ -427,9 +445,10 @@ bool AFrostwakeCharacter::EatRation(int32 SlotIndex)
         return false;
     }
 
-    // Eating reduces the DH-semantic Hunger attribute; report it as restored "satiation" (food remaining).
+    // Eating reduces the DH-semantic Hunger attribute by the definition's value; report it as restored
+    // "satiation" (food remaining).
     const float Before = GetSatiation();
-    AttributeComponent->ModifyAttribute(EFrostwakeAttribute::Hunger, -RationHungerRestore);
+    AttributeComponent->ModifyAttribute(EFrostwakeAttribute::Hunger, -Definition->HungerRestore);
     const float Satiation = GetSatiation();
     const float Restored = Satiation - Before;
 

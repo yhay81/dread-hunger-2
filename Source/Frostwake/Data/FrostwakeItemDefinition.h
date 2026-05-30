@@ -30,8 +30,11 @@ enum class EFrostwakeItemCategory : uint8
  * PrimaryAssetType "FrostwakeItem" (registered in DefaultGame.ini, plan §9.1-1) or via
  * UFrostwakeDataSubsystem (the foundation ingestion path, plan §9.2).
  *
- * One-way-door §8: identity = FName key + PrimaryAssetId. ItemId is STABLE; placeholder
- * DisplayName / art are DH-near now and originalized before any public exposure (§2).
+ * One-way-door §8 (LOCKED 2026-05-30): identity = a single BARE canonical FName ItemId
+ * (e.g. "Ration", NOT "Item_Ration") — the PrimaryAssetType ("FrostwakeItem") is the namespace,
+ * so no per-id prefix. Gameplay inventory holds this SAME FName, so resolving a held item is just
+ * DataSubsystem.GetItemDefinition(InventoryItemId). ItemId is STABLE; placeholder DisplayName / art
+ * are DH-near now and originalized before any public exposure (§2).
  *
  * Shared defaults live on this base; specialized items (e.g. weapons) derive and override.
  */
@@ -64,6 +67,11 @@ public:
 	/** Carried weight per unit. */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Frostwake|Item")
 	float Weight = 0.f;
+
+	/** Food only (Category == Food): hunger removed when eaten (the DH-semantic Hunger attribute falls).
+	 *  0 = not nourishing. Seeded from item_stats.txt food values in the items(55) content slice. */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Frostwake|Item")
+	float HungerRestore = 0.f;
 
 	//~ Begin UPrimaryDataAsset interface
 	virtual FPrimaryAssetId GetPrimaryAssetId() const override
