@@ -55,21 +55,24 @@ public:
 
     // Survival gauges (original near-future expedition framing): food + warmth deplete over time and
     // drain health when empty. Functional parity with the genre's survival meters; styling is original.
+    // "Satiation" = food remaining = MaxHunger - Hunger. The DH-semantic Hunger attribute (§3.15) RISES
+    // as you get hungrier; these accessors present the satiation view so the HUD food bar still reads
+    // high=fed without any UX change.
     UFUNCTION(BlueprintCallable, Category = "Frostwake|Survival")
-    float GetSatiation() const { return Satiation; }
+    float GetSatiation() const;
 
     UFUNCTION(BlueprintCallable, Category = "Frostwake|Survival")
-    float GetMaxSatiation() const { return MaxSatiation; }
+    float GetMaxSatiation() const;
 
-    // Warmth now lives in the Action System attribute component (its designated home, plan §3.2/§3.15);
-    // these accessors read it so the HUD / heat sources keep working unchanged.
+    // Warmth + Hunger now live in the Action System attribute component (their designated home,
+    // plan §3.2/§3.15); these accessors read it so the HUD / heat sources keep working unchanged.
     UFUNCTION(BlueprintCallable, Category = "Frostwake|Survival")
     float GetWarmth() const;
 
     UFUNCTION(BlueprintCallable, Category = "Frostwake|Survival")
     float GetMaxWarmth() const;
 
-    // Server-authoritative: consume the item in SlotIndex if it is food, restoring Satiation.
+    // Server-authoritative: consume the item in SlotIndex if it is food, reducing Hunger.
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Frostwake|Survival")
     bool EatRation(int32 SlotIndex);
 
@@ -84,9 +87,8 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Frostwake|Inventory")
     TObjectPtr<UFrostwakeInventoryComponent> InventoryComponent;
 
-    // Action System survival attributes (plan §3.2 Tier 2). Currently the canonical home for Warmth
-    // (driven by the shared temperature model); Health/Hunger/Stamina migrate off the legacy floats in
-    // a later Phase 2 character step.
+    // Action System survival attributes (plan §3.2 Tier 2). Canonical home for Warmth (temperature-driven)
+    // and Hunger (DH-semantic, rises while unfed); Health migrates here with the damage/death slice (§3.17).
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Frostwake|Attributes")
     TObjectPtr<UFrostwakeAttributeComponent> AttributeComponent;
 
@@ -102,14 +104,10 @@ protected:
     UFUNCTION()
     void OnRep_Health();
 
+    // Hunger (DH-semantic, §3.15) rises by this much per second; difficulty scales it. Starvation
+    // damage applies once Hunger reaches its max.
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Frostwake|Survival")
-    float MaxSatiation;
-
-    UPROPERTY(Replicated, BlueprintReadOnly, Category = "Frostwake|Survival")
-    float Satiation;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Frostwake|Survival")
-    float SatiationDecayPerSecond;
+    float HungerIncreasePerSecond;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Frostwake|Survival")
     float StarvationDamagePerSecond;
@@ -117,9 +115,9 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Frostwake|Survival")
     float HypothermiaDamagePerSecond;
 
-    // Satiation restored by eating one ration, and the set of item ids that count as food.
+    // Hunger removed by eating one ration, and the set of item ids that count as food.
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Frostwake|Survival")
-    float RationSatiationRestore;
+    float RationHungerRestore;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Frostwake|Survival")
     TSet<FName> FoodItemIds;

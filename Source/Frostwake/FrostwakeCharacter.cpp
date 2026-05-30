@@ -27,14 +27,13 @@ AFrostwakeCharacter::AFrostwakeCharacter()
     MaxHealth = 100.0f;
     Health = MaxHealth;
 
-    // Survival meters: start full, deplete slowly so the gauges read as moving without killing a
-    // debug session quickly. Rates are tunable in defaults; health only drains once a meter is empty.
-    MaxSatiation = 100.0f;
-    Satiation = MaxSatiation;
-    SatiationDecayPerSecond = 0.20f;    // ~8.3 min from full to empty
-    StarvationDamagePerSecond = 1.0f;   // health drain once food hits zero
+    // Survival meters: warmth starts full and Hunger starts at 0 (fed), both moving slowly so the gauges
+    // read as changing without killing a debug session quickly. Rates are tunable in defaults; health
+    // only drains once a meter bottoms out (Hunger maxes out / warmth hits zero).
+    HungerIncreasePerSecond = 0.20f;    // ~8.3 min from fed to starving
+    StarvationDamagePerSecond = 1.0f;   // health drain once Hunger maxes out
     HypothermiaDamagePerSecond = 1.0f;  // health drain once warmth hits zero
-    RationSatiationRestore = 40.0f;     // one ration refills ~40% of food
+    RationHungerRestore = 40.0f;        // one ration removes ~40% of max hunger
     FoodItemIds = { FName(TEXT("Ration")) };
 
     InteractionComponent = CreateDefaultSubobject<UFrostwakeInteractionComponent>(TEXT("InteractionComponent"));
@@ -62,8 +61,7 @@ void AFrostwakeCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
     DOREPLIFETIME(AFrostwakeCharacter, Health);
-    DOREPLIFETIME(AFrostwakeCharacter, Satiation);
-    // Warmth replicates via the AttributeComponent (push-model), not the character.
+    // Warmth + Hunger replicate via the AttributeComponent (push-model), not the character.
 }
 
 void AFrostwakeCharacter::BeginPlay()
@@ -95,13 +93,14 @@ void AFrostwakeCharacter::UpdateSurvival()
     const float DeltaSeconds = 1.0f; // matches the repeating-timer cadence above
     const float DecayMultiplier = GetMatchDecayMultiplier(); // difficulty preset / host override
 
-    Satiation = FMath::Clamp(Satiation - SatiationDecayPerSecond * DecayMultiplier * DeltaSeconds, 0.0f, MaxSatiation);
-
-    // Warmth is driven by the shared temperature model (plan §3.22-23): warmth Δ/sec = CurrentTemperature
-    // = GlobalTemperature + Σ nearby heat sources. Positive near a fire (warms), negative in the cold
-    // (cools). Difficulty scales the cold half only (heating from a fire is not penalized).
     if (AttributeComponent)
     {
+        // Hunger (DH-semantic, §3.15) rises over time; difficulty makes it rise faster.
+        AttributeComponent->ModifyAttribute(EFrostwakeAttribute::Hunger, HungerIncreasePerSecond * DecayMultiplier * DeltaSeconds);
+
+        // Warmth is driven by the shared temperature model (plan §3.22-23): warmth Δ/sec = CurrentTemperature
+        // = GlobalTemperature + Σ nearby heat sources. Positive near a fire (warms), negative in the cold
+        // (cools). Difficulty scales the cold half only (heating from a fire is not penalized).
         if (const UFrostwakeTemperatureSubsystem* Temperature = UFrostwakeTemperatureSubsystem::Get(this))
         {
             float Rate = Temperature->ComputeTemperatureAt(GetActorLocation());
@@ -117,9 +116,10 @@ void AFrostwakeCharacter::UpdateSurvival()
     }
 
     float HealthDrain = 0.0f;
-    if (Satiation <= 0.0f)
+    if (AttributeComponent
+        && AttributeComponent->GetAttribute(EFrostwakeAttribute::Hunger) >= AttributeComponent->GetMaxAttribute(EFrostwakeAttribute::Hunger))
     {
-        HealthDrain += StarvationDamagePerSecond * DeltaSeconds;
+        HealthDrain += StarvationDamagePerSecond * DeltaSeconds; // starving (Hunger maxed)
     }
     if (AttributeComponent && AttributeComponent->GetAttribute(EFrostwakeAttribute::Warmth) <= 0.0f)
     {
@@ -410,7 +410,7 @@ void AFrostwakeCharacter::ServerUseSelectedItem_Implementation(int32 SlotIndex)
 
 bool AFrostwakeCharacter::EatRation(int32 SlotIndex)
 {
-    if (!HasAuthority() || !InventoryComponent)
+    if (!HasAuthority() || !InventoryComponent || !AttributeComponent)
     {
         return false;
     }
@@ -433,8 +433,10 @@ bool AFrostwakeCharacter::EatRation(int32 SlotIndex)
         return false;
     }
 
-    const float Before = Satiation;
-    Satiation = FMath::Clamp(Satiation + RationSatiationRestore, 0.0f, MaxSatiation);
+    // Eating reduces the DH-semantic Hunger attribute; report it as restored "satiation" (food remaining).
+    const float Before = GetSatiation();
+    AttributeComponent->ModifyAttribute(EFrostwakeAttribute::Hunger, -RationHungerRestore);
+    const float Satiation = GetSatiation();
     const float Restored = Satiation - Before;
 
     UE_LOG(LogFrostwakeGameplay, Log, TEXT("player_ate player=%s item=%s satiation=%.1f restored=%.1f"), *GetNameSafe(FrostwakePlayerState), *RemovedId.ToString(), Satiation, Restored);
@@ -451,6 +453,19 @@ bool AFrostwakeCharacter::EatRation(int32 SlotIndex)
     }
 
     return true;
+}
+
+float AFrostwakeCharacter::GetSatiation() const
+{
+    // Food remaining = MaxHunger - Hunger (the DH-semantic Hunger attribute rises while unfed).
+    return AttributeComponent
+        ? AttributeComponent->GetMaxAttribute(EFrostwakeAttribute::Hunger) - AttributeComponent->GetAttribute(EFrostwakeAttribute::Hunger)
+        : 0.0f;
+}
+
+float AFrostwakeCharacter::GetMaxSatiation() const
+{
+    return AttributeComponent ? AttributeComponent->GetMaxAttribute(EFrostwakeAttribute::Hunger) : 0.0f;
 }
 
 float AFrostwakeCharacter::GetWarmth() const

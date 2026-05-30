@@ -11,7 +11,9 @@ UFrostwakeAttributeComponent::UFrostwakeAttributeComponent()
 	// Start full; data-config maxes may be lowered by a role definition before play.
 	Health = MaxHealth;
 	ReservedHealth = MaxReservedHealth;
-	Hunger = MaxHunger;
+	// Hunger is DH-semantic (§3.15): it RISES from 0 (fed) toward max (starving), unlike the
+	// "fill" attributes above. Start fed.
+	Hunger = 0.f;
 	Warmth = MaxWarmth;
 	Stamina = MaxStamina;
 }

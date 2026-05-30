@@ -29,10 +29,11 @@
 - **Phase 1 foundation is merged to `main`** (Gameplay Tags `FrostwakeGameplayTags.*`; build modules; `ActionSystem/`
   Attribute/Action/ActionEffect/ActionComponent + MatchSubsystem; `Data/` 5 Definition types + DataSubsystem).
   **Wave-0 items (a)-(c) are DONE (2026-05-30):** (a) shared `UFrostwakeHeatSourceComponent` + `UFrostwakeTemperatureSubsystem`
-  (`CurrentTemperature = GlobalTemperature + Σ nearby heat/falloff`, §3.22-23) drives **Warmth via the AttributeComponent**
-  (Warmth-only migration; Health/Satiation floats migrate later in Phase 2); (b) GameState↔MatchSubsystem spine wired
-  (phase/ended/playerDied); (c) `build_game: Succeeded` + single-player `run-local-smoke` green. **Next, build the systems +
-  seed the data serially per plan §6 spec map:** survival attrs/§3.15 → damage/death/revive → ship → items(55) → recipes(47) ….
+  (`CurrentTemperature = GlobalTemperature + Σ nearby heat/falloff`, §3.22-23) drives **Warmth via the AttributeComponent**;
+  **Hunger** is also migrated there (DH-semantic, §3.15: rises while unfed; `GetSatiation()` = a `Max−Hunger` HUD adapter).
+  Only the **Health** float stays on the character, migrating with the damage/death slice (§3.17); (b) GameState↔MatchSubsystem
+  spine wired (phase/ended/playerDied); (c) `build_game: Succeeded` + single-player `run-local-smoke` green. **Next, serially
+  per plan §6:** finish §3.15 (Health attr + Warmth-boost term) with damage/death/revive (§3.17) → ship → items(55) → recipes(47) ….
 - Design oracle: sibling **`TEST2/dh_re/`** (DH reverse-engineering teardown — read-only; see plan §2 + the
   IP non-negotiable below).
 
