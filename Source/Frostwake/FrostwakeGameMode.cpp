@@ -1350,6 +1350,13 @@ void AFrostwakeGameMode::RunDevSmokeEat()
     // ItemDefinition by its canonical FName. Positive = a Food item (Ration) is eaten; negative = a Tool
     // item (Lantern) is rejected BY THE DATA (Category != Food). Both succeeding proves the consumer is
     // wired AND the §8 identifier convention (inventory FName == definition ItemId) holds at runtime.
+    // Make the player hungry first so eating actually does something: EatRation's full-guard refuses to
+    // consume a ration when already fed (Hunger == 0, which is the spawn state).
+    if (UFrostwakeAttributeComponent* Attributes = Character ? Character->FindComponentByClass<UFrostwakeAttributeComponent>() : nullptr)
+    {
+        Attributes->ModifyAttribute(EFrostwakeAttribute::Hunger, 60.0f);
+    }
+
     bool bAteFood = false;
     bool bRejectedTool = false;
     if (UFrostwakeInventoryComponent* Inventory = Character ? Character->GetInventoryComponent() : nullptr)

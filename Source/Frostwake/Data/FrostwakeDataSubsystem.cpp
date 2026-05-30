@@ -2,6 +2,8 @@
 
 #include "Data/FrostwakeItemDefinition.h"
 #include "Data/FrostwakeDamageTypeDefinition.h"
+#include "Engine/AssetManager.h"
+#include "Engine/StreamableManager.h"
 #include "JsonObjectConverter.h"
 #include "Serialization/JsonReader.h"
 #include "Serialization/JsonSerializer.h"
@@ -10,6 +12,41 @@
 #include "HAL/FileManager.h"
 
 DEFINE_LOG_CATEGORY(LogFrostwakeData);
+
+namespace
+{
+// Synchronously load every PrimaryDataAsset of a type from the AssetManager (the baked .uasset under
+// /Game/Data/<type>, scanned per DefaultGame.ini). Empty if nothing is baked yet.
+template <typename TDef>
+TArray<TDef*> LoadBakedPrimaryAssets(const TCHAR* TypeName)
+{
+	TArray<TDef*> Result;
+	UAssetManager* AssetManager = UAssetManager::GetIfInitialized();
+	if (!AssetManager)
+	{
+		return Result;
+	}
+	const FPrimaryAssetType Type(TypeName);
+	TArray<FPrimaryAssetId> Ids;
+	AssetManager->GetPrimaryAssetIdList(Type, Ids);
+	if (Ids.Num() == 0)
+	{
+		return Result;
+	}
+	if (const TSharedPtr<FStreamableHandle> Handle = AssetManager->LoadPrimaryAssets(Ids))
+	{
+		Handle->WaitUntilComplete();
+	}
+	for (const FPrimaryAssetId& Id : Ids)
+	{
+		if (TDef* Def = AssetManager->GetPrimaryAssetObject<TDef>(Id))
+		{
+			Result.Add(Def);
+		}
+	}
+	return Result;
+}
+}
 
 void UFrostwakeDataSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -45,6 +82,21 @@ UFrostwakeItemDefinition* UFrostwakeDataSubsystem::GetItemDefinition(FName ItemI
 void UFrostwakeDataSubsystem::LoadItemDefinitions()
 {
 	ItemDefinitions.Reset();
+
+	// Prefer baked PrimaryDataAssets via the AssetManager (the cook-safe "data is asset" path). Fall back
+	// to the loose JSON source (dev convenience) only if nothing is baked yet (run `-run=BakeFrostwakeData`).
+	for (UFrostwakeItemDefinition* Def : LoadBakedPrimaryAssets<UFrostwakeItemDefinition>(TEXT("FrostwakeItem")))
+	{
+		if (Def && !Def->ItemId.IsNone())
+		{
+			ItemDefinitions.Add(Def->ItemId, Def);
+		}
+	}
+	if (ItemDefinitions.Num() > 0)
+	{
+		UE_LOG(LogFrostwakeData, Log, TEXT("[DataSubsystem] Loaded %d item definition(s) from AssetManager (baked)"), ItemDefinitions.Num());
+		return;
+	}
 
 	const FString SourceDir = FPaths::ProjectContentDir() / TEXT("Data/Items/source");
 
@@ -113,6 +165,20 @@ void UFrostwakeDataSubsystem::LoadItemDefinitions()
 void UFrostwakeDataSubsystem::LoadDamageTypeDefinitions()
 {
 	DamageTypeDefinitions.Reset();
+
+	// Prefer baked PrimaryDataAssets (cook-safe); fall back to loose JSON (dev) — see LoadItemDefinitions.
+	for (UFrostwakeDamageTypeDefinition* Def : LoadBakedPrimaryAssets<UFrostwakeDamageTypeDefinition>(TEXT("FrostwakeDamageType")))
+	{
+		if (Def && !Def->DamageTypeId.IsNone())
+		{
+			DamageTypeDefinitions.Add(Def->DamageTypeId, Def);
+		}
+	}
+	if (DamageTypeDefinitions.Num() > 0)
+	{
+		UE_LOG(LogFrostwakeData, Log, TEXT("[DataSubsystem] Loaded %d damage type definition(s) from AssetManager (baked)"), DamageTypeDefinitions.Num());
+		return;
+	}
 
 	const FString SourceDir = FPaths::ProjectContentDir() / TEXT("Data/DamageTypes/source");
 

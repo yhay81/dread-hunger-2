@@ -20,6 +20,9 @@ public class FrostwakeEditor : ModuleRules
         PrivateDependencyModuleNames.AddRange(new[]
         {
             "AssetTools",
+            "AssetRegistry",
+            "Json",
+            "JsonUtilities",
             "LevelEditor",
             "MaterialEditor",
             "Slate",
