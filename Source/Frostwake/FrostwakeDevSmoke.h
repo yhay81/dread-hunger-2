@@ -11,9 +11,9 @@ class UWorld;
  * AFrostwakeGameMode methods.
  *
  * Migrated so far (plan item D): the "act on the player + world + subsystems" category — perk resist,
- * eat, damage type, survival temperature, action effect, ability. The remaining ~13 RunDevSmoke* still on
- * GameMode are coupled to its private helpers (FindPawnForTeam, match config, role assignment) and migrate
- * as that coupling is untangled.
+ * eat, damage type, survival temperature, action effect, ability, inventory. The remaining ~13 RunDevSmoke*
+ * still on GameMode are coupled to its private helpers (FindPawnForTeam, match config, role assignment) and
+ * migrate as that coupling is untangled.
  *
  * Each smoke UE_LOGs `dev_smoke_<name> result=pass|fail ...`; run-local-smoke gates on that line.
  * Everything is compiled out of shipping builds.
@@ -48,4 +48,11 @@ namespace FrostwakeDevSmoke
 	 * Action half of the system is LIVE and expressive enough for the planned spells.
 	 */
 	FROSTWAKE_API void RunAbility(UWorld* World);
+
+	/**
+	 * Inventory stacking (review #2): add MaxStack units of a stackable item (Ration, MaxStack 5) and assert
+	 * they occupy ONE slot at full count, then assert the next unit spills into a NEW slot. Proves the
+	 * container honours ItemDefinition.MaxStack (the structural fix items(55) needs). Run alone (fresh bag).
+	 */
+	FROSTWAKE_API void RunInventory(UWorld* World);
 }

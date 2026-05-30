@@ -15,6 +15,7 @@
 #include "ActionSystem/FrostwakeTemperatureSubsystem.h"
 #include "Data/FrostwakeDamageTypeDefinition.h"
 #include "Data/FrostwakeDataSubsystem.h"
+#include "Data/FrostwakeItemDefinition.h"
 #include "Engine/GameInstance.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
@@ -342,5 +343,67 @@ void FrostwakeDevSmoke::RunAbility(UWorld* World)
 		bRunning ? TEXT("true") : TEXT("false"),
 		bOnCooldown ? TEXT("true") : TEXT("false"),
 		StaminaSpent, StaminaBefore, StaminaAfter);
+#endif
+}
+
+void FrostwakeDevSmoke::RunInventory(UWorld* World)
+{
+#if !UE_BUILD_SHIPPING
+	if (!World || World->GetNetMode() == NM_Client)
+	{
+		return;
+	}
+
+	AFrostwakeCharacter* Character = FindFirstPlayerCharacter(World);
+	UFrostwakeInventoryComponent* Inventory = Character ? Character->GetInventoryComponent() : nullptr;
+
+	// Read the stackable item's MaxStack from data so the assertion tracks the seed (Ration = 5).
+	const FName Ration(TEXT("Ration"));
+	int32 MaxStack = 1;
+	if (const UGameInstance* GameInstance = World->GetGameInstance())
+	{
+		if (const UFrostwakeDataSubsystem* DataSubsystem = GameInstance->GetSubsystem<UFrostwakeDataSubsystem>())
+		{
+			if (const UFrostwakeItemDefinition* Def = DataSubsystem->GetItemDefinition(Ration))
+			{
+				MaxStack = Def->MaxStack;
+			}
+		}
+	}
+
+	// Slot deltas + Ration-specific unit counts, so a pre-existing OTHER item (e.g. a Lantern) doesn't
+	// perturb the assertion. Expects no pre-existing Ration (run --smoke-inventory on a fresh bag).
+	int32 SlotsBefore = -1;
+	int32 SlotsAfterStack = -1;
+	int32 UnitsAfterStack = -1;
+	int32 SlotsAfterOverflow = -1;
+	int32 UnitsAfterOverflow = -1;
+	if (Inventory && MaxStack >= 2)
+	{
+		SlotsBefore = Inventory->GetSlotCount();
+		for (int32 Index = 0; Index < MaxStack; ++Index)
+		{
+			Inventory->TryAddItem(Ration);                 // MaxStack units -> should fill ONE slot
+		}
+		SlotsAfterStack = Inventory->GetSlotCount();
+		UnitsAfterStack = Inventory->GetItemCountOf(Ration);
+
+		Inventory->TryAddItem(Ration);                     // the next unit -> spills into a NEW slot
+		SlotsAfterOverflow = Inventory->GetSlotCount();
+		UnitsAfterOverflow = Inventory->GetItemCountOf(Ration);
+	}
+
+	const bool bPass = (MaxStack >= 2)
+		&& SlotsAfterStack == SlotsBefore + 1
+		&& UnitsAfterStack == MaxStack
+		&& SlotsAfterOverflow == SlotsBefore + 2
+		&& UnitsAfterOverflow == MaxStack + 1;
+
+	UE_LOG(
+		LogFrostwakeGameplay,
+		Log,
+		TEXT("dev_smoke_inventory result=%s maxStack=%d slotsBefore=%d slotsAfterStack=%d unitsAfterStack=%d slotsAfterOverflow=%d unitsAfterOverflow=%d"),
+		bPass ? TEXT("pass") : TEXT("fail"),
+		MaxStack, SlotsBefore, SlotsAfterStack, UnitsAfterStack, SlotsAfterOverflow, UnitsAfterOverflow);
 #endif
 }

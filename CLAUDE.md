@@ -35,7 +35,8 @@
   Action (`UFrostwakeFogAbility`, the first ability: the base now carries cooldown/cost/duration/instigator, with
   Stamina as its first consumer; `dev_smoke_ability`); the **match spine has a
   subscriber** (`GameMode` listens to `OnPlayerDied`→`EvaluateMatchEnd`); the **data path is editor-baked**
-  (JSON→`.uasset`→AssetManager, cook-safe). **§3.17 typed damage is LIVE** (DamageMultiplier + ReservedHealth/poison
+  (JSON→`.uasset`→AssetManager, cook-safe); the **inventory container stacks** (`FFrostwakeInventoryEntry{ItemId,Count}`
+  honours `ItemDefinition.MaxStack`, review#2a — held-item visibility to others is the queued #2b). **§3.17 typed damage is LIVE** (DamageMultiplier + ReservedHealth/poison
   routing + carcass→revive) and **perk damage-resistance now lands via an ActionEffect** — §8 rule: combat/perk/
   effect modifiers go through Action/ActionEffect, never raw methods. All asserted by `run-local-smoke`
   (`dev_smoke_damage_type`/`down_rescue`/`perk_resist` = cold 10×50% resist→Health−5, plus single-player/host-only green).
