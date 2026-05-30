@@ -1,4 +1,5 @@
 #include "FrostwakeGameState.h"
+#include "ActionSystem/FrostwakeMatchSubsystem.h"
 #include "Net/UnrealNetwork.h"
 
 AFrostwakeGameState::AFrostwakeGameState()
@@ -77,6 +78,12 @@ void AFrostwakeGameState::SetMatchPhase(EFrostwakeMatchPhase NewPhase)
     if (HasAuthority())
     {
         MatchPhase = NewPhase;
+        // Decoupling spine (plan §9.1 step 7): self-registered systems observe phase changes through the
+        // match hub instead of the GameMode hard-referencing each of them.
+        if (UFrostwakeMatchSubsystem* MatchSubsystem = UFrostwakeMatchSubsystem::Get(this))
+        {
+            MatchSubsystem->NotifyMatchPhaseChanged(NewPhase);
+        }
     }
 }
 
@@ -103,6 +110,12 @@ void AFrostwakeGameState::SetMatchResult(EFrostwakeTeam NewWinningTeam, const FS
         WinningTeam = NewWinningTeam;
         MatchEndReason = EndReason;
         MatchPhase = EFrostwakeMatchPhase::MatchEnded;
+        // Resolve the match on the spine: Crew completing the voyage are the "explorers" who escaped.
+        if (UFrostwakeMatchSubsystem* MatchSubsystem = UFrostwakeMatchSubsystem::Get(this))
+        {
+            MatchSubsystem->NotifyMatchEnded(NewWinningTeam == EFrostwakeTeam::Crew);
+            MatchSubsystem->NotifyMatchPhaseChanged(EFrostwakeMatchPhase::MatchEnded);
+        }
     }
 }
 

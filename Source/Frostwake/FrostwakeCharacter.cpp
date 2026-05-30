@@ -6,6 +6,9 @@
 #include "FrostwakeLog.h"
 #include "FrostwakePlayerState.h"
 #include "FrostwakeTelemetrySubsystem.h"
+#include "ActionSystem/FrostwakeAttributeComponent.h"
+#include "ActionSystem/FrostwakeMatchSubsystem.h"
+#include "ActionSystem/FrostwakeTemperatureSubsystem.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
@@ -28,10 +31,7 @@ AFrostwakeCharacter::AFrostwakeCharacter()
     // debug session quickly. Rates are tunable in defaults; health only drains once a meter is empty.
     MaxSatiation = 100.0f;
     Satiation = MaxSatiation;
-    MaxWarmth = 100.0f;
-    Warmth = MaxWarmth;
     SatiationDecayPerSecond = 0.20f;    // ~8.3 min from full to empty
-    WarmthDecayPerSecond = 0.25f;       // ~6.7 min from full to empty
     StarvationDamagePerSecond = 1.0f;   // health drain once food hits zero
     HypothermiaDamagePerSecond = 1.0f;  // health drain once warmth hits zero
     RationSatiationRestore = 40.0f;     // one ration refills ~40% of food
@@ -39,6 +39,9 @@ AFrostwakeCharacter::AFrostwakeCharacter()
 
     InteractionComponent = CreateDefaultSubobject<UFrostwakeInteractionComponent>(TEXT("InteractionComponent"));
     InventoryComponent = CreateDefaultSubobject<UFrostwakeInventoryComponent>(TEXT("InventoryComponent"));
+    // Warmth is driven through this component by the shared temperature model (plan §3.22-23); it starts
+    // full (MaxWarmth) from the component's own constructor and replicates push-model to clients.
+    AttributeComponent = CreateDefaultSubobject<UFrostwakeAttributeComponent>(TEXT("AttributeComponent"));
 
     FirstPersonCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
     FirstPersonCameraComponent->SetupAttachment(GetCapsuleComponent());
@@ -60,7 +63,7 @@ void AFrostwakeCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 
     DOREPLIFETIME(AFrostwakeCharacter, Health);
     DOREPLIFETIME(AFrostwakeCharacter, Satiation);
-    DOREPLIFETIME(AFrostwakeCharacter, Warmth);
+    // Warmth replicates via the AttributeComponent (push-model), not the character.
 }
 
 void AFrostwakeCharacter::BeginPlay()
@@ -93,14 +96,32 @@ void AFrostwakeCharacter::UpdateSurvival()
     const float DecayMultiplier = GetMatchDecayMultiplier(); // difficulty preset / host override
 
     Satiation = FMath::Clamp(Satiation - SatiationDecayPerSecond * DecayMultiplier * DeltaSeconds, 0.0f, MaxSatiation);
-    Warmth = FMath::Clamp(Warmth - WarmthDecayPerSecond * DecayMultiplier * DeltaSeconds, 0.0f, MaxWarmth);
+
+    // Warmth is driven by the shared temperature model (plan §3.22-23): warmth Δ/sec = CurrentTemperature
+    // = GlobalTemperature + Σ nearby heat sources. Positive near a fire (warms), negative in the cold
+    // (cools). Difficulty scales the cold half only (heating from a fire is not penalized).
+    if (AttributeComponent)
+    {
+        if (const UFrostwakeTemperatureSubsystem* Temperature = UFrostwakeTemperatureSubsystem::Get(this))
+        {
+            float Rate = Temperature->ComputeTemperatureAt(GetActorLocation());
+            if (Rate < 0.0f)
+            {
+                Rate *= DecayMultiplier;
+            }
+            if (Rate != 0.0f)
+            {
+                AttributeComponent->ModifyAttribute(EFrostwakeAttribute::Warmth, Rate * DeltaSeconds);
+            }
+        }
+    }
 
     float HealthDrain = 0.0f;
     if (Satiation <= 0.0f)
     {
         HealthDrain += StarvationDamagePerSecond * DeltaSeconds;
     }
-    if (Warmth <= 0.0f)
+    if (AttributeComponent && AttributeComponent->GetAttribute(EFrostwakeAttribute::Warmth) <= 0.0f)
     {
         HealthDrain += HypothermiaDamagePerSecond * DeltaSeconds;
     }
@@ -198,6 +219,12 @@ bool AFrostwakeCharacter::ApplyServerDamage(float DamageAmount, AActor* DamageSo
     if (Health <= 0.0f)
     {
         FrostwakePlayerState->SetLifeState(EFrostwakeLifeState::Downed);
+        // Decoupling spine (plan §9.1 step 7): notify the match hub so systems can react to a player
+        // going down without hard-referencing the character.
+        if (UFrostwakeMatchSubsystem* MatchSubsystem = UFrostwakeMatchSubsystem::Get(this))
+        {
+            MatchSubsystem->NotifyPlayerDied(GetController());
+        }
         UE_LOG(LogFrostwakeGameplay, Log, TEXT("player_downed player=%s source=%s"), *GetNameSafe(FrostwakePlayerState), *GetNameSafe(DamageSource));
         if (UGameInstance* GameInstance = GetGameInstance())
         {
@@ -426,9 +453,19 @@ bool AFrostwakeCharacter::EatRation(int32 SlotIndex)
     return true;
 }
 
+float AFrostwakeCharacter::GetWarmth() const
+{
+    return AttributeComponent ? AttributeComponent->GetAttribute(EFrostwakeAttribute::Warmth) : 0.0f;
+}
+
+float AFrostwakeCharacter::GetMaxWarmth() const
+{
+    return AttributeComponent ? AttributeComponent->GetMaxAttribute(EFrostwakeAttribute::Warmth) : 0.0f;
+}
+
 bool AFrostwakeCharacter::ApplyWarmth(float WarmthAmount, AActor* HeatSource)
 {
-    if (!HasAuthority() || WarmthAmount <= 0.0f)
+    if (!HasAuthority() || WarmthAmount <= 0.0f || !AttributeComponent)
     {
         return false;
     }
@@ -439,15 +476,15 @@ bool AFrostwakeCharacter::ApplyWarmth(float WarmthAmount, AActor* HeatSource)
         return false;
     }
 
-    const float Before = Warmth;
-    Warmth = FMath::Clamp(Warmth + WarmthAmount, 0.0f, MaxWarmth);
-    const float Restored = Warmth - Before;
+    const float Before = AttributeComponent->GetAttribute(EFrostwakeAttribute::Warmth);
+    const float NewWarmth = AttributeComponent->ModifyAttribute(EFrostwakeAttribute::Warmth, WarmthAmount);
+    const float Restored = NewWarmth - Before;
     if (Restored <= 0.0f)
     {
         return false; // already warm
     }
 
-    UE_LOG(LogFrostwakeGameplay, Log, TEXT("player_warmed player=%s warmth=%.1f restored=%.1f source=%s"), *GetNameSafe(FrostwakePlayerState), Warmth, Restored, *GetNameSafe(HeatSource));
+    UE_LOG(LogFrostwakeGameplay, Log, TEXT("player_warmed player=%s warmth=%.1f restored=%.1f source=%s"), *GetNameSafe(FrostwakePlayerState), NewWarmth, Restored, *GetNameSafe(HeatSource));
     if (UGameInstance* GameInstance = GetGameInstance())
     {
         if (UFrostwakeTelemetrySubsystem* TelemetrySubsystem = GameInstance->GetSubsystem<UFrostwakeTelemetrySubsystem>())
@@ -456,7 +493,7 @@ bool AFrostwakeCharacter::ApplyWarmth(float WarmthAmount, AActor* HeatSource)
                 TEXT("player_warmed"),
                 FString::Printf(
                     TEXT("{\"player\":\"%s\",\"warmth\":%.1f,\"restored\":%.1f,\"source\":\"%s\"}"),
-                    *GetNameSafe(FrostwakePlayerState), Warmth, Restored, *GetNameSafe(HeatSource)));
+                    *GetNameSafe(FrostwakePlayerState), NewWarmth, Restored, *GetNameSafe(HeatSource)));
         }
     }
 

@@ -286,7 +286,7 @@ spawn_taskチップ / Workflowツール(データ大量投入の決定論fan-out
 | 3. DataAsset基底型 | ✅実装・緑 | Item/Weapon(:Item)/Recipe/Role/Perk/DamageType。`GetPrimaryAssetId=(Type,Id:FName)`、6 PrimaryAssetTypeを`/Game/Data/<種別>`でスキャン登録 |
 | 4. データ投入パターン | ✅実装・緑 | **決定: JSON採用**（CSV不採用＝material map等のネスト/多態に素直）。`Content/Data/<種別>/source/*.json`→`FJsonObjectConverter`→型付Definition。今は`UFrostwakeDataSubsystem`(runtime sink, build_gameで検証可)、editor bake sinkは同一パース流用で延期。手順=`Content/Data/README.md` |
 | 5. Action System core | ✅実装・緑 | AttributeComponent(5属性, replicated+push-model)/Action/ActionEffect基底+ActionComponent(付与/解除/属性改変) |
-| 6. 共有HeatSource/温度 | ❌**未着手** | 本トラック範囲外。Ship/Survivalが共有する中央fileのため**lead割当が必要**。 |
-| 7. 脱結合spine | ✅実装・緑 | `UFrostwakeMatchSubsystem`(WorldSubsystem, phase/ended/playerDiedデリゲート自己登録)。**GameMode→Notify*の1行配線はshared fileにつき未実施→lead**。wire/save版管理規約は未着手(別途) |
+| 6. 共有HeatSource/温度 | ✅実装・緑(2026-05-30) | `UFrostwakeHeatSourceComponent`+`UFrostwakeTemperatureSubsystem`(ActionSystem/)。`CurrentTemperature=GlobalTemperature+Σ熱源/距離減衰`(§3.22-23)。`AFrostwakeHeatSourceActor`に統合。Survival(`UpdateSurvival`)が温度をサンプル→**AttributeComponentのWarmthを駆動**(暖のみAttribute Componentへ移行。Health/Satiationのfloatは完全移行=別Phase 2)。GlobalTemperatureはWeatherが後で供給(暫定−0.25/我々0..100暖scale)。build_game緑+single-player smoke緑。 |
+| 7. 脱結合spine | ✅実装・緑(配線済 2026-05-30) | `UFrostwakeMatchSubsystem`(WorldSubsystem)。**配線完了**: `GameState::SetMatchPhase/SetMatchResult`→`NotifyMatchPhaseChanged/NotifyMatchEnded`(Crew=explorers勝利)、character down→`NotifyPlayerDied`。wire/save版管理規約は未着手(別途) |
 
-> ⚠️ **未検証(NOT-RUN)**: 上記「緑」は`build_game`のcompile/link。step2-5の実ランタイム挙動(PIEで「テキスト編集→反映」/属性レプリ/effect付与解除)はPIE/AFunctionalTest(§3.6)で別途確認。8人MPはServerビルドblockerでgated。
+> ⚠️ **検証状況**: step2-5の「緑」は`build_game`のcompile/link。step6-7は加えて **single-player `run-local-smoke` 緑**(host起動→match開始→survival tick が温度サンプリング、クラッシュ無し)。残課題=**挙動アサーション**(「火の近くで暖↑/寒冷で暖↓」「属性レプリ」「effect付与解除」)は PIE/AFunctionalTest(§3.6)で別途。8人MPはServerビルドblockerでgated。

@@ -1,5 +1,6 @@
 #include "FrostwakeHeatSourceActor.h"
 
+#include "ActionSystem/FrostwakeHeatSourceComponent.h"
 #include "FrostwakeCharacter.h"
 #include "FrostwakeLog.h"
 #include "Components/StaticMeshComponent.h"
@@ -21,6 +22,9 @@ AFrostwakeHeatSourceActor::AFrostwakeHeatSourceActor()
         DisplayMesh->SetStaticMesh(CylinderMesh.Object);
         DisplayMesh->SetRelativeScale3D(FVector(0.6f, 0.6f, 0.8f));
     }
+
+    // Radiate warmth into the temperature model while players are nearby (default HeatOutput/Radius).
+    HeatSourceComponent = CreateDefaultSubobject<UFrostwakeHeatSourceComponent>(TEXT("HeatSourceComponent"));
 }
 
 bool AFrostwakeHeatSourceActor::Interact(APawn* InstigatorPawn)

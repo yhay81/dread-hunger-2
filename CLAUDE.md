@@ -28,9 +28,11 @@
   is **frozen** — design reference only.
 - **Phase 1 foundation is merged to `main`** (Gameplay Tags `FrostwakeGameplayTags.*`; build modules; `ActionSystem/`
   Attribute/Action/ActionEffect/ActionComponent + MatchSubsystem; `Data/` 5 Definition types + DataSubsystem).
-  **Finish these open Wave-0 items first:** (a) a shared `HeatSourceComponent` + temperature aggregation
-  (plan §3.22-23 model: CurrentTemperature = GlobalTemperature + Σ nearby heat sources), (b) GameMode↔MatchSubsystem
-  wiring, (c) a PIE / `run-local-smoke` end-to-end pass. Then build the systems + seed the data **serially** (plan §6 spec map).
+  **Wave-0 items (a)-(c) are DONE (2026-05-30):** (a) shared `UFrostwakeHeatSourceComponent` + `UFrostwakeTemperatureSubsystem`
+  (`CurrentTemperature = GlobalTemperature + Σ nearby heat/falloff`, §3.22-23) drives **Warmth via the AttributeComponent**
+  (Warmth-only migration; Health/Satiation floats migrate later in Phase 2); (b) GameState↔MatchSubsystem spine wired
+  (phase/ended/playerDied); (c) `build_game: Succeeded` + single-player `run-local-smoke` green. **Next, build the systems +
+  seed the data serially per plan §6 spec map:** survival attrs/§3.15 → damage/death/revive → ship → items(55) → recipes(47) ….
 - Design oracle: sibling **`TEST2/dh_re/`** (DH reverse-engineering teardown — read-only; see plan §2 + the
   IP non-negotiable below).
 

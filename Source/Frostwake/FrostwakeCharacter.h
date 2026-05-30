@@ -7,6 +7,7 @@
 
 class UFrostwakeInteractionComponent;
 class UFrostwakeInventoryComponent;
+class UFrostwakeAttributeComponent;
 class UCameraComponent;
 class AFrostwakeItemPickupActor;
 
@@ -60,11 +61,13 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Frostwake|Survival")
     float GetMaxSatiation() const { return MaxSatiation; }
 
+    // Warmth now lives in the Action System attribute component (its designated home, plan §3.2/§3.15);
+    // these accessors read it so the HUD / heat sources keep working unchanged.
     UFUNCTION(BlueprintCallable, Category = "Frostwake|Survival")
-    float GetWarmth() const { return Warmth; }
+    float GetWarmth() const;
 
     UFUNCTION(BlueprintCallable, Category = "Frostwake|Survival")
-    float GetMaxWarmth() const { return MaxWarmth; }
+    float GetMaxWarmth() const;
 
     // Server-authoritative: consume the item in SlotIndex if it is food, restoring Satiation.
     UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Frostwake|Survival")
@@ -80,6 +83,12 @@ protected:
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Frostwake|Inventory")
     TObjectPtr<UFrostwakeInventoryComponent> InventoryComponent;
+
+    // Action System survival attributes (plan §3.2 Tier 2). Currently the canonical home for Warmth
+    // (driven by the shared temperature model); Health/Hunger/Stamina migrate off the legacy floats in
+    // a later Phase 2 character step.
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Frostwake|Attributes")
+    TObjectPtr<UFrostwakeAttributeComponent> AttributeComponent;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Frostwake|Camera")
     TObjectPtr<UCameraComponent> FirstPersonCameraComponent;
@@ -100,16 +109,7 @@ protected:
     float Satiation;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Frostwake|Survival")
-    float MaxWarmth;
-
-    UPROPERTY(Replicated, BlueprintReadOnly, Category = "Frostwake|Survival")
-    float Warmth;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Frostwake|Survival")
     float SatiationDecayPerSecond;
-
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Frostwake|Survival")
-    float WarmthDecayPerSecond;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Frostwake|Survival")
     float StarvationDamagePerSecond;
