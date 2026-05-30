@@ -40,6 +40,17 @@ namespace FrostwakeTags
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ship_System_Radio, "Ship.System.Radio", "Radio / comms.");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ship_System_Flooding, "Ship.System.Flooding", "Active flooding state (sinks if unrepaired).");
 
+	// Ship spaces / compartments (EShipSpacePartition)
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ship_Space_CaptainQuarters, "Ship.Space.CaptainQuarters", "Captain's quarters.");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ship_Space_CorridorAft, "Ship.Space.CorridorAft", "Aft corridor.");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ship_Space_CorridorFore, "Ship.Space.CorridorFore", "Fore corridor.");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ship_Space_EngineRoom, "Ship.Space.EngineRoom", "Engine / boiler room.");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ship_Space_Exterior, "Ship.Space.Exterior", "Open deck / exterior.");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ship_Space_HoldAft, "Ship.Space.HoldAft", "Aft cargo hold.");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ship_Space_HoldFore, "Ship.Space.HoldFore", "Fore cargo hold.");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ship_Space_Galley, "Ship.Space.Galley", "Galley / kitchen.");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ship_Space_CardRoom, "Ship.Space.CardRoom", "Card room (social space).");
+
 	// Crafting
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Crafting_Family_Arrowheads, "Crafting.Family.Arrowheads", "Ingredient family: arrowheads.");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Crafting_Family_Fuel, "Crafting.Family.Fuel", "Ingredient family: fuel.");
@@ -82,6 +93,22 @@ namespace FrostwakeTags
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Perk_Role_ReloadSpeed, "Perk.Role.ReloadSpeed", "Marine: faster reload.");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Perk_Role_GroundSpeed, "Perk.Role.GroundSpeed", "Navigator: move speed (~+10%).");
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Perk_Role_MedBoost, "Perk.Role.MedBoost", "Doctor: stronger revive/heal.");
+
+	// Talisman perks (EPlayerTalismanPerk — charm modifiers)
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Perk_Talisman_ColdResist, "Perk.Talisman.ColdResist", "Reduced cold / exposure.");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Perk_Talisman_AnimalDamage, "Perk.Talisman.AnimalDamage", "Reduced damage from animals.");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Perk_Talisman_AnimalAggro, "Perk.Talisman.AnimalAggro", "Alters animal aggression toward the bearer.");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Perk_Talisman_FallDamage, "Perk.Talisman.FallDamage", "Reduced fall damage.");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Perk_Talisman_FogVision, "Perk.Talisman.FogVision", "See further through fog / whiteout.");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Perk_Talisman_FoodValue, "Perk.Talisman.FoodValue", "More hunger restored per food.");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Perk_Talisman_FoodHealthRegen, "Perk.Talisman.FoodHealthRegen", "Eating also regenerates health.");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Perk_Talisman_FootstepVolume, "Perk.Talisman.FootstepVolume", "Quieter footsteps.");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Perk_Talisman_HungerRate, "Perk.Talisman.HungerRate", "Slower hunger gain.");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Perk_Talisman_HungerRateNight, "Perk.Talisman.HungerRateNight", "Slower hunger gain at night.");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Perk_Talisman_PokerLuck, "Perk.Talisman.PokerLuck", "Better odds in the card game.");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Perk_Talisman_ReviveSpeed, "Perk.Talisman.ReviveSpeed", "Faster reviving of others.");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Perk_Talisman_StaminaDrain, "Perk.Talisman.StaminaDrain", "Reduced stamina drain.");
+	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Perk_Talisman_VoiceRange, "Perk.Talisman.VoiceRange", "Greater proximity voice range.");
 
 	// Saboteur abilities (abstracted from DH thrall spells)
 	UE_DEFINE_GAMEPLAY_TAG_COMMENT(Ability_Saboteur_Phase, "Ability.Saboteur.Phase", "Become intangible / escape confinement (cf. spirit walk).");

@@ -52,6 +52,17 @@ namespace FrostwakeTags
 	FROSTWAKE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ship_System_Radio);
 	FROSTWAKE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ship_System_Flooding);
 
+	// ── Ship spaces / compartments (mirror EShipSpacePartition; for zone-scoped events / AI / objectives) ──
+	FROSTWAKE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ship_Space_CaptainQuarters);
+	FROSTWAKE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ship_Space_CorridorAft);
+	FROSTWAKE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ship_Space_CorridorFore);
+	FROSTWAKE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ship_Space_EngineRoom);
+	FROSTWAKE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ship_Space_Exterior);
+	FROSTWAKE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ship_Space_HoldAft);
+	FROSTWAKE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ship_Space_HoldFore);
+	FROSTWAKE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ship_Space_Galley);
+	FROSTWAKE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ship_Space_CardRoom);
+
 	// ── Crafting model (families / methods / rules) ───────────────────────────
 	FROSTWAKE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Crafting_Family_Arrowheads);
 	FROSTWAKE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Crafting_Family_Fuel);
@@ -94,6 +105,22 @@ namespace FrostwakeTags
 	FROSTWAKE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Perk_Role_ReloadSpeed);
 	FROSTWAKE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Perk_Role_GroundSpeed);
 	FROSTWAKE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Perk_Role_MedBoost);
+
+	// ── Talisman perks (mirror EPlayerTalismanPerk — charm modifiers; values via curves/CROSSCHECK) ──
+	FROSTWAKE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Perk_Talisman_ColdResist);
+	FROSTWAKE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Perk_Talisman_AnimalDamage);
+	FROSTWAKE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Perk_Talisman_AnimalAggro);
+	FROSTWAKE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Perk_Talisman_FallDamage);
+	FROSTWAKE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Perk_Talisman_FogVision);
+	FROSTWAKE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Perk_Talisman_FoodValue);
+	FROSTWAKE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Perk_Talisman_FoodHealthRegen);
+	FROSTWAKE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Perk_Talisman_FootstepVolume);
+	FROSTWAKE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Perk_Talisman_HungerRate);
+	FROSTWAKE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Perk_Talisman_HungerRateNight);
+	FROSTWAKE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Perk_Talisman_PokerLuck);
+	FROSTWAKE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Perk_Talisman_ReviveSpeed);
+	FROSTWAKE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Perk_Talisman_StaminaDrain);
+	FROSTWAKE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Perk_Talisman_VoiceRange);
 
 	// ── Saboteur abilities — abstracted from DH thrall spells to functional, IP-safe names ──
 	FROSTWAKE_API UE_DECLARE_GAMEPLAY_TAG_EXTERN(Ability_Saboteur_Phase);        // intangible escape  (cf. spirit walk)

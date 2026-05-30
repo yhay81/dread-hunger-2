@@ -28,12 +28,16 @@
   is **frozen** — design reference only.
 - **Phase 1 foundation is merged to `main`** (Gameplay Tags `FrostwakeGameplayTags.*`; build modules; `ActionSystem/`
   Attribute/Action/ActionEffect/ActionComponent + MatchSubsystem; `Data/` 5 Definition types + DataSubsystem).
+  **⚠️ "merged" ≠ "live" (honest status in plan §9.5):** only the AttributeComponent + temperature/Warmth path actually run.
+  Action/ActionEffect/ActionComponent have **zero consumers** (scaffold), the match spine is **emit-only (no subscribers)**, and
+  the data path loads **1 of 6 types / 2 items** (`/Game/Data` .uasset = empty). The skeleton sits correctly on the plan's frame;
+  most of it isn't exercised yet.
   **Wave-0 items (a)-(c) are DONE (2026-05-30):** (a) shared `UFrostwakeHeatSourceComponent` + `UFrostwakeTemperatureSubsystem`
   (`CurrentTemperature = GlobalTemperature + Σ nearby heat/falloff`, §3.22-23) drives **Warmth via the AttributeComponent**;
   **Hunger** (DH-semantic, §3.15: rises while unfed; `GetSatiation()` = a `Max−Hunger` HUD adapter) and **Health** are migrated
   there too — the **§3.15 5-attribute consolidation is complete** and the character holds no hand-written vitals floats; (b) GameState↔MatchSubsystem
-  spine wired (phase/ended/playerDied); (c) `build_game: Succeeded` + `run-local-smoke` green (single-player + host-only down-rescue:
-  health 0→downed→rescued 35). **Next, serially per plan §6:** the **§3.17 damage system** (DT_* damage types + resistances +
+  spine **emit-side** wired (phase/ended/playerDied) — note: no subscribers yet; (c) `build_game: Succeeded` + `run-local-smoke` green
+  (single-player + host-only down-rescue: health 0→downed→rescued 35) — green here = compiles + no-crash, NOT behavioral assertion. **Next, serially per plan §6:** the **§3.17 damage system** (DT_* damage types + resistances +
   ReservedHealth/poison + revive, plus the §3.15 Warmth-boost term) → ship → items(55) → recipes(47) ….
 - Design oracle: sibling **`TEST2/dh_re/`** (DH reverse-engineering teardown — read-only; see plan §2 + the
   IP non-negotiable below).

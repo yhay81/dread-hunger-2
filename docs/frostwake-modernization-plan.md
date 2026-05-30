@@ -279,14 +279,19 @@ spawn_taskチップ / Workflowツール(データ大量投入の決定論fan-out
 > 2026-05-30。branch `frostwake/track-foundation` → main 統合済。9.1の各stepにつき**実装+`build_game`緑**で確認。
 > dispatchの「決定を§9に明記」要件をここで満たす（9.1の*開いた選択*を解決）。leadは本節を9.1へ畳んで可。
 
-| 9.1 step | 状態 | 決定/メモ |
-|---|---|---|
-| 1. Gameplay Tags | ✅統合済 | `FrostwakeGameplayTags.{h,cpp}`（`frostwake/phase1-foundation`由来）。本トラックは未編集／DataAsset/Effectは汎用`FGameplayTag`参照で疎結合 |
-| 2. 基盤モジュール | ✅実装・緑 | **決定: main `Frostwake`モジュールに置く**（`FrostwakeGameplay`プラグイン化は延期＝加法的・Wave待たせない・後日機械的抽出可）。EnhancedInput/GameplayTags/DataRegistry deps+plugin有効化。module rootをinclude pathに追加 |
-| 3. DataAsset基底型 | ✅実装・緑 | Item/Weapon(:Item)/Recipe/Role/Perk/DamageType。`GetPrimaryAssetId=(Type,Id:FName)`、6 PrimaryAssetTypeを`/Game/Data/<種別>`でスキャン登録 |
-| 4. データ投入パターン | ✅実装・緑 | **決定: JSON採用**（CSV不採用＝material map等のネスト/多態に素直）。`Content/Data/<種別>/source/*.json`→`FJsonObjectConverter`→型付Definition。今は`UFrostwakeDataSubsystem`(runtime sink, build_gameで検証可)、editor bake sinkは同一パース流用で延期。手順=`Content/Data/README.md` |
-| 5. Action System core | ✅実装・緑 | AttributeComponent(5属性, replicated+push-model)/Action/ActionEffect基底+ActionComponent(付与/解除/属性改変) |
-| 6. 共有HeatSource/温度 | ✅実装・緑(2026-05-30) | `UFrostwakeHeatSourceComponent`+`UFrostwakeTemperatureSubsystem`(ActionSystem/)。`CurrentTemperature=GlobalTemperature+Σ熱源/距離減衰`(§3.22-23)。`AFrostwakeHeatSourceActor`に統合。Survival(`UpdateSurvival`)が温度をサンプル→**AttributeComponentのWarmthを駆動**(暖のみAttribute Componentへ移行。Health/Satiationのfloatは完全移行=別Phase 2)。GlobalTemperatureはWeatherが後で供給(暫定−0.25/我々0..100暖scale)。build_game緑+single-player smoke緑。 |
-| 7. 脱結合spine | ✅実装・緑(配線済 2026-05-30) | `UFrostwakeMatchSubsystem`(WorldSubsystem)。**配線完了**: `GameState::SetMatchPhase/SetMatchResult`→`NotifyMatchPhaseChanged/NotifyMatchEnded`(Crew=explorers勝利)、character down→`NotifyPlayerDied`。wire/save版管理規約は未着手(別途) |
+> **状態の語法（批判的レビュー反映 2026-05-30）— 「コンパイルが通る」を「動く」と混同しない。**
+> 🟢LIVE = ランタイム消費者が存在し実走（smokeで観測） / 🟡SCAFFOLD = コンパイル・統合済だが**消費者ゼロ（未使用コード）** /
+> 🟡EMIT-ONLY = 発信のみ・**購読者ゼロ** / 🟡PARTIAL = 一部のみ実動。骨格は計画の形に正しく乗っているが、多くは「敷いた」段階で「動いている」ではない。
 
-> ⚠️ **検証状況**: step2-5の「緑」は`build_game`のcompile/link。step6-7は加えて **single-player `run-local-smoke` 緑**(host起動→match開始→survival tick が温度サンプリング、クラッシュ無し)。残課題=**挙動アサーション**(「火の近くで暖↑/寒冷で暖↓」「属性レプリ」「effect付与解除」)は PIE/AFunctionalTest(§3.6)で別途。8人MPはServerビルドblockerでgated。
+| 9.1 step | 状態 | 決定/メモ（証拠ベース） |
+|---|---|---|
+| 1. Gameplay Tags | 🟢 構造確定 | `FrostwakeGameplayTags.{h,cpp}`。**Phase 1「完全版」に到達**(2026-05-30: 欠落していた `Perk.Talisman.*`(14)・`Ship.Space.*`(9) を追加; `Ability.Thrall.*`→`Ability.Saboteur.*` はIP抽象化=計画文言から意図的逸脱)。タグは消費者に先行するのが設計＝leafは content 進行とともに追加 |
+| 2. 基盤モジュール | 🟢 LIVE | main `Frostwake`モジュールにdeps(EnhancedInput/GameplayTags/DataRegistry/Json)+plugin有効化、実使用中。(`FrostwakeGameplay`プラグイン化は延期) |
+| 3. DataAsset基底型 | 🟡 型のみ | Item/Weapon/Recipe/Role/Perk/DamageType + AssetManager登録。`GetPrimaryAssetId=(Type,Id:FName)`。**但し`/Game/Data/*`は空(.uasset 0件)＝AssetManager経路には中身が一切流れていない** |
+| 4. データ投入パターン | 🟡 PARTIAL | JSON採用。だが `UFrostwakeDataSubsystem` は **6型中 item の1型のみロード**(`ReloadAllDefinitions`→`LoadItemDefinitions`だけ)。実データ **2件/目標55**。editor-bake .uasset sink・残5型は未。＝「データ駆動」の本命(PrimaryDataAsset/AssetManager実ロード)はまだ稼働せず |
+| 5. Action System core | 🟡 SCAFFOLD | Attribute/Action/ActionEffect/ActionComponent の**基底はコンパイルされる**が、**Action/ActionEffect のサブクラス0・ActionComponentを生成するアクター0**(grep確認)。実走するのは **AttributeComponent のみ**(Survivalが消費)。残りは未使用コード |
+| 6. 共有HeatSource/温度 | 🟢 LIVE | `UFrostwakeHeatSourceComponent`+`UFrostwakeTemperatureSubsystem`。`CurrentTemperature=GlobalTemperature+Σ熱源/距離減衰`(§3.22-23)→`UpdateSurvival`が **AttributeComponentのWarmthを実駆動**(smokeで温度サンプリング確認)。**Health/Hunger/Warmth は全て AttributeComponent へ移行済**=キャラに手書きvitals float無し。GlobalTemperatureはWeatherが後で供給(暫定−0.25) |
+| 7. 脱結合spine | 🟡 EMIT-ONLY | `UFrostwakeMatchSubsystem`。**発信側のみ**配線(GameState `SetMatchPhase/SetMatchResult` + character down → `Notify*`)。**購読者は0**(全コードで`AddDynamic`はMainMenuボタンのみ＝誰も聞かないイベントバス)。down-rescue smokeで`NotifyPlayerDied`発火は確認。wire/save版管理規約は未着手 |
+
+> ⚠️ **検証の意味**: 上の「LIVE」も含め確認済みは ①`build_game`コンパイル/リンク + ②`run-local-smoke`(host起動→match開始でクラッシュ無し、down-rescueでHP 0→downed→蘇生35 の実値)。**挙動アサーション**(「火で暖↑/寒冷で暖↓」「属性レプリ」「effect付与/解除」)を検証するPIE/AFunctionalTest(§3.6)は**未実装**。8人MPはServerビルドblockerでgated。
+> 🔧 **scaffold→「✅完了」化の最低ライン**: ①Action: Characterに`ActionComponent`を付け Action+ActionEffect 各1を実走(例: 寒冷debuff) ②spine: 購読者を最低1(例: HUD/船が`OnPlayerDied`を聴く) ③data: editor-bake .uassetでAssetManager実ロードを1本+残5型 ④挙動: AFunctionalTest 1本(火で暖↑をassert)。

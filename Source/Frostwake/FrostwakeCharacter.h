@@ -89,8 +89,10 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Frostwake|Inventory")
     TObjectPtr<UFrostwakeInventoryComponent> InventoryComponent;
 
-    // Action System survival attributes (plan §3.2 Tier 2). Canonical home for Warmth (temperature-driven)
-    // and Hunger (DH-semantic, rises while unfed); Health migrates here with the damage/death slice (§3.17).
+    // Action System survival attributes (plan §3.2 Tier 2). Canonical home for ALL vitals now —
+    // Health, Warmth (temperature-driven), and Hunger (DH-semantic, rises while unfed). The character
+    // keeps no hand-written vitals floats. ReservedHealth/Stamina exist on the component but are not yet
+    // driven (they land with the §3.17 damage/poison work).
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Frostwake|Attributes")
     TObjectPtr<UFrostwakeAttributeComponent> AttributeComponent;
 
