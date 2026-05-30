@@ -1,5 +1,7 @@
 # Control Scheme & Operability Target
 
+> 🧭 **Superseded where it conflicts with [`docs/frostwake-modernization-plan.md`](frostwake-modernization-plan.md) (SSOT, 2026-05-30).** Scope is now full reproduction — e.g. the complete 47-recipe crafting system (plan §4) — not the "vertical slice" noted below, and the GP-lane tags are frozen; the control/operability targets themselves remain valid.
+
 Lanes: GP-03 (feel) + GP-09 (comprehension) · Reviewer: Unreal C++ + Game Design · Created: 2026-05-29
 
 ## Goal

@@ -1,5 +1,7 @@
 # Steam Lobby Spike Runbook
 
+> 🧭 **Superseded where it conflicts with [`docs/frostwake-modernization-plan.md`](frostwake-modernization-plan.md) (SSOT, 2026-05-30).** The GP-04 / GP-02 lane framing and the "update `docs/orchestration/lanes/GP-04.state.md`" step are frozen (orchestration is historical); the preflight / runtime steps and safety rules below remain valid, and the standing server-build blocker is real (plan §0/§4).
+
 GP-04 · P2-003 + P2-004 · Status: AWAITING GP-02 UNBLOCK
 
 This runbook contains the exact steps to run the Steam Lobby create/find/join spike with

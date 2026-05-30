@@ -1,5 +1,7 @@
 # Agent Operating Model
 
+> ⛔ **Frozen — superseded by [`docs/frostwake-modernization-plan.md`](frostwake-modernization-plan.md) (SSOT, 2026-05-30).** The heavy multi-agent lane/cadence model below is retired along with the 10-lane process; its server-authority / IP-review / no-self-approval *gates* still hold, but work now follows the lightweight plan, not these role routings or sync cadences.
+
 ## Purpose
 
 Use subagents to create narrow, reviewable outputs that can be integrated into Frostwake without losing product direction, network authority, QA reproducibility, Steam compliance, localization consistency, or IP safety.
