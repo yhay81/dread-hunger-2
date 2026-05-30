@@ -57,6 +57,16 @@
 - 一部妨害はログまたは痕跡を残す。
 - 目撃されると疑いが強くなる。
 
+## 工作員 = the Claimed（the Pale の loadout・出発値）
+
+物語上の真相は **the Pale に獲られた者（the Claimed）**（`docs/narrative/setting-bible.md` §6 / `docs/narrative/the-pale-and-threats.md`）。
+機構上は DH 同様「秘密の裏切り者」で、能力は **the Pale の力**。**数値・ログは [`sabotage.md`](sabotage.md) の「the Pale の力」節が正典**。
+
+- **力**: Quench（灯/火/扉）/ Rime（消耗品腐食）/ Mar（操舵・海図・通信・弁）/ Call（局所吹雪）/ Mark（温もり感知）/
+  Smother（近接VC封じ）/ Slip（拘束解除・不可視移動）。**Ph2**: Mirage（変装）/ Wake the kept（凍死者）※IP review。
+- **力の経済**: 生者を闇/外へ **明け渡す（Deliver）** と `PaleTier`（0→2）が上がり強化（上限 2・スノーボール防止）。
+- **接地**: いずれも CD/痕跡を持ち、超自然でも証拠が残る＝社会的推理が核（「嘘で仲間割れ」が最強）。
+
 ## 将来候補
 
 Phase 1 では追加役職を入れない。Phase 2 以降に、バランス上必要な場合だけ専門役を検討する。

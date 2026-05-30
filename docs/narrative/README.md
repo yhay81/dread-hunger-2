@@ -4,7 +4,7 @@
 バランスは `docs/game-design.md` / `docs/mechanics-parity-target.md` / `docs/roles.md` が正典で、
 ここはそれらに **意味と手触り** を与える層。
 
-- ステータス: **v0.9**（2026-05-30）。上記＋**sensitivity review 発注パケット**（事前レッドチーム自己批評・ウェンディゴ流用リスク等を明示）。残は**人間レビューの実施**/GP-03実装値/C++配線。
+- ステータス: **v0.10**（2026-05-30）。上記＋**GP-03 数値/ログ統合**（the Pale 力→sabotage、loadout→roles、最終航行/脅威→game-design・出発値）。残は人間レビュー/GP-03 の playtest 調整/C++配線。
 - 担当: 物語・設定（このフォルダのオーナー）。
 - 読む順: この README → [`historical-base-options.md`](historical-base-options.md)（土台の選定）→
   [`setting-bible.md`](setting-bible.md)（背骨）→ [`dh-and-franklin-research.md`](dh-and-franklin-research.md)（IP境界・史実）→
@@ -54,7 +54,7 @@
 
 | ファイル | 中身 | 状態 |
 | --- | --- | --- |
-| `README.md` | 索引・確定方向・IPガードレール・整合メモ | v0.9 |
+| `README.md` | 索引・確定方向・IPガードレール・整合メモ | v0.10 |
 | `historical-base-options.md` | 史実ベース候補比較（**決定: 北極・Karluk主軸＋Belgica移植**） | v0.2 |
 | `setting-bible.md` | 背骨: 北極c.1910s/舞台/船/the Claimed/顕在型ルール/テーマ/トーン/1試合 | v0.3 |
 | `dramatis-personae.md` | 乗員8アーキタイプ＋去った指揮役・案内人 | v0.1 |
@@ -105,8 +105,11 @@ the Pale・白熊・最終航行の **GP-03 数値/ログ仕様(提案)**(`the-p
 （Smother/Slip/Mirage）／混成cast 確定／船に社交空間・鐘・クロウズネスト反映／人肉なし等の意図的 divergence 再確認。
 **抽象構造のみ・TEST2 から commit なし。**
 
+**完了（追加・GP-03 数値/ログ統合）**: the Pale 力の数値・ログ enum を `sabotage.md`、loadout を `roles.md`、
+最終航行/脅威（白out=Phase1・白熊=Phase2）を `game-design.md` へ統合（**出発値**・playtest 調整は GP-03）。
+
 **残（人間ゲート or 他レーン）**:
 1. **案内人の人間 sensitivity review の実施**（発注パケット [`sensitivity-review-brief.md`](sensitivity-review-brief.md) 準備済み／私は代行不可。資格ある reader へ・公開前必須）＋固有名確定。
-2. the Pale 力・白熊・最終航行の **GP-03 実装値の確定**（§6 提案を playtest で 50/50 検証）。
+2. **GP-03 の playtest チューニング**（出発値は統合済み＝sabotage/roles/game-design・§6。50/50・readability を検証し実装値確定）。
 3. 物語ピンの **C++ 実配線**（GP-08 が `FrostwakeWhiteboxCommandlets.cpp` へ。or 依頼受けて物語レーンが配線＋compile-check）。
 4. `match-beats.md` 各種の頻度・CD の GP-03 調整。

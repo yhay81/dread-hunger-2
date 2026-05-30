@@ -464,6 +464,23 @@ bool CreateWhitebox(FString& Error)
         {TEXT("WB_Ice_RailStbd"), FVector(1800, 640, 110), FVector(700, 40, 180)},
         {TEXT("WB_Ice_Winch"), FVector(1650, 420, 100), FVector(300, 220, 160)},
         {TEXT("WB_IcePressureGate"), FVector(1980, 0, 110), FVector(90, 1100, 180)},
+
+        // --- Story pins (WB_Prop_*) — narrative blockout, additive; see docs/narrative/the-ship.md.
+        // Auto-tagged FrostwakeWhitebox via SpawnCube (cleared on regen). No locked label / task / door touched.
+        {TEXT("WB_Prop_ChartTable"), FVector(1120, -470, 80), FVector(140, 90, 80)},      // Bridge: chart w/ the Bearing course
+        {TEXT("WB_Prop_CaptainLog"), FVector(1180, -560, 100), FVector(40, 30, 20)},      // Bridge: Hale's last log
+        {TEXT("WB_Prop_WirelessSet"), FVector(1120, 470, 90), FVector(120, 80, 80)},      // Radio: hissing wireless
+        {TEXT("WB_Prop_CairnLedger"), FVector(1180, 470, 95), FVector(40, 50, 15)},       // Radio: cairn-note ledger
+        {TEXT("WB_Prop_TallyBoard"), FVector(200, -470, 160), FVector(15, 120, 80)},      // Quartermaster: coal/ration tally
+        {TEXT("WB_Prop_HalesLocker"), FVector(-260, -600, 80), FVector(70, 60, 80)},      // Quarters: Hale's footlocker
+        {TEXT("WB_Prop_Casebook"), FVector(-150, 560, 95), FVector(40, 30, 20)},          // Infirmary: surgeon's casebook
+        {TEXT("WB_Prop_MedicineChest"), FVector(-260, 600, 90), FVector(80, 50, 70)},     // Infirmary: Rime target
+        {TEXT("WB_Prop_EngineLog"), FVector(-1050, -360, 90), FVector(40, 40, 20)},       // Engine: oil-stained watch log
+        {TEXT("WB_Prop_DynamoOilStore"), FVector(-1120, 560, 100), FVector(90, 80, 100)}, // Power: dynamo + lamp oil
+        {TEXT("WB_Prop_CoalTally"), FVector(-1850, -200, 100), FVector(40, 40, 70)},      // Fuel bay: dwindling coal tally
+        {TEXT("WB_Prop_SpeakingTube"), FVector(0, 120, 150), FVector(20, 20, 200)},       // Spine: speaking tube
+        {TEXT("WB_Prop_BearClawRail"), FVector(1750, 600, 100), FVector(140, 20, 70)},    // Ice deck: claw marks at the rail
+        {TEXT("WB_Prop_FootprintsBlank"), FVector(1450, -100, -5), FVector(220, 40, 10)}, // Ice deck: single footprints to the Blank
     };
     for (const FCubeSpec& Cube : Cubes)
     {
