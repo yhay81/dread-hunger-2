@@ -95,6 +95,28 @@
 
 > 詳細・引用元: deep-research レポート(run `wf_08a1f621-7e3`)。**能力FW決定(2026-05-30): 軽量 Action System を採用(GAS不採用)。**
 
+### 3.5 Rust の役割（確定: off-engine 限定 / 調査 run `wf_9fb58d49-449`）
+
+**in-engine の Rust(C++から呼ぶFFI)は本番非推奨** — 最有力OSS `unreal-rust` は放置PoC(コアの
+GameMode/Character/GAS 非公開)、`uika`(UE5.7+)は v0.1.0 で「出荷で使うな」と明記。
+→ **権威ロジックはUE C++のまま、Rustはオフエンジンでのみ使う**(現計画を補強)。
+- **非権威バックエンド / ツール / CI**: 既存 `frostwake-tools` + backend を継続(Embarkが本番実証: 80K行 ci.exe / proto-gen / tonic)。
+- **共有スキーマ / codegen(高レバレッジ・新規採用)**: telemetryイベント型・backend↔client契約を **単一スキーマ(.proto等)** で
+  定義し、Rust側(prost/tonic)とUE C++側(protoc/TurboLink)へ生成。`proto-gen` 型の **CI `validate`(スキーマdrift→exit 1)** で
+  両者の乖離を防ぐ。※UE側は libprotobuf 同梱が必要(非自明) → まず telemetry か lobby契約の **薄い1スキーマ**で試す。
+
+### 3.6 堅牢化スタック（確定: Epic既製ツールで満たす / 調査で一次確認・全3-0）
+
+自前で作らず既製を使う:
+- **Gauntlet**: server+複数client(例 4client+1server)を1自動セッションで起動・検証。マルチプレイヤー回帰の本命。
+  ※プロセス編成のみ(bot/AIロジックはゲーム側)。Serverターゲット未ビルドの標準ブロッカは別途残る(Game/PIEは可)。
+- **Network Emulation**: lag/packet loss注入(console `NetEmulation.*` / CLI / `.ini [PacketSimulationSettings]`)。
+  ※`DO_ENABLE_NET_TEST`背後 → **CIはDevelopmentビルド**で配線。
+- **Functional Testing**: 複雑系は **C++で `AFunctionalTest` をサブクラス化**(Epic推奨; Sea of Thieves等が採用)。
+- **観測性**: Unreal Insights(Tracing) + Crash Reporting を早期配線。
+- Rust smoke(既存)はオフエンジンの結合/契約チェックとして併用。
+- 未検証で要追加調査: 決定論リプレイ回帰 / テレメトリ駆動QA / 契約テストの具体 / セーブ移行。
+
 ## 4. フェーズ計画
 
 ### Phase 0 — 足場決着（小・非ブロッキング）
@@ -126,6 +148,7 @@
 - 静的: `cargo run -p frostwake-tools -- quality-gate`
 - UE: `cargo run -p frostwake-tools -- unreal-gate`（Game targetは緑可、Serverは標準ブロッカ）
 - 動作: `run-local-smoke` / `run-smoke-suite`
+- UEテスト(導入予定 §3.6): Functional Test(C++ `AFunctionalTest`) / Gauntlet(server+複数client) / Network Emulation(lag/loss, Devビルド)
 
 ## 6. DH-parity ギャップ分析（Phase 1 で記入）
 
@@ -142,3 +165,27 @@
 ## 7. 凍結メモ
 - `docs/orchestration/`（STATUS/lanes/DISPATCH/cycles）と `/frostwake-loop` は**凍結**（削除しない）。
   本計画が優先。必要時にオーナー判断で復帰可。
+
+## 8. 後戻りしにくい(one-way door)要素 — 固定順位
+
+コンテンツ/セーブ/プレイヤーが積み上がる前に **今フェーズで規約を固める**もの(変更コストが時間で急増)。
+調査(`wf_9fb58d49-449`)＋標準的UE実務判断。★=今すぐ固定 / ◇=近く決定(要オーナー判断) / ・=規約のみ先に。
+
+- ★ **複製/権威モデル** — サーバー権威 + レガシー複製 + Push Model（確定済 §3.4）。最大の不可逆。維持。
+- ★ **能力FW** — 軽量Action System（確定済 §3.2）。多数の能力/効果が乗ると載せ替え=書き直し。維持。
+- ★ **識別子方式** — アイテム/エンティティは **`FName`キー + `PrimaryAssetId`(PrimaryAssetType規約)** に統一。
+  セーブ/ネット/DataAssetが全部参照するため後変更が高コスト。命名規約を先に確定。
+- ★ **Gameplay Tag 分類体系** — `Item.* / Ship.System.* / Status.* / Team.* / Role.*` の階層命名を先に確定
+  (コンテンツがタグ参照後のリネーム=移行作業)。native C++ tag(§3.4)。
+- ★ **ワイヤ/セーブ形式のバージョニング規約** — 最初の永続化/RPC契約から **版番号 + 後方互換アップグレード経路**を必須に
+  (UEのpackage/custom version、考え方はVBARE型: 版ヘッダ+隣接版変換)。プレイヤーセーブが出る前に確立。
+- ✅ **バイナリアセットのVCS = Git LFS(2026-05-30 確定・導入)** — GitHub/Git維持。`.gitattributes`で .uasset/.umap/アート系をLFSへ、
+  `lockable`で .uasset 競合を防止。**既存履歴は書き換えない**(並行agent保護)＝新規/変更分から順次LFS。規模爆発時のみPerforce再検討。
+  ※GitHub LFSのストレージ/帯域クォータは大量push前に確認。
+- ✅ **オンライン基盤 = Steam中心(2026-05-30 確定)** — identity/lobbyはSteam基線、必要に応じEOSをtransport等で併用。
+  `OnlineSubsystem(Steam)` を基線に、`OnlineServices`(新API)への移行は別途評価。
+- ・ **データ格納** — PrimaryDataAsset + Asset Manager中心(§3.2)、DataTableは補助。方針確定済。
+- ・ **座標/単位/スケルトンリグ/ローカライズキー規約** — 規約だけ先に決め、後は漸進。
+
+> 未独立検証(要追加調査): 識別子/タグ/DataAsset-vs-DataTable/VCS/オンライン基盤 の各一次エビデンス。
+> 上記は調査の生存claim＋標準的UE実務判断。重要決定の前に該当点を再確認する。
