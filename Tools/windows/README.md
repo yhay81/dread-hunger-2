@@ -109,7 +109,7 @@ Before running or extending the Steam Lobby runtime path, validate Steam dev con
 .\Tools\windows\run_steam_lobby_validation.ps1 `
   -SteamConfig Saved\Config\steam_dev.local.ini `
   -RequireSteamConfig `
-  -ExpectedBuildId AbyssLock-Win64-Development-local `
+  -ExpectedBuildId Frostwake-Win64-Development-local `
   -ExpectedMapId L_IcebreakerWhitebox
 ```
 

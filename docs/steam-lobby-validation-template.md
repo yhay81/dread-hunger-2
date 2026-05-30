@@ -21,7 +21,7 @@ Expected map id:
 .\Tools\windows\run_steam_lobby_validation.ps1 `
   -SteamConfig Saved\Config\steam_dev.local.ini `
   -RequireSteamConfig `
-  -ExpectedBuildId AbyssLock-Win64-Development-local `
+  -ExpectedBuildId Frostwake-Win64-Development-local `
   -ExpectedMapId L_IcebreakerWhitebox
 ```
 
@@ -42,7 +42,7 @@ Use this only after the Steam create/find/join provider path is implemented:
 .\Tools\windows\run_steam_lobby_validation.ps1 `
   -SteamConfig Saved\Config\steam_dev.local.ini `
   -RequireSteamConfig `
-  -ExpectedBuildId AbyssLock-Win64-Development-local `
+  -ExpectedBuildId Frostwake-Win64-Development-local `
   -ExpectedMapId L_IcebreakerWhitebox `
   -Runtime
 ```

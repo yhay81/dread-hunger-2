@@ -65,7 +65,7 @@ This verifies `Config/DefaultEngine.ini` has `DefaultPlatformService=Null` and
 $env:CARGO_TARGET_DIR = 'target\loop-gp04'
 cargo run -p frostwake-tools -- lobby-metadata-check `
   Tools\ops\lobby_metadata.example.json `
-  --expected-build-id AbyssLock-Win64-Development-local `
+  --expected-build-id Frostwake-Win64-Development-local `
   --expected-map-id L_IcebreakerWhitebox `
   --json
 ```
@@ -88,7 +88,7 @@ Validator rejects a payload that has:
 ```powershell
 cargo run -p frostwake-tools -- lobby-join-decision `
   Tools\ops\lobby_metadata.example.json `
-  --expected-build-id AbyssLock-Win64-Development-local `
+  --expected-build-id Frostwake-Win64-Development-local `
   --expected-map-id L_IcebreakerWhitebox `
   --require-accepted `
   --json
@@ -116,7 +116,7 @@ before travel, with a logged reason.
 ```powershell
 cargo run -p frostwake-tools -- lobby-join-decision `
   Tools\ops\lobby_metadata.example.json `
-  --expected-build-id AbyssLock-Win64-Development-local `
+  --expected-build-id Frostwake-Win64-Development-local `
   --expected-map-id L_IcebreakerWhitebox-mismatch-probe `
   --expected-reject-reason MapMismatch `
   --json
@@ -134,7 +134,7 @@ The wrapper runs Steps 1-5 in one pass and writes a dated manifest.
 .\Tools\windows\run_steam_lobby_validation.ps1 `
   -SteamConfig Saved\Config\steam_dev.local.ini `
   -RequireSteamConfig `
-  -ExpectedBuildId AbyssLock-Win64-Development-local `
+  -ExpectedBuildId Frostwake-Win64-Development-local `
   -ExpectedMapId L_IcebreakerWhitebox
 ```
 
@@ -242,7 +242,7 @@ without a shipped game AppID. The runtime spike does not require a public Steam 
 .\Tools\windows\run_steam_lobby_validation.ps1 `
   -SteamConfig Saved\Config\steam_dev.local.ini `
   -RequireSteamConfig `
-  -ExpectedBuildId AbyssLock-Win64-Development-local `
+  -ExpectedBuildId Frostwake-Win64-Development-local `
   -ExpectedMapId L_IcebreakerWhitebox `
   -Runtime
 ```
@@ -293,7 +293,7 @@ After the runtime spike passes (manifest `decision=runtime_pass`):
 
    ```powershell
    .\Tools\windows\run_steam_lobby_validation.ps1 `
-     -ExpectedBuildId AbyssLock-Win64-Development-local `
+     -ExpectedBuildId Frostwake-Win64-Development-local `
      -ExpectedMapId L_IcebreakerWhitebox
    ```
 

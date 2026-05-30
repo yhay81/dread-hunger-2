@@ -85,7 +85,7 @@ Accepted metadata-only example:
 {
   "runId": "P2-voice-run-01",
   "matchId": "match-local-001",
-  "buildId": "AbyssLock-Win64-Development-local",
+  "buildId": "Frostwake-Win64-Development-local",
   "mapId": "L_IcebreakerWhitebox",
   "reporterLocalId": "player-2",
   "reportedLocalId": "player-5",

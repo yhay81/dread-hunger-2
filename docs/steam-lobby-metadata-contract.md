@@ -51,7 +51,7 @@ Validate expected build and map before travel:
 ```powershell
 cargo run -p frostwake-tools -- lobby-metadata-check `
   Tools\ops\lobby_metadata.example.json `
-  --expected-build-id AbyssLock-Win64-Development-local `
+  --expected-build-id Frostwake-Win64-Development-local `
   --expected-map-id L_IcebreakerWhitebox
 ```
 
@@ -60,7 +60,7 @@ Generate the client-side pre-travel join decision:
 ```powershell
 cargo run -p frostwake-tools -- lobby-join-decision `
   Tools\ops\lobby_metadata.example.json `
-  --expected-build-id AbyssLock-Win64-Development-local `
+  --expected-build-id Frostwake-Win64-Development-local `
   --expected-map-id L_IcebreakerWhitebox `
   --require-accepted `
   --json

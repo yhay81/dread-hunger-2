@@ -110,8 +110,8 @@ Before runtime Steam Lobby work:
 .\Tools\windows\run_phase2_entry_validation.ps1 -SkipGenerate
 .\Tools\windows\check_steam_dev_config.ps1
 .\Tools\windows\check_steam_dev_config.ps1 -SteamConfig Saved\Config\steam_dev.local.ini -RequireSteamConfig
-cargo run -p frostwake-tools -- lobby-metadata-check Tools\ops\lobby_metadata.example.json --expected-build-id AbyssLock-Win64-Development-local --expected-map-id L_IcebreakerWhitebox
-cargo run -p frostwake-tools -- lobby-join-decision Tools\ops\lobby_metadata.example.json --expected-build-id AbyssLock-Win64-Development-local --expected-map-id L_IcebreakerWhitebox --require-accepted --json
+cargo run -p frostwake-tools -- lobby-metadata-check Tools\ops\lobby_metadata.example.json --expected-build-id Frostwake-Win64-Development-local --expected-map-id L_IcebreakerWhitebox
+cargo run -p frostwake-tools -- lobby-join-decision Tools\ops\lobby_metadata.example.json --expected-build-id Frostwake-Win64-Development-local --expected-map-id L_IcebreakerWhitebox --require-accepted --json
 ```
 
 P2-003 preflight command:
@@ -119,7 +119,7 @@ P2-003 preflight command:
 ```powershell
 .\Tools\windows\run_steam_lobby_validation.ps1 `
   -SteamConfig Saved\Config\steam_dev.local.ini `
-  -ExpectedBuildId AbyssLock-Win64-Development-local `
+  -ExpectedBuildId Frostwake-Win64-Development-local `
   -ExpectedMapId L_IcebreakerWhitebox
 ```
 
