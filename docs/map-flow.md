@@ -1,8 +1,11 @@
 # Map Flow
 
+> ⚠ 設定（2026-05-30）: 表現の正典は [`docs/narrative/`](narrative/)（北極 c.1910s 改装捕鯨船＋顕在型超自然 the Pale）。
+> 用語は period に読み替え（無線→信号灯/初期無線、発電→蒸気ダイナモ/油灯、燃料→石炭…）。**機構・座標・ラベルは不変。**
+
 ## Whitebox Map
 
-初期マップは1つだけ。近未来の氷海研究船と、船外に出られる氷上探索エリアを持つ。
+初期マップは1つだけ。北極 c.1910s の改装捕鯨船（[`docs/narrative/the-ship.md`](narrative/the-ship.md)）と、船外に出られる氷上探索エリアを持つ。
 
 ```text
                  [Forward Lookout]

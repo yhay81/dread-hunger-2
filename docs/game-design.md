@@ -4,6 +4,7 @@
 > **表現（名称・アート・音・テーマ・UI・マップ等）は完全オリジナル** とする。機能（ルール/
 > システム/操作）は著作権の保護対象外なので踏襲可、表現は踏襲不可。詳細は
 > [Mechanics Parity Target](mechanics-parity-target.md) と [Control Scheme](control-scheme.md)。
+> **設定・表現の正典は [`docs/narrative/`](narrative/)**（北極 c.1910s 改装捕鯨船＋顕在型の独自超自然 the Pale）。
 
 ## 基本仕様
 

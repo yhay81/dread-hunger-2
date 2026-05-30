@@ -1,5 +1,8 @@
 # Mechanics Parity Target (IP-safe)
 
+> ⚠ 設定（2026-05-30）: 設定/表現の正典は [`docs/narrative/`](narrative/)（北極 c.1910s 改装捕鯨船＋顕在型超自然 the Pale）。
+> 本書の near-future 例（icebreaker/diesel/battery/radio 等）は period に読み替え。**機構パリティの方針・線引きは不変。**
+
 Lane: GP-03 (Core Match Experience) · Reviewer: IP Review · Created: 2026-05-29
 
 ## Goal

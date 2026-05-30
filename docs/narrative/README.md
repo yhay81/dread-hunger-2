@@ -4,7 +4,7 @@
 バランスは `docs/game-design.md` / `docs/mechanics-parity-target.md` / `docs/roles.md` が正典で、
 ここはそれらに **意味と手触り** を与える層。
 
-- ステータス: **v0.4**（2026-05-30）。システム・脅威・**史実ベース(北極・Karluk主軸＋Belgica移植)も確定**。肉付けは反復前提。
+- ステータス: **v0.5**（2026-05-30）。システム・脅威・史実ベース確定。物語ドキュメント一式（人物・船・脅威・事件・文化描写方針）整備済み。反復前提。
 - 担当: 物語・設定（このフォルダのオーナー）。
 - 読む順: この README → [`historical-base-options.md`](historical-base-options.md)（土台の選定）→
   [`setting-bible.md`](setting-bible.md)（背骨）→ [`dh-and-franklin-research.md`](dh-and-franklin-research.md)（IP境界・史実）→
@@ -58,11 +58,12 @@
 | `historical-base-options.md` | 史実ベース候補比較（**決定: 北極・Karluk主軸＋Belgica移植**） | v0.2 |
 | `setting-bible.md` | 背骨: 北極c.1910s/舞台/船/the Claimed/顕在型ルール/テーマ/トーン/1試合 | v0.3 |
 | `dramatis-personae.md` | 乗員8アーキタイプ＋去った指揮役・案内人 | v0.1 |
-| `the-ship.md` | 区画→系統→物語/妨害面/音（map-flow・gp08 と接続） | v0.1 |
+| `the-ship.md` | 区画→系統→物語/妨害面/音・deck-by-deck・最終航行（gp08 と接続） | v0.1 |
 | `the-pale-and-threats.md` | the Claimed の力・白熊PvE・the kept（GP-03 へのフック） | v0.1 |
+| `match-beats.md` | 「20分で語れる事件」テンプレ（種ライブラリ） | v0.1 |
+| `cultural-representation.md` | 先住民・他文化の描写方針（架空の人々／sensitivity review） | v0.1 |
 | `names-and-glossary.md` | 固有名詞（**確定**）＋用語集（DH由来プレースホルダ置換種） | v0.2 |
 | `dh-and-franklin-research.md` | DH の表現境界・フランクリン史実・差別化マップ（**内部専用**） | v0.1 |
-| `match-beats.md` | 「20分で語れる事件」のテンプレ集 | 未着手 |
 
 ## 既存ドキュメントとの整合（reconciliation）
 
@@ -83,13 +84,14 @@ period 化＋顕在型超自然は **load-bearing な戦略ドキュメントと
 
 ## 次の反復で詰めたい論点
 
-**完了（2026-05-30・「すべて進めて」）**: 史実ベース決定 ／ 乗員アーキタイプ(`dramatis-personae`) ／
-船区画(`the-ship`) ／ the Pale の力・白熊PvE(`the-pale-and-threats`) ／ 固有名詞の確定(`names-and-glossary`) ／
-整合改訂の適用（上表の vision/art-bible/ip-boundary/competitive-analysis）。
+**完了（2026-05-30・「すべて進めて」「進めて」）**: 史実ベース決定 ／ 乗員(`dramatis-personae`) ／
+船区画＋deck-by-deck＋最終航行(`the-ship`) ／ the Pale の力・白熊PvE(`the-pale-and-threats`) ／
+「20分の事件」テンプレ(`match-beats`) ／ 先住民・他文化の描写方針(`cultural-representation`) ／ 固有名詞の確定(`names-and-glossary`) ／
+整合改訂の適用（vision/art-bible/ip-boundary/competitive-analysis）＋機構docへ period 読み替えバナー
+（map-flow/items/sabotage/roles/game-design/mechanics-parity）。
 
-**残**:
-1. `match-beats.md`（「20分で語れる事件」テンプレ）。
-2. **先住民表象の方針確定**（架空の人々を基本／sensitivity review）と案内人の最終設計。
-3. the Pale の力・白熊PvE の **GP-03 統合**（`sabotage.md`/`roles.md`/`game-design.md` の数値・ログ）。
-4. `the-ship` の deck-by-deck（gp08 座標に物語ピン）／最終航行（氷圧ゲート）演出の詳細。
-5. 別レーンの用語リスキン（mechanics-parity 等）の反映。
+**残（要オーナー or 他レーン）**:
+1. **案内人・沿岸の人々の最終設計と sensitivity review**（`cultural-representation` の方針に沿って／公開前必須）。
+2. the Pale の力・白熊PvE の **GP-03 数値/ログ統合**（`sabotage.md`/`roles.md`/`game-design.md`）と最終航行の仕様化。
+3. 物語ピンの実装（gp08 座標／`WB_Prop_*`）。
+4. 別レーンの用語リスキンの本適用（バナーは出済み、本文語彙の更新は各レーンで）。

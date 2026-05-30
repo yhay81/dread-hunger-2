@@ -1,5 +1,10 @@
 # Sabotage
 
+> ⚠ 設定（2026-05-30）: 表現の正典は [`docs/narrative/`](narrative/)。裏切り者＝**the Claimed**（蒼に獲られた者）、
+> 妨害は **the Pale の力** として演出（Quench=灯/火/扉、Rime=消耗品の霜蝕、Mar=操舵/海図/通信/弁、
+> Call=白out/熊寄せ、Deliver=外へ誘導 — [`the-pale-and-threats.md`](narrative/the-pale-and-threats.md)）。
+> **機構・痕跡・数値は本書が正典で不変。**「魔術/儀式/食人/毒料理を中心にしない」原則は維持（蒼は冷・暗・氷であって食ではない）。
+
 ## 初期5妨害
 
 | 妨害 | 効果 | 検知材料 | 対抗手段 |

@@ -1,5 +1,8 @@
 # Roles
 
+> ⚠ 設定（2026-05-30）: 表現の正典は [`docs/narrative/`](narrative/)。乗員＝改装捕鯨船の船員、工作員＝**the Claimed**
+> （蒼に獲られた者・[`dramatis-personae.md`](narrative/dramatis-personae.md)）。**役割スケーリング・機構は本書が正典で不変。**
+
 ## Role Scaling
 
 | 人数 | 乗員 | 工作員 |
