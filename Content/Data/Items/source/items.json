@@ -1,0 +1,16 @@
+[
+	{
+		"ItemId": "Item_Ration",
+		"DisplayName": "Field Ration",
+		"Category": "Food",
+		"MaxStack": 5,
+		"Weight": 0.5
+	},
+	{
+		"ItemId": "Item_Lantern",
+		"DisplayName": "Oil Lantern",
+		"Category": "Tool",
+		"MaxStack": 1,
+		"Weight": 1.2
+	}
+]
